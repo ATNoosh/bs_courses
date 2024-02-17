@@ -1,0 +1,8 @@
+obj\Debug\ResolveAssemblyReference.cache
+obj\Debug\BankSimulationWindowsApp.Form1.resources
+obj\Debug\BankSimulationWindowsApp.Properties.Resources.resources
+obj\Debug\BankSimulationWindowsApp.csproj.GenerateResource.Cache
+bin\Debug\BankSimulationWindowsApp.exe
+bin\Debug\BankSimulationWindowsApp.pdb
+obj\Debug\BankSimulationWindowsApp.exe
+obj\Debug\BankSimulationWindowsApp.pdb

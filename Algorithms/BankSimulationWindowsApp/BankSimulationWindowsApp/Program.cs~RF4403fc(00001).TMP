@@ -1,0 +1,20 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.IO;
+
+namespace Baloons
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            try
+            {
+                cSphere[] sphArray;
+                bool []isTrueSphere;
+                char[] tempCharStr;
+                char tempChar;
+                tempCharStr = new char[10];
+                int sphNumber = 0;
+                StreamReader reader = new St

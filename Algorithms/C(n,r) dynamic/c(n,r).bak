@@ -1,0 +1,53 @@
+#include <iostream.h>
+#include <stdio.h>
+#include <conio.h>
+
+int Combination(int,int);
+int Min(int,int);
+
+int main()
+{
+    cout << Combination(10 , 5);
+    getch();
+}
+//******************************************************************************
+int Combination(int n,int r)
+{
+    int *array = new int[r];
+    array[0] = 1;
+    for(int i = 1;i < n;i ++)
+        array[i] = 0;
+
+/*    for(int i = 1;i <= n;i++)
+    {
+        for(int j = Min(i , r) ;j > 0;j--)
+                array[j] += array[j - 1];
+    }
+    return array[r];
+*/
+	for(int i = 1;i <= n;i++)
+   {
+   	if(i % 2 == 0)
+      {
+      	array[i / 2] = 2 * (array[i / 2- 1] );
+      	for(int j = Min(i/2 - 1,r); j > 0;j--)
+         	array[j] += array[j - 1];
+      }
+      else
+      {
+      	for(int j = Min(i/2,r); j > 0;j--)
+         	array[j] += array[j - 1];
+      }
+   }
+   if(r > n/2)
+   return array[n - r];
+   return array[r];
+}
+//******************************************************************************
+int Min(int x,int y)
+{
+    if(x > y)
+        return y;
+    return x;
+}
+//******************************************************************************

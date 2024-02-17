@@ -1,0 +1,8 @@
+bin\Debug\OnLineScheduling.exe
+bin\Debug\OnLineScheduling.pdb
+obj\Debug\ResolveAssemblyReference.cache
+obj\Debug\OnLineScheduling.Form1.resources
+obj\Debug\OnLineScheduling.Properties.Resources.resources
+obj\Debug\OnLineScheduling.csproj.GenerateResource.Cache
+obj\Debug\OnLineScheduling.exe
+obj\Debug\OnLineScheduling.pdb

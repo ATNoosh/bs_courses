@@ -1,0 +1,29 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.IO;
+
+namespace Baloons
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            try
+            {
+                cSphere[] sphArray;
+                bool []isTrueSphere;
+                char[] tempCharStr;
+                char tempChar;
+                tempCharStr = new char[10];
+                int sphNumber = 0;
+                StreamReader reader = new StreamReader("balloon.in");
+                string strReaded = reader.ReadLine();
+                sphNumber = Convert.ToInt32(strReaded);
+                isTrueSphere = new bool[sphNumber];
+                sphArray = new cSphere[sphNumber];
+                for (int i = 0; i < sphNumber; i++) isTrueSphere[i] = true;
+                cRectangle box = new cRectangle();
+//reading file and assigning angle1 & angle2
+                for (int counter = 0; ; counter++)//to find space
+    

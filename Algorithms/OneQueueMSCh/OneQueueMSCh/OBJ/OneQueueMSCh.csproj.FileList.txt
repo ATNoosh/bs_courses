@@ -1,0 +1,9 @@
+bin\Debug\OneQueueMSCh.exe
+bin\Debug\OneQueueMSCh.pdb
+obj\Debug\ResolveAssemblyReference.cache
+obj\Debug\OneQueueMSCh.Form1.resources
+obj\Debug\OneQueueMSCh.Properties.Resources.resources
+obj\Debug\OneQueueMSCh.csproj.GenerateResource.Cache
+obj\Debug\OneQueueMSCh.exe
+obj\Debug\OneQueueMSCh.pdb
+bin\Debug\OneQueueMSCh.exe.config

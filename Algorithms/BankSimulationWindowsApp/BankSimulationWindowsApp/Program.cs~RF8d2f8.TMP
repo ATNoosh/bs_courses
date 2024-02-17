@@ -1,0 +1,22 @@
+            get
+            {
+                return z;
+            }
+            set
+            {
+                z = value;
+            }
+        }
+    };
+    class cSphere
+    {
+        public cSphere()
+        {
+            Center = new cPoint();
+            Radius = -1;
+        }
+        private cPoint center;
+        private double radius;
+        public cPoint Center
+        {
+    

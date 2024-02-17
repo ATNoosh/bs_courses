@@ -1,0 +1,8 @@
+obj\Debug\ResolveAssemblyReference.cache
+obj\Debug\N_Queens.Form1.resources
+obj\Debug\N_Queens.Properties.Resources.resources
+obj\Debug\N_Queens.csproj.GenerateResource.Cache
+bin\Debug\N_Queens.exe
+bin\Debug\N_Queens.pdb
+obj\Debug\N_Queens.exe
+obj\Debug\N_Queens.pdb

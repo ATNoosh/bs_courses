@@ -1,0 +1,5 @@
+bin\Debug\MultiServerOneQueue.exe
+bin\Debug\MultiServerOneQueue.pdb
+obj\Debug\ResolveAssemblyReference.cache
+obj\Debug\MultiServerOneQueue.exe
+obj\Debug\MultiServerOneQueue.pdb

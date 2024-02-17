@@ -1,0 +1,39 @@
+#include <iostream.h>
+#include <conio.h>
+#include <dos.h>
+
+
+struct sClient
+{
+    int startTime;
+    int duration;
+};
+
+sClient clients[100];
+int tellersEndTime[30];
+int tellersNumber = 0;
+int clientNumber = 0;
+int currentTime = 0;
+
+void AddTeller(int);
+void PrintTellersEndTime();
+
+int main()
+{
+    struct time t ;
+    gettime(&t);
+    PrintTellersEndTime();
+    getch();
+}
+
+void AddTeller(int newEndTime)
+{
+    tellersEndTime[tellersNumber] = newEndTime;
+    tellersNumber ++;
+}
+
+void PrintTellersEndTime()
+{
+    for(int i = 0;i < tellersNumber;i ++)
+        cout << endl << "Teller <" << i << "> : " << tellersEndTime[i];
+}

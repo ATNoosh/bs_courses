@@ -1,0 +1,4 @@
+G:\Ali\UnderGraduateCourses\Algorithm\Algorithms\N_Queens\N_Queens\obj\Debug\N_Queens.csprojAssemblyReference.cache
+G:\Ali\UnderGraduateCourses\Algorithm\Algorithms\N_Queens\N_Queens\obj\Debug\N_Queens.Properties.Resources.resources
+G:\Ali\UnderGraduateCourses\Algorithm\Algorithms\N_Queens\N_Queens\obj\Debug\N_Queens.csproj.GenerateResource.cache
+G:\Ali\UnderGraduateCourses\Algorithm\Algorithms\N_Queens\N_Queens\obj\Debug\N_Queens.pdb

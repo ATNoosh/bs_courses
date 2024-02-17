@@ -1,0 +1,115 @@
+#include <stdio.h>
+#include <conio.h>
+
+struct sTreeNode
+{
+	char ch;
+
+   sTreeNode *lChild;
+   sTreeNode *rChild;
+}*root,*curNode,*newNode;
+
+void PostOrder(sTreeNode *);
+void PreOrder(sTreeNode *);
+void InOrder(sTreeNode *);
+void Add();
+
+void main()
+{
+
+/*	for(int counter = 0;counter < 4;counter ++)
+   {
+   	newNode = new sTreeNode;
+      newNode -> lChild = 0;
+      newNode -> rChild = 0;
+      curNode = root;
+      printf("\n%d )",counter + 1);
+      newNode -> ch = getche();
+      Add();
+   }*/
+   	newNode = new sTreeNode;
+      newNode -> lChild = 0;
+      newNode -> rChild = 0;
+      newNode -> ch = 'v';
+      curNode = root;
+      Add();
+   	newNode = new sTreeNode;
+      newNode -> lChild = 0;
+      newNode -> rChild = 0;
+      newNode -> ch = 'b';
+      curNode = root;
+      Add();
+   	newNode = new sTreeNode;
+      newNode -> lChild = 0;
+      newNode -> rChild = 0;
+      newNode -> ch = 'd';
+      curNode = root;
+      Add();
+   	newNode = new sTreeNode;
+      newNode -> lChild = 0;
+      newNode -> rChild = 0;
+      newNode -> ch = 'a';
+      curNode = root;
+      Add();
+   	newNode = new sTreeNode;
+      newNode -> lChild = 0;
+      newNode -> rChild = 0;
+      newNode -> ch = 'c';
+      curNode = root;
+      Add();
+
+   PreOrder(root);
+   getch();
+}
+//******************************************************************************
+void PostOrder(sTreeNode *node)
+{
+	if(node)
+   {
+   	PostOrder(node -> lChild);
+   	PostOrder(node -> rChild);
+      printf("%c" ,node -> ch );
+   }
+}
+//******************************************************************************
+void PreOrder(sTreeNode *node)
+{
+	if(node)
+   {
+      printf("%c",node -> ch);
+   	PreOrder(node -> lChild);
+   	PreOrder(node -> rChild);
+   }
+}
+//******************************************************************************
+void InOrder(sTreeNode *node)
+{
+	if(node)
+   {
+   	InOrder(node -> lChild);
+      printf("%c",node -> ch);
+   	InOrder(node -> rChild);
+   }
+}
+//******************************************************************************
+void Add()
+{
+	if(curNode)
+   {
+   	if(newNode -> ch < curNode -> ch)
+      {
+      	curNode = curNode -> lChild;
+         Add();
+      }
+   	else
+      {
+      	curNode = curNode -> rChild;
+         Add();
+   	}
+   }
+   else
+   {
+   	curNode = newNode;
+   }
+}
+//******************************************************************************

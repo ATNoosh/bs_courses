@@ -1,0 +1,382 @@
+#include <iostream.h>
+#include <conio.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAX_SIZE 10000
+
+enum eDirection {N,NE,E,SE,S,SW,W,NW};
+struct sPointDir
+{
+	int row;
+   int col;
+   int dir;
+};
+struct Delta
+{
+	int dRow;
+   int dCol;
+};
+//******************************************************************************
+class cFile
+{
+	public :
+   	cFile();
+      void OpenFile();
+      void CloseFile();
+      void GetMemory();
+      void ReadFile(int);
+      void ShowMatrix();
+      int GetRow(){return rowNum;}
+      int GetCol(){return colNum;}
+      int GetExaNum(){return exampleNumber;}
+      int **GetMatrix(){return matrix;}
+
+   private:
+   	FILE *filePointer;
+      int exampleNumber;
+      int rowNum;
+      int colNum;
+      int **matrix;
+};
+//..............................................................................
+cFile :: cFile()
+{
+   char buffer[10];
+
+   OpenFile();
+   fgets(buffer,11,filePointer);		//true
+   exampleNumber = atoi(buffer);
+}
+//..............................................................................
+void cFile :: ShowMatrix()
+{
+	for(int i = 0;i < rowNum;i ++)
+   {
+   	cout << endl;
+
+   	for(int j = 0;j < colNum;j ++)
+      {
+      	cout << matrix[i][j]<< ' ';
+      }
+   }
+}
+//..............................................................................
+void cFile :: OpenFile()
+{
+	if((filePointer = fopen("c:Input.txt","r")) == NULL)
+   {
+   	cout << endl << "can not open file ." ;
+      getch();
+      exit(0);
+   }
+}
+//..............................................................................
+void cFile :: CloseFile()
+{
+	fclose(filePointer);
+}
+//..............................................................................
+void cFile :: GetMemory()
+{
+	matrix = new int *[rowNum];
+
+   for(int counter = 0;counter < rowNum;counter ++)
+   {
+    	matrix[counter] = new int[colNum];
+   }
+
+	matrix = new int *[rowNum];
+
+   for(int counter = 0;counter < rowNum;counter ++)
+   {
+    	matrix[counter] = new int[colNum];
+   }
+}
+//..............................................................................
+void cFile :: ReadFile(int counter)
+{
+   char buffer[10];
+   char digit[2];
+
+   if(counter != 0)
+	   fgets(buffer,2,filePointer);
+
+   fgets(buffer,11,filePointer);    //true
+   rowNum = atoi(buffer);
+
+   fgets(buffer,11,filePointer);    //true
+   colNum = atoi(buffer);
+
+   GetMemory();
+
+   for(int iCounter = 0;iCounter < rowNum;iCounter ++)
+   {
+
+   	if(iCounter != 0)	//if iCounter != 0 \n is in file seek
+      	fgets(buffer,2,filePointer);
+
+   	fgets(buffer,colNum+1,filePointer);
+
+      if(strlen(buffer) != (unsigned) colNum)
+      {
+      	cout << "In row "<<iCounter<<" from example number "<<counter<<" is not "<<colNum<<" number.";
+         getch();
+         exit(0);
+      }
+
+      for(int jCounter = 0;jCounter < colNum;jCounter ++)
+      {
+      	digit[0] = buffer[jCounter];
+         matrix[iCounter][jCounter] = atoi(digit);
+      }
+   }
+
+}
+//..............................................................................
+//******************************************************************************
+class cStack
+{
+	public :
+   	cStack();
+      bool Push(int,int,int);
+      sPointDir Pop();
+      void ShowStack();
+
+   private:
+   	int top;
+      sPointDir array[MAX_SIZE];
+};
+//..............................................................................
+cStack :: cStack()
+{
+	sPointDir zero = {0,0,0};
+	top = 0;
+
+   for(int counter = 0;counter < MAX_SIZE;counter ++)
+   {
+   	array[counter] = zero;
+   }
+}
+//..............................................................................
+bool cStack :: Push(int x,int y,int direction)
+{
+	sPointDir newPoint = {x,y,direction};
+
+  	if(top != MAX_SIZE)
+   {
+   	array[top] = newPoint;
+      top ++;
+      return true;
+   }
+
+   cout << "\nThe stack is full.";
+   getch();
+   return false;
+
+}
+//..............................................................................
+sPointDir cStack :: Pop()
+{
+	sPointDir falsePoint = {-1,-1,10};
+  	if(top != 0)
+   {
+   	top --;
+      return array[top];
+   }
+
+   cout << "The stack is empty.";
+   getch();
+
+   return falsePoint;
+}
+//..............................................................................
+void cStack :: ShowStack()
+{
+	for(int counter = 0;counter < top;counter ++)
+   {
+   	cout << array[counter].row
+      	  << '\t' << array[counter].col
+           << '\t' << array[counter].dir;
+      cout << endl;
+   }
+}
+//..............................................................................
+//******************************************************************************
+class cMaze
+{
+	public :
+   	cMaze();
+      void GetMemory(int,int);
+      void ShowMatrix();
+      void CopyFileMatrix();
+      void ReadMatrix(int);
+      bool Solve();
+      void Maze(sPointDir);
+      int GetExaNumb(){return exampleNum;}
+
+   private:
+   	cStack mazeStack;
+   	cFile mazeFile;
+      Delta moveDelta[8];
+   	int **mainMatrix;
+      int rowNumber;
+      int colNumber;
+      int exampleNum;
+      int **markMatrix;
+};
+//..............................................................................
+cMaze :: cMaze()
+{
+	exampleNum = mazeFile.GetExaNum();
+
+   moveDelta[0].dRow = -1;
+   moveDelta[0].dCol = 0 ;
+   moveDelta[1].dRow = -1;
+   moveDelta[1].dCol = +1;
+   moveDelta[2].dRow = 0 ;
+   moveDelta[2].dCol = +1;
+   moveDelta[3].dRow = +1;
+   moveDelta[3].dCol = +1;
+   moveDelta[4].dRow = +1;
+   moveDelta[4].dCol = 0 ;
+   moveDelta[5].dRow = +1;
+   moveDelta[5].dCol = -1;
+   moveDelta[6].dRow = 0 ;
+   moveDelta[6].dCol = -1;
+   moveDelta[7].dRow = -1;
+   moveDelta[7].dCol = -1;
+}
+//..............................................................................
+void cMaze :: ReadMatrix(int counter)
+{
+	mazeFile.ReadFile(counter);
+   CopyFileMatrix();
+}
+//..............................................................................
+void cMaze :: GetMemory(int rows,int cols)
+{
+	mainMatrix = new int *[rows];
+
+   for(int counter = 0;counter < rows;counter ++)
+   {
+    	mainMatrix[counter] = new int[cols];
+   }
+
+	markMatrix = new int *[rows];
+
+   for(int counter = 0;counter < rows;counter ++)
+   {
+    	markMatrix[counter] = new int[cols];
+   }
+
+   for(int i = 0;i < rows;i ++)
+   	for(int j = 0;j < cols;j ++)
+      	markMatrix[i][j] = 0;
+}
+//..............................................................................
+void cMaze :: ShowMatrix()
+{
+
+	cout << "\nMaze Matrix :\n";
+
+	for(int rowCounter = 0;rowCounter < rowNumber;rowCounter ++)
+   {
+		for(int colCounter = 0;colCounter < colNumber;colCounter ++)
+      {
+      	cout << mainMatrix[rowCounter][colCounter] << ' ' ;
+      }
+      cout << endl;
+   }
+}
+//..............................................................................
+void cMaze :: CopyFileMatrix()
+{
+	rowNumber = mazeFile.GetRow();
+   colNumber = mazeFile.GetCol();
+   exampleNum = mazeFile.GetExaNum();
+
+   GetMemory(rowNumber,colNumber);
+
+	for(int i = 0;i < rowNumber;i++)
+   {
+   	for(int j = 0;j < colNumber;j++)
+      {
+      	mainMatrix[i][j] = mazeFile.GetMatrix()[i][j];
+      }
+   }
+}
+//..............................................................................
+bool cMaze :: Solve()
+{
+	sPointDir getPoped;
+	mazeStack.Push(0,0,0);
+
+   while(1)
+   {
+   	getPoped = mazeStack.Pop();
+      //getPoped.dir ++;
+      Maze(getPoped);
+   }
+}
+//..............................................................................
+void cMaze :: Maze(sPointDir initedPoint)
+{
+
+	markMatrix[initedPoint.row][initedPoint.col] = 1 ;
+
+	if(initedPoint.dir < 0 || initedPoint.dir > 7)
+   	return;
+
+	int tempRow = initedPoint.row + moveDelta[initedPoint.dir].dRow;
+   int tempCol = initedPoint.col + moveDelta[initedPoint.dir].dCol;
+
+   if(tempRow < 0 || tempRow >= rowNumber|| tempCol < 0 || tempCol >= colNumber)
+   {
+   	//mazeStack.Push(initedPoint.row,initedPoint.col,initedPoint.dir);
+      initedPoint.dir ++;
+      Maze(initedPoint);
+   	return;
+   }
+   if(mainMatrix[tempRow][tempCol] == 0)
+   {
+   	initedPoint.dir ++;
+      Maze(initedPoint);
+   	return;
+	}
+
+   if( tempRow == rowNumber && tempCol == colNumber)
+   {
+   	cout << "\n Found.";
+      getch();
+      exit(0);
+   }
+
+   if(markMatrix[tempRow][tempCol] == 1)
+   {
+   	initedPoint.dir ++;
+      Maze(initedPoint);
+     	return ;
+   }
+
+   mazeStack.Push(tempRow,tempCol,initedPoint.dir);
+   initedPoint.dir ++;
+   Maze(initedPoint);
+
+}
+//..............................................................................
+//******************************************************************************
+void main()
+{
+	cMaze m1;
+   for(int counter = 0;counter < m1.GetExaNumb();counter ++)
+   {
+   	m1.ReadMatrix(counter);
+      m1.Solve();
+   	//m1.Maze(p1);
+      getch();
+   }
+
+   getch();
+}
+//******************************************************************************

@@ -1,0 +1,109 @@
+#include <iostream.h>
+#include <conio.h>
+#include <stdlib.h>
+
+#define MAXSIZE 10
+
+//..............................................................................
+class cStack
+{
+	public :
+   	cStack();
+      bool Push(int);
+      int Pop();
+      void Menu();
+      void Show();
+
+   private:
+   	int array[MAXSIZE];
+     int top;
+};
+//..............................................................................
+cStack :: cStack()
+{
+	top = 0;
+   for(int counter = 0;counter < MAXSIZE;counter ++)
+   	array[counter] = 0;
+}
+//..............................................................................
+void cStack :: Menu()
+{
+   clrscr();
+
+	cout << "\n\n\n\n\n\t\t\t\t";
+   cout << "1 ) Push .";
+   cout << "\n\t\t\t\t2 ) Pop  .";
+   cout << "\n\t\t\t\t3 ) Show .";
+   cout << "\n\t\t\t\t4 ) Exit .";
+
+   int select;
+
+   cin >> select;
+   switch(select)
+   {
+   	case 1:
+      	int ele;
+         cout << "Enter element : ";
+         cin >> ele;
+         this -> Push(ele);
+      	break;
+      case 2:
+      	cout << this -> Pop();
+      	break;
+      case 3:
+      	this -> Show();
+         getch();
+      	break;
+      case 4:
+      	exit(0);
+      	break;
+   }
+}
+//..............................................................................
+void cStack :: Show()
+{
+   for(int counter = 0;counter < MAXSIZE;counter ++)
+   	cout << endl << counter <<'\t'<< array[counter];
+
+   cout << endl << endl <<"top : " << top ;
+	for(int counter = 0;counter < top;counter ++)
+   	cout << endl <<counter <<'\t'<< array[counter];
+}
+//..............................................................................
+bool cStack :: Push(int newElement)
+{
+	if(top != MAXSIZE)
+   {
+   	array[top] = newElement;
+      top ++;
+      return true;
+   }
+
+   cout << "\nThe stack is full.";
+   getch();
+   return false;
+}
+//..............................................................................
+int cStack :: Pop()
+{
+	if(top != 0)
+   {
+   	top --;
+      return array[top];
+   }
+
+   cout << "The stack is empty.";
+   getch();
+   return -1;
+}
+//..............................................................................
+//******************************************************************************
+void main()
+{
+	cStack s1;
+
+   for(;;)
+      s1.Menu();
+
+}
+//******************************************************************************

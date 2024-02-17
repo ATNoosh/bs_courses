@@ -1,0 +1,2188 @@
+D: -c flag to plld to turn it into `plcc', just compiling .c or
+    .cc files.  Thanks to Marcello Balduccini.
+
+  * MODIFIED: write/1 and friends now only insert spaces before and
+    after operators if these are required to be a valid term for read/1.
+    The only exception is ,/2, which is written using a space after the
+    symbol.  NOTE: foreign packages including <SWI-Stream.h> need
+    to be recompiled!!!
+
+  * FIXED: current_predicate/2 not consider abolished predicates that
+    still exist as `current', so current_predicate(_, Goal), Goal is
+    guaranteed not to raise an exception on Goal.  Should fix recent
+    reconsult problems in XPCE.
+
+  * ADDED: user:message_hook/3 hook for print_message/2 (provisional).
+
+  * MODIFIED: Hooks installed by PL_initialise_hook() are called *before*
+    the saved-state is loaded, but after the heap is initialised.  This
+    implies only foreign predicates may be called from this hook now.
+
+  * FIXED: testing of write-permissions for the library index for
+    make/0.
+
+  * MODIFIED: Toplevel queries are now read from user_input, rather
+    than from the current input stream.
+
+  * ADDED: feature(history, Depth).  If 0, no history and no history-prompt
+    are provided.  This is the default if feature(readline, true) succeeds.
+
+  * FIXED: set_feature(Name, Integer)
+
+  * FIXED: chdir/absolute_file_name problem, reported by Machiel Jansen.
+    Thanks.
+
+  * FIXED: erase/1 on records referenced by recorded/3 choicepoints.  Thanks
+    to Robert van Engelen.
+
+  * FIXED: Reference direction in recorded/3 (also used by findall/3 and
+    friends).
+
+  * FIXED: Removed various warnings for SunSoft cc compiler.  Fixed
+    one error reported by this compiler.
+
+  * FIXED: Cite references in online documentation.  Modified/Cleaned
+    man/plindex.pl for this.  Fixed a few typos.
+
+
+VERSION 2.9.5
+=============
+
+  * FIXED: dwim_predicate to deal properly with default modules.
+
+  * FIXED online manual not to use overstrike by default.  See manual
+    for details.  XPCE requires patched prolog/lib/swi_help.pl to work
+    properly with this version.
+
+  * FIXED: plld for handling -l<lib> correctly in the Unix version, and
+    automatically deleting temporary .exp files in Win32.
+
+  * FIXED important fix returning address of local variable, found by
+    Jean Daniel Fekete.  Thanks.
+
+
+VERSION 2.9.4
+=============
+
+  * FIXED: Various references to the variable stacks for systems requiring
+    the stack-shifter.  Thanks to Michirou Yabuki for reporting.
+
+  * FIXED: recorded database (and findall/3, bagof/3, setof/3 store) 
+    handling of strings.  After retrieval, the string's indirect header
+    was incorrect, making unification and equivalence fail.  Thanks to
+    Andrew Dadakow for providing me with a simple program illustrating
+    the problem.
+
+VERSION 2.9.3
+=============
+
+  * ADDED: (Simple) support for exceptions in the GUI-tracer.
+
+  * MODIFIED: PL_extensions array now needs to be explicitely registered
+    using PL_register_extensions() for compatibility with Win32.  Documented
+    PL_register_extensions().
+
+  * FIXED: print/1 to include the `quoted' option as it used to before
+    2.9.0.  Thanks to Sam Waugh for noting.
+
+  * NEW: plld is now written in C, and adapted for usage on Windows-NT
+    and Windows '95.  The latter is incomplete, but useful for creating
+    embedded Win32 console applications.  The old plld is available as
+    plld.sh in the source distribution.
+
+  * FIXED: PL_register_foreign() now declares the function-pointer as
+    a void * for C++ code, so it may be used with C++.
+
+  * MODIFIED: tmp_file/2 now returns the canonical filename on
+    Windows platforms (i.e. c:/temp/base<n>, rather then C:\TEMP\base<n>).
+    use prolog_to_os_filename/2 to convert between the two formats.
+
+  * FIXED: catch/3 for proper continuation if the recovery goal
+    succeeds.
+
+  * FIXED: definition of ulong on some platforms for the new pl-global.h
+    module.
+
+
+VERSION 2.9.2
+=============
+
+  * CLEANUP: Removed various unreachable statements reported by the
+    SGI native compiler.
+
+  * FIXED: Unresolved message for S__fupdatefilepos() using native
+    SGI compiler, which does not emit code for inline functions.
+
+  * FIXED: diagnosis of `discontiguous' and `redefined' predicates
+    while the predicate is reconsulted while it is running.
+	
+  * FIXED: Posibility of calling alloca(0) in pl-rec.c, spotted by
+    Tamas Laufer.  Should fix SCO Unix version.
+
+  * FIXED: absolute_file_name/3, generation of multiple solutions:
+    avoid regenerating the same solution.  Caused make/0 to slow down
+    more and more.
+
+  * IMPLEMENTATION: Partial preparation for multi-threading.  Removed
+    lots of unnecessary global variables and moved most of the remaining
+    ones into three structures defined in the new file pl-global.h.
+    Read-only global data is now declared `const', putting it into
+    shared memory on good machines/compilers.  As a result, SWI-Prolog
+    is a little smaller and faster.
+
+    Still need to get rid of the remaining global variables and need
+    to embrace all heap-operations to prepare them for the use with
+    mutexes.
+
+  * FIXED: trace-interception calling on fail-port, causing the GUI
+    tracer to crash on some ocasions.
+
+  * DELETED: Source file pl-dump.c, implementing save/1, restore/1
+    and save_program/1.  These predicates only worked on a few
+    platforms anyway.  qsave_program is now the only (and portable)
+    saved-state mechanism.
+
+  * IMPROVED: Removed limit on number of user-defined arithmetic
+    functions.
+
+  * IMPROVED: Format ~s accepts both a list of ASCII chars or a
+    string (see string/1) object.  Thanks to Peter Ludeman.
+
+
+VERSION 2.9.1
+=============
+
+  * FIXED: auto-detection of -export-dynamic in favour of -rdynamic
+    (GNU-ld based systems using ELF binary format not supporting
+    -rdynamic, e.g. Solaris using gcc with GNU-ld).  Thanks to
+    Volker Weber.
+
+  * FIXED: mmap configuration issues, with thanks to Daniel Pun.
+
+  * FIXED: some changes to the Makefile(.in) and configure for portability,
+    by Joel Faedi.
+
+  * FIXED: wouldBindProcedure(), used by $xr_member, used by the explain
+    facility.  Could crash.
+
+
+VERSION 2.9.0
+=============
+
+  * ADDED/MODIFIED: The interface to PL_open_query() has changed.
+    The debug argument is replaced by a bitwise or'ed flags argument.
+    The values FALSE and TRUE have their familiar meaning, making old
+    code using these constants compatible. Non-zero values other than
+    TRUE (1) will be interpreted different.
+
+  * DELETED: display/[1,2] and displayq/[1,2].  Added emulation into
+    library(backcomp).
+
+  * ADDED: ISO/Quintus compliant write_canonical/[1,2].
+
+  * FIXED: recorded database bug for very large terms.
+
+  * ADDED: Lots of exception codes.  Roughly, file i/o, external program
+    invocation and arithmetic now use exceptions.
+
+  * IMPROVED: write/1 and friends now check the return code of the
+    low-level I/O functions and fail with exception on read/write
+    errors.
+
+  * REMOVED: $print/2.  Doesn't appear to be used anywhere.
+
+  * ADDED: write_term/[2,3], ISO compliant
+
+  * ADDED: ISO compliant exception handling using catch/3 and throw/1,
+    including a C-interface for these (PL_throw() and PL_exception())
+    Added exception port to the tracer.
+
+  * ADDED: abolish/1, ISO compliant.
+
+  * FIXED: A is "a" (list as abbreviation for a character).
+
+
+VERSION 2.8.7
+=============
+
+  * FIXED: require/1 to be silent on already defined system predicates.
+
+  * FIXED: passing ldflags in plld script.
+
+  * CONFIG: Removed checking for -lelf if the system is not asked
+    to configure old save/1.
+
+  * CONFIG: Modified test/mmap.c to find out whether we should allocate
+    from the top or base of the heap.  Added TOPOFHEAP to config.h.  Should
+    fix Irix problems.
+
+
+VERSION 2.8.6
+=============
+
+  * Included src/pl.1.in (new file, forgotten in the 2.8.5 release)
+ 
+  * INSTALL: slightly more careful installation of the manpages and
+    small problem in configure fixed.
+
+
+VERSION 2.8.5
+=============
+
+  * MAN: Updated manual sources for a couple of recent changes, added
+    support for generation of the help/1 database using new tools for
+    nroff like generation of plain text from a LaTeX document.  Generated
+    all three formats of the manual: HTML, PostScript and plain text.
+ 
+  * FIXED: Installation of the manual page for correct description of the
+    pl -dump-runtime-variables.
+
+  * ADDED: For machines using memory-mapped stacks (Linux, SunOs, Solaris,
+    OSF/1 for example), added heap-size switch: -H.  Default is 256Mbytes.
+
+    Size switch now take optional 'm' (Mega), 'k' (Kilo, default) or 'b'
+    (bytes): -L32m specifies 32 Mbytes local stack.
+
+  * FIXED: print error message if heap allocation above prefect fit
+    schema (>1024 bytes) fails (malloc() returns NULL).  All allocation
+    failures now call outOfCore().
+
+VERSION 2.8.4
+=============
+
+  * FIXED: PL_{get,put,unify}_pointer() mapping of pointer to integer,
+    to ensure all possible pointer values are restored properly.
+
+  * CLEANUP: Removed various internal unused functions, changed
+    functions to be local that were only called locally.
+  
+  * MODIFIED: Redesign of various parts of the system to get rid of
+    terms living in the permanent heap. This modification allows the
+    permanent heap (where malloc() operates) to grow unlimited (used to
+    be 64 MB).
+
+    + Records (recorda/3, recorded/3, erase/1) are no longer stored
+      as copies of the global-terms, but instead as a form of compiled
+      code, optimised for copying the object back to the runtime stacks.
+
+      Records are also used by findall/3, setof/3 and bagof/3, and these
+      predicates have thus been modified too.  The interface between the
+      C and Prolog part has changed, making old saved-states worthless.
+      Old QLF files work properly.
+
+    + Records are also used by the /f goal option of the tracer.  The
+      implementation of this has been changed drastically.  The result
+      is a lot faster while searching and a bug has been fixed.
+
+    + loadXRc() in pl-wic.c has been modified not to store longs, doubles
+      and string onto the heap.  This is the desired behaviour anyway.
+
+    + Feature storage changed to use a union type, rather then integers
+      on the heap.
+
+    + Variable analysis in the compiler now used TAG_ATOM|STG_GLOBAL,
+      like records, to flag the analysed variables.
+
+    + Temporary variable management in read/1 using the same trick.
+
+    + Atoms are indexed over a global, resizable, array.
+
+    GOOD THINGS
+
+    + makeRef() now simply is makeRefLG().
+
+    + Trail() is simplified a lot.
+
+    + makePtr() (pl-gc.c) no longer deals with heap pointers
+
+VERSION 2.8.3
+=============
+
+  * FIXED: Changed manual to talk about PL_atom_chars(), rather then
+    PL_string_from_atom().
+
+  * FIXED: oset_addel/3, thanks to Robert van Engelen for both the
+    report and the patch.
+
+  * FIXED: string_to_list(X, []).
+
+  * FIXED: Order and unlinking shared objects.  Now, all files are
+    closed before unlinking any shared libraries.  Shared libraries
+    are unlinked explicitely only on non-Unix systems.
+
+
+VERSION 2.8.2
+=============
+
+  * FIXED: GC/tracer for clauses holding string objects at particular
+    places.  Reported by Andrew Dadakow.
+
+  * FIXED: Deleted old pl.mak, and added plwin.mak and plcon.mak for
+    rebuilding the sources on Windows.
+
+  * FIXED: Typo in the $write_on_* predicates, underlying sformat and
+    swritef, causing a crash on > 1024 characters output.  Thanks to
+    Shane P. McCarron.
+
+
+VERSION 2.8.1
+=============
+
+  * FIXED: DEC Alpha (64-bit): reading integers	> 2**31-1.  Configuration
+    of mmap based sparse stack allocation to deal with the Alpha.  Various
+    warnings removed.  Fixed test.pl to be aware of the Alpha where
+    necessary (float-3 test).
+
+  * FIXED: Garbage collection problem, occurring with a specific
+    combination of call-back from C and choicepoint organisation
+    in the callback environment.
+
+  * FIXED: Tracer `retry <n>' (guitracer only) to take care of garbage
+    collected choicepoints.
+
+  * FIXED: initialisation of style_check defaults to specify
+    singletons, long atoms and discontiguous clauses.  NOTE: THIS MAY
+    CAUSE WARNINGS ON OLD CODE.
+
+  * ADDED: Several predicates for math in library(quintus).
+
+  * FIXED: abolish/2 on active (running) predicates, not to remove the
+    NEEDSCLAUSE_GC flag, so the clauses are actually removed if the
+    predicates is finished.  Thanks to Paulo Moura, author of LogTalk.
+
+  * FIXED: PL_get_arg() when using -L0 -G0 (maximized stacks).  Probably
+    only breaks tracing code under these circumstances.
+
+
+VERSION 2.8.0
+=============
+
+  * FIXED: `$qlf_info'/3 (always failed).  Used by the development
+    environment under construction.
+
+  * RUNTIME SYSTEM: Made various of the debugger options conditional
+    on whether or not the system is compiled as runtime system.
+
+  * ADDED: more options to user:prolog_event_hook/1 for better
+    interaction	with the GUI tracer: possibility to `watch' a
+    stack-frames end-of-lifetime.
+
+  * FIXED: writeq('%') to write '%' rather then just %.
+
+  * FIXED/MODIFIED: subterm_positions option of read to return the
+    positions of possible surrounding braces for a term.  Thus,
+    reading (hello) now yields 0-6 rather then 1-5.  This notably
+    fixes the 'f' (finish) option in the GUI tracer to properly
+    indicate the succeeded clause.
+
+  * PORT: Configure detected tcgetattr()/tcsetattr() usage rather then
+    ioctl(), fixing terminal interaction on OSF/1.
+
+  * PORT: Fix in Makefile to make it work with some broken shells.
+
+  * PORT: renamed I_POP virtual machine instruction to I_POPF, to avoid
+    a conflict with system headers on some machines.
+
+  * PORT: Added support for the 64-bit DEC Alpha processor (or, more
+    in general made the code 64-bit clean).  Tested on a DEC Alpha
+    using OSF/1 4.0 and the native C-compiler.  Should also work on
+    GCC, but the local GCC installation appeared broken.  With thanks
+    to Bryan Sorrows for providing me with access to their machine.
+    Exactly while I was working on the port, Martin Ostermann mailed
+    me patches for running on the Alpha under Linux.  Thanks for the
+    couple of problems I missed!
+
+    Remaining problems: can sparse memory management work on OSF/1?
+    Currently, saved states are portable, but the limits on the Alpha
+    are much larger.  This should be fixed.  Prolog machine words are
+    64 bits on the Alpha, doubling the stack-sizes and virtually
+    removing all limits.  In theory, it would also be possible to use
+    ints (32-bit) for this.  I have not checked this.  It is not unlikely
+    there are variables defined `int', where they should have been
+    `long', truncating large numbers.
+
+  * FIXED: globalAlloc() for allocations larger than a page on machines
+    with sparse memory management, not handling stack-overflows as
+    exceptions (Win32).  Fixes handling of long string objects on these
+    platforms.
+
+  * FIXED: (GUI Tracer) Stopped `cut-port' from activating when in
+    `leap' mode.
+
+
+VERSION 2.7.20
+==============
+
+  * ADDED: Documentation for expand_query/4 and expand_answer/2.
+
+  * ADDED: call_with_depth_limit/3, to aid theorem provers.
+
+  * ADDED: features 'unix' and 'windows' for these operating systems. 
+
+Version 2.7.19
+==============
+
+  * FIXED: functor(X, name, -1), reported by Robert van Engelen.  Thanks.
+	
+  * FIXED: :- format_predicate/2 handling of arguments.
+
+  * ADDED: external "C" declaractions for SWI-Stream.h, so you can use this
+    in C++ programs now.
+
+  * FIXED: the function sign/1 for floating point numbers.
+
+Version 2.7.18
+==============
+
+  * ADDED: Directory html for a SWI-Prolog based latex2html translator.
+    Very extensive example of using foreign code.
+
+  * REMOVED: Lots of unused files from the source-distribution
+
+  * WIN32: Removed the uxnt.dll library.  This library is now a static
+    library linked into libpl.lib, the SWI-Prolog kernel.
+
+  * FIXED: Handling of -p alias=path:...: order of the arguments doesn't
+    matter anymore and parsing of the path has been fixed.
+
+  * MODIFIED: load_files/2, `silent' option inherits to loads triggerred
+    from this one.
+
+  * FIXED: Garbage collector error, causing a crash if the local
+    and global stack together exceed 64 MB.  Now, they can each
+    be 64 MB and be allocated at arbitrary positions.
+
+  * CHANGED: Default editor command is now <editor> "<file>", using
+    double instead of single quotes.  This fixes problems on Windows
+    platforms.
+
+  * ADDED: clause_property(+Ref, ?erased), to support the debugger
+    reporting about running modified clauses.
+
+  * FIXED: current_functor(+Name, +Arity).  Reported by Stefan Wimmel.
+    Thanks.
+
+Version 2.7.17
+==============
+
+  * MODIFIED: the `debug' argument to PL_open_query() now really stops
+    the debugger operating inside the called goal, also if an error
+    arrises.
+
+  * PORT: Sgi/Irix headers configuration and detection of alignment
+    restrictions on doubles.
+
+  * FIXED: Better operator priority checking, making a :- b :- c illegal
+    syntax, as it should be.  Also improved the warning issued.
+
+  * FIXED:  Removes MAX_TERM_NESTING from read.pl, previously limiting
+    the complexity of terms that could be read.  The new version of
+    read requires significantly less (C-) stack and can handle
+    much more deeply nested terms.
+
+  * FIXED: term_to_atom(+Term, -Atom) on machines with dynamic stacks,
+    but no exception based expansion (PC version).
+
+  * FIXED: Sopenmen() stream functions (was not used before).  This
+    is now used by tellString() and toldString(), who now have a
+    different interface.  These functions are used by term_to_atom/2,
+    and format/[1-3].
+
+
+Version 2.7.16
+==============
+
+  * FIXED: Various minor issues in the Makefiles and configure for
+    generating a runtime version.  Error message if the runtime
+    system cannot find its state.
+
+  * FIXED: Heuristics for making hash-index.
+
+Version 2.7.15
+==============
+
+  * FIXED: Embedding: the kernel now not longer gives up if it cannot
+    find the Prolog home directory.  feature(home, Home) will fail if
+    the home could not be located.
+
+  * FIXED: Configure problems related to -l[n]curses, etc.
+
+  * FIXED: retractall(Module:Head(+Arg, ...)) (i.e. explicit module and
+    instantiated first argument).
+
+  * ADDED: atom_prefix(+Atom, +Prefix): test of Prefix is a prefix
+    of Atom.
+
+  * FIXED: Bug in Unify between non-tagged and tagged integer.
+
+  * FIXED: Bugs in configure, both improper test of double alignment
+    and improper testing for the cursus libraries.  Thanks to
+    Masafumi Nakane.
+
+  * IMPROVED: Moved source_file/2 to foreign language to exploit the
+    kernel-maintained database for enumerating the predicates loaded
+    from a sourcefile.
+
+  * MODIFIED: prolog_trace_interception/3 now has 4 arguments.
+
+  * ADDED: Support for tracing the cut in the source-level debugger.
+
+  * ADDED: Support for `break-points' to the debugger.
+
+  * FIXED: Protocol to include the prompt in the protocol.
+
+  * ADDED: clause_property(ClauseRef, fact).  Used by source-level tracer.
+
+  * ADDED: Various options to prolog_frame_attribute/3 for the source-level
+    tracer.
+
+  * FIXED: allow for tracing the unify-port of a fact.
+
+  * ADDED: prolog_frame_attribute(Frame, argument(N), Arg) to read
+    bindings from a stack-frame.
+
+  * ADDED: Various options to plld, the standalone executable linker.
+
+  * IMPROVED: (if->then;else) to generate tail-recursion code for the
+    `then' part.
+
+  * ADDED: $clause_position/3 and prolog_frame_attribute(Frame, pc, PC).
+    First steps for a source-code debugger.
+
+  * IMPROVED: Clause-representation to delete subclauses member, which
+    proved obsolete using the current system.  Added UNIT_CLAUSE flag
+    to the clause's flags to achieve the same support for the decompiler.
+
+  * FIXED: handling of the stream user_error by other predicates than
+    format/[1-3].  Also, using output from write/2, etc. to unbuffered
+    streams like user_error is now buffered in 256 byte-blocks, but
+    guaranteed to be flushed after the write operation completes,
+    resulting in fewer calls to write() and therefore generally better
+    performance.
+
+Version 2.7.14
+==============
+
+  * FIXED: Win32 shell/1 implementation has changed radically, not
+    using threads anymore.  This hopefully fixes shell/1 on all
+    platforms.  The old version started a thread to wait for the
+    process, while the main thread continued processing windows
+    messages.  The new version loops through PeekMessage, GetExitCodeProcess
+    and Sleep, processing messages and waiting in the same (main)
+    thread.
+
+  * FIXED: reentrance problem in Sgetc() (low level fetch for character),
+    upsetting the tracer sometimes when using XPCE.
+
+<this version was put on the ftp server Sep  6>
+
+  * FIXED: current_stream/3 failed to properly enumerate the streams.
+    Thanks to Robert van Engelen.
+
+  * MODIFIED: ensure_loaded and use_module now load if the file has
+    been changed since it was last loaded, and not only if it was not
+    loaded before.
+
+  * ADDED: load_files/2 to load files with various options (including
+    silent loading).  The undocumented $consult_file/2 has gone!
+
+  * INSTALL: Win32: nice looking installation procedure, based on the
+    WISE installation expert package.
+
+  * ADDED: A *-> B ; C (softcut).
+
+  * FIXED: Random generation for machines that use rand().  Still
+    poor, but then this function is bad.  Maybe use our own someday.
+
+  * ADDED: Win32: console support for variable-pitch fonts and user
+    selection of fonts.
+
+  * FIXED: <String> =.. X, found by Robert van Engelen.
+	
+Version 2.7.13
+==============
+
+  * FIXED: prolog_frame_attribute/3 to include the arguments in the
+    goal.  Found by Andreas Schlemminger.
+
+  * FIXED: listing (clause/2) for predicates holding if->then;else or
+    a;b in their body.  Found by Andreas Schlemminger.
+
+  * FIXED: shell/1 for Windows platforms (waited almost indefinitely
+    before executing the program).
+
+  * ADDED: plregtry.dll and registry.dll, providing access to the
+    Win32 registry database.  
+
+  * ADDED: setting up a DDE server for better interaction with the
+    Windows 95 shell (direct edit and consult from the explorer).
+
+Version 2.7.13 (ALPHA)
+======================
+
+  * ADDED: mode update for open/[3,4] to write at any location in an
+    existing file. 
+
+Version 2.7.12
+==============
+
+  * FIXED: behaviour of the tracer.  Notably included missing fail-ports
+    from the trace.  Also fixed the box-counts for the profiler.
+
+  * ADDED: expand_term/2 now first tries term_expansion/2 in the module
+    that is being loaded.  After that it tries the module user.
+
+  * FIXED: Various improvements to the explain facility, notably much
+    better location of predicate cross-references.
+
+Version 2.7.11
+==============
+
+  * MODIFIED: feature(version, Version) and PLVERSION are now numeric.
+
+  * FIXED: reporting out-of-stack now never calls the Prolog exception
+    handler to avoid a real crash.
+
+  * ADDED: Syntax for maintaining source-location inside term-expansion.
+    If a term of the form $source_location(File, Line):Clause is found,
+    not the current, but the given location will be recorded with the
+    clause)
+
+Version 2.7.10
+==============
+
+  * PORT: More changes to PL_unify_term() by Franklin Chen.  Now really
+    compiles on MkLinux.
+
+  * FIXED: retract/1 once more.  Now tested on all combinations of
+    (non-)unit-clause and with(out) module specifier.
+
+Version 2.7.9
+=============
+
+  * FIXED: interaction between tracer and garbage-collector, sometimes
+    causing an assertion-failure in the garbage collector when tracing.
+    Reported by Lourens van der Meij.
+
+  * CHANGED: flag/3 now handles full 32-bit integers and double
+    float values.  Old version was limited to tagged ints and didn't
+    do floats.
+
+  * PORT: Rewrote PL_unify_term() to avoid using va_list *.  May or
+    may not help.  Problem arises on the PowerMac version of Linux
+    when compiling pl-fli.c.  Reported by Franklin Chen.
+
+  * PORT: Portability patches for AIX 3.2/4.1: avoid name-clash with
+    hz and fid_t.  Contributed by Kay Roemer.
+
+  * FIXED: documentation of PL_unify_list() interface function.
+
+  * FIXED: name/2 to behave correctly in the tracer.  This problem
+    may appear with more foreign predicates and maybe requires a
+    more fundamental solution.  Reported by Chan Kam Fai.
+	
+  * FIXED: retract/1 on non-unit-clauses.  Thanks to Liviu Badea.
+
+Version 2.7.8
+=============
+
+  * Some fixes to the Makefile.  No functional change.
+
+Version 2.7.7
+=============
+
+  * DOC: Added documentation for PL_unify_term(), making its specs
+    `official'.
+
+  * ADDED: PL_query(PL_QUERY_VERSION) to find the version of Prolog
+    running.  Used by plwin.exe to display the correct version in the
+    window titlebar.
+
+  * WIN32 Process creation: added win_exec/2 and changed shell/1 such
+    that shell('<Command> &') behaves as win_exec(<Command>, normal).
+
+  * WIN32 DDE: Added dde_poke/[3,4] to support DDE poke operation required to
+    communicate with the sybase database for Windows.  MODIFIED
+    dde_request/3 to return a string object rather then an atom to
+    avoid filling the atom-space.
+
+  * WIN32: For filenames, ~ is expanded to %home%.  When not present,
+    %homedrive%%homepath% is used, which expands to NT's notion of the
+    home directory.  Finally, '/' is used as fallback.
+
+  * MODIFIED: Changed directory structure of make rt-install to be
+    the same as normal installation.
+
+  * FIXED: Installation on Pentium Pro: bad detection of canonical
+    system type by autoconf's config.sub.  Updated configure.in to
+    use autoconf 2.10.
+
+  * FIXED: Backtracking on floats and large integers appearing in the head.
+    The VM instructions H_FLOAT and H_INTEGERS handling these didn't
+    trail the argument.  Bug introduced in 2.7.0.  Thanks to Peter
+    Terptra for reporting.
+
+Version 2.7.6
+=============
+
+  * MODIFIED: Added some more support for very deeply nested terms on
+    the last arguments (long lists beeing one of them) by introducing
+    a new compilation schema for such terms.  Also modified numbervars/4
+    to exploit right-recursion of terms.
+
+  * MODIFIED: Argument-stack default-limit changed from 8 KB to 1 MB
+    for machines with dynamic stacks.  16 KB for others.  This limits
+    most of all the depth of terms handled by assert/retract.
+
+  * FIXED: Emacs-interaction bug using history.  Thanks to Dave Moffat.
+
+  * FIXED: decompilation (retract, listing, etc.) for predicates with
+    0 arguments.  Reported by Dave Moffat.
+
+  * FIXED: configuration for system where readline requires -lcurses
+    rather then -ltermcap (and the latter is not present).
+
+Version 2.7.5
+=============
+
+  * FIXED: typo in float <-> long conversion problem.
+
+  * FIXED: plld now passes -D* to the compiler rather then the linker.
+
+Version 2.7.4
+=============
+
+  * FIXED: handling of floating-point conversion to integers on machines
+    raising SIGPFE on l = (long)f when f is out of the long range.  Thanks
+    to Sven.Hader@Informatik.TU-Chemnitz.DE (Sven Hader).  The problem
+    appears at least on Linux running on a Pentium.
+
+  * MODIFIED: Added -F file flag to select from multiple initialisation
+    scripts, just like -f file.  Old versions only loaded plrc.   The
+    new version by default loads <program>.rc.  -F none stops loading
+    this file.
+
+  * FIXED: plld: gave error code 1 (always).  Added various flags: -v
+    -help, -pl.  Updated manuals
+
+  * FIXED: PL_next_solution() detection of non-deterministic success
+    (reported deterministic for actually non-deterministic goals).
+
+  * ADDED: For XPCE users: nice graphical frontend for the online help
+    functions.  Working on much better Prolog mode for PceEmacs.
+
+  * PORTABILITY: Removed void * arithmetic in pl-setup.c, removed
+    a couple of other non-strict-ansi things there.  Added configure
+    for alloca().  Reported to compile using IRIX 5.3 native compiler
+    now.
+
+  * FIXED: Sclose() flushed write-buffer for read-only streams.
+
+  * ADDED: read_term/[2,3]: reading with various options
+
+  * FIXED: copy_term/2: handling of combination of ground compound
+    terms and shared variables.
+
+  * FIXED: PL_next_solution() detection of determistic success.
+
+  * ADDED: concat_atom/3 for concatenating multiple atoms with a separator.
+
+  * FIXED: Online manual generation for dynamic/1 and friends.  Parser
+    now deletes \verb from summaries.
+
+  * FIXED: $xr_member (underlying explain/[1,2]) for clauses containing
+    string objects (crashed).  Improved various details to explain/[1,2]
+
+  * MODIFIED: Quoted writing of an invalid float yields '$Infinity' or '$NaN',
+    unquoted Infinity or NaN.
+
+Version 2.7.3
+=============
+
+  * FIXED: ?- expand_term(A,B), reported by Fergus Henderson.
+
+  * FIXED: cleanup after calling Prolog-defined arithmetic functions
+    (caused a crash when two arithmetic functions are called in the
+    same context).
+
+  * Renamed PL_reinit_hook() to PL_initialise_hook(), which reflects
+    more the current function.  Use this to register the readline
+    interface, so it is available while loading .plrc.  Se also
+    pl-extend.c and its public copy stub.c.
+
+Version 2.7.2
+=============
+
+  * ADDED: features `debug_on_error' and `report_error'
+
+  * ISO: If a predicate has no clauses and is defined either dynamic,
+    multifile or discontiguous, it is considered defined.  This used to
+    hold only for dynamic predicates. 
+
+Version 2.7.1
+=============
+
+  * FIXED: Signal/readline/abort interfaces for the Win32 versions, so
+    signals are handled correctly again and readline-based input handling
+    works.
+
+  * FIXED: bug in setup of memory-base pointers, causing all versions
+    to fail who allocate memory higher than 128MB, which includes the
+    win32 version under win32s (Windows 3.1)
+
+  * FIXED: ar/ranlib configuration (notably for BSD systems, such as
+    SunOs 4.1).
+
+  * FIXED: do not load readline interface if the input is not a terminal.
+    This bug prevented constructs in shell-scripts such as pl << _EOS_ ...
+
+Version 2.7.0
+=============
+
+  * FIXED: HPUX compilation thanks to Gordon Streeter.
+
+  * WIN32: The kernel is now in libpl.dll, which comes with two toplevel
+    drivers: plcon.exe for a standard IO version and plwin.exe for the
+    windows based version.  New directory embed with the sources of
+    both toplevels.
+
+  * FIXED: memory leak after assert/retract of code holding floats,
+    32-bit integers or strings (not lists of char-codes).  Also
+    provides more compact code for floats and large integers
+    (both small and large integers require 2 words, doubles 3 words).
+
+  * IMPROVED: More compact representation of compiled floats, long
+    integers and strings.
+
+  * MODIFIED: Complete rewrite of the internal datastructures.  The
+    aim is to avoid mixing pointers and unsigned longs on the stacks
+    and thus remove the various assumptions on the memory model underlying
+    the prior versions. See pl-data.h for details.
+
+  * IMPROVED: Lifted the maximum number of variables in a clause from
+    256 to 65536, maximum arity of predicates from 128 to 1024.  Both
+    numbers are fairly arbitrary and can be raised further at the cost
+    of wasting a little more memory.
+
+Version 2.6.0
+=============
+
+  * ADDED: plld and manpage for creating embedded executables.
+
+  * FIXED: flush output of terminal streams while halting.
+
+  * ADDED: option stand_alone for qsave_program to create stand-alone
+    executables!
+
+  * INSTALL: The executables are now installed in $(PLBASE)/bin/$(ARCH),
+    i.e. using a different directory for each platform, so multiple
+    platforms are supported more easily.
+
+  * MODIFIED: Drastic reorganisation of arithmetic handling:
+
+	- All arithmetic is now handled using 32-bit longs and 64-bit
+          doubles.
+
+	- Smaller integers (within the range described by the features
+	  min_tagged_integer ... max_tagged_integer) are represented
+	  internally as tagged integers.  Larger integers and doubles
+	  are represented as `indirect data'.
+
+	- A generic representation for `indirect', covering uniform
+	  handling of them by the virtual machine, unify and garbage
+	  collector.  This deals with strings, doubles and `bignums'.
+
+	- New interface between the arithmetic functions and the
+	  arithmetic predicates (is/2, >/2, etc.) as well as their
+	  virtual machine instructions.  This new interface is faster.
+	  and avoids unnecessary type-conversions.
+
+	- Augmented/renumbered the virtual machine instructions, making
+	  old saved states worthless.
+
+	- Fixed a couple of functions translating between floats and
+	  integers: integer/1, ceil/1, floor/1, float_integer_part/1,
+	  truncate/1, etc. for handling large numbers correctly.
+
+	- Added the feature float_format to define how floats are
+	  printed by write/1, print/1, etc.
+
+  * MODIFIED: Disconnected readline and Win32 I/O window interface to
+    a separate module.  This is a necessary precondition to arrive at
+    a modular and embedible Prolog engine for Win32.  See pl-rl.c
+
+  * FIXED: unknown/2 (reporting instantiation fault).
+
+Version 2.5.6
+=============
+  
+  * FIXED: ceil/1, floor/1 and integer/1 to handle large floating point
+    numbers correctly.
+
+  * MODIFIED: write and friends to print floating point numbers using
+    the `%g' format by default, printing large floats as -for example-
+    3e20.  Use format with the ~f option to format floats as you please.
+
+  * FIXED: on some machines <assert.h> requires <stdio.h> to be included.
+    configure now checks for this.
+
+  * FIXED: .qlf file-magic verification.
+
+  * FIXED: Some minor portability problems: test for CC supporting -c -o
+    combination, solaris prototypes for random and srandom added, changed
+    system parameter detection for file-table-size and page-size to use
+    sysconf() when available.  Compilation is now silent on solaris 2.5,
+    except for a number of `might not be initialised' warnings in pl-wam.c
+    that aren't correct (also, these are not reported by other versions
+    of gcc).
+
+Version 2.5.5
+=============
+
+  * FIXED: Important bug in =@=, also used by bagof/setof, leading to
+    crashes on some structures and failure on structural equal terms
+    on others.
+
+  * FIXED: Crash in the tracer under some circumstances, reported
+    by Michael Schulz.  
+
+  * FIXED: loading Quick Load Files that do not contain modules.
+
+Version 2.5.4
+=============
+
+  * FIXED: read/1 for reading negative floating point numbers (2.5.x bug),
+    thanks to Bill Jones.
+
+  * FIXED: read/1, etc. for reading a single variable.  Found by Luu Tran.
+
+  * FIXED: DCG expansion error found by Keith Whitwell.
+
+
+Version 2.5.3
+=============
+
+  * ADDED: ISO at_end_of_stream/[0,1] and peek_byte/[1,2].
+
+  * Fixed and faster nth0/3 and nth1/3 implementations by Martin Jansche.
+
+  * New pl(1) manual page by Martin Jansche.  Thanks.
+
+  * PORT: Ron Ferguson mailed me a couple of fixes for the NeXT machine,
+    using release 2 of the C-compiler from the standard development system.
+    Thanks.
+
+  * FIXED: decompilation (listing, retract, etc.) for clauses using the
+    new (2.5.x) A_REAL instruction.
+
+  * FIXED: \=/2 and recorded/3 for handling shared variables.  Found
+    by Joerg Garbers.
+
+  * ADDED: edit definition for emacsclient(1).
+
+  * Fixed unify (=/2) for unification of two floats.  Reported by Dave
+    Moffat.
+
+Version 2.5.2
+=============
+
+  * FIXED: PL_retry() and friends were lacking from the new SWI-Prolog.h
+
+  * FIXED: PL_cons_functor() and PL_cons_list(), also fixing variable
+    handling in bagof/setof.  Thanks to Khanh Doan for reporting.
+
+  * ADDED: string_concat/3 with same semantics as concat/3, but unbound
+    will be unified with a string object.
+
+  * ADDED: rl_read_init_file(+File) and rl_add_history(+Line) for better
+    readline interaction.  Added readline.3 to the standard installed
+    manual set.
+
+  * ADDED: file_name_extension/3 to reason about filename extensions in
+    a machine-independent manner.  Fixes Win32 associations if the filename
+    has uppercase extension.
+
+Version 2.5.1 (released for Win32 only)
+=======================================
+
+  * FIXED: Stack expansion for some foreign predicates using the local
+    stack as temporary area for machines with exception-based stack-overflow
+    handling that do not provide the address of the segmentation fault to
+    the handler (Win32, Linux).
+
+  * FIXED: Linux: repeated handling of the sequence Control-C, abort.
+
+  * FIXED: Crash after the system has ran out of some stacks on machines
+    with exception-based stack-overflow handling and POSIX signals.
+    Solaris, Linux and Win32 are the examples I know of.
+
+  * FIXED: CVT_NUMBER and CVT_ATOMIC constants in SWI-Prolog.h,
+    breaking name(+Float, -Chars).
+
+  * FIXED: plus/3 for +, -, + instantiation (2.5.0 introduced typo).
+
+  * FIXED: prototype declaraction reported by Martin Jansche.
+
+Version 2.5.0
+=============
+
+  * Added features `trace_gc' and `gc'.
+
+  * Added `pl -arch' to get the architecture identifier easily for
+    installation and makefiles
+
+  * New implementation of copy_term/2 that shares common compound
+    sub-terms.
+
+  * Totally new foreign language interface using `term-references' to
+    allow for garbage collection and stack-shifts with active foreign
+    code.  Ported all foreign predicates to the new interface.  This
+    interface also allows for generating multiple alternatives for
+    a Prolog goal from C.
+
+    For compatibility with old foreign code, see README.oldforeign.
+
+  * FIXED: optimised compilation of A is X (i.e. second argument is
+    a variable).
+
+  * COMPILER: improved compilation of floating-point arithmetic using
+    -O (optimised), avoiding unnecessary copying of floating point
+    numbers to the global stack.
+
+****************************************************************
+	     INCOMPATIBLE FOREIGN LANGUAGE INTERFACE
+****************************************************************
+
+Version 2.1.15
+==============
+
+  * FIXED: read/1 to push the load context when reading end-of-file, so
+    the following works:
+
+	term_expansion(end_of_file, end_of_file) :-
+	    	prolog_load_context(file, Path),
+		format('Finished loading ~w~n', [Path]).
+
+  * FIXED: abolish/2 on imported procedures.  Reported by Peter Barth.
+
+Version 2.1.14
+==============
+
+  * DISTRIBUTION: Removed various out-of-date files from the distribution:
+    Makefile.win, Makefile.dos, etc.
+
+  * WIN32S: Fixed problem in the garbage collector.
+
+  * WIN32: Improved cputime for NT ('95 and win32s use the old code).
+
+  * MANUAL: Martin Jansche <martin@pc03.idf.uni-heidelberg.de> has send me
+    patches for the manual, fixing many smaller and bigger mistakes in it.
+    Thanks!
+
+  * DEBUG: Added stuff for debugging for different memory models on Unix
+    machines with an mmap() that can map memory at the addresses normally
+    used by the target machine.  See morecore.c
+
+Version 2.1.13
+==============
+
+  * WIN32: Fixed error reporting of shell/1.
+
+  * FIXED: added a flush() after completing the user-query.  This gives
+    better output for ?- write(hello).
+
+  * FIXED: file-name conversion cache management.  This cache is used
+    by absolute_file_name/3.
+
+Version 2.1.12
+==============
+
+  * Most of these fixed after comments from David Plummer.  Thanks.
+
+  * FIXED: displayq for ','(...)
+
+  * FIXED: read/1 and friends to handle {}(..) and [](...) correctly.
+
+  * FIXED: format/[2,3] to be able to write unlimited-length output,
+    provided there are no `pending' ~t's.
+
+  * COMPAT: absolute_file/3 to accept list of access-modes
+
+  * MODIFIED: access_file/2 to succeed on write and append mode if the
+    file does not exist, but the directory can be written.
+
+  * FIXED: unification order in translating grammar --> {goal}.  Noted
+    by Andreas Steiner.
+
+  * FIXED: Temporary-buffer management in Svfprintf() and friends.
+
+Version 2.1.11
+==============
+
+  * FIXED: functor(X, 8, 0) to yield X = 8.
+
+  * DELETED: library_directory(.).  Gives too much problems because the
+    system picks wrong files or directories.
+
+Version 2.1.10
+==============
+
+  * ISO: added compliant open/4 predicate.
+
+  * Moved all printing of the system (banner, prompt and warnings to
+    use user_error (=stderr) rather than user_output (=stdout), so
+    it becomes easier to use Prolog's standard output.  Stderr is
+    unbuffered, several predicates that will output more than one
+    character now use a `temporary buffer' to reduce IO-load.
+
+  * ISO: Added arithmetic functions: rem/2, ** (= ^), ceiling (= ceil),
+    float/1, float_fractional_part/1, float_integer_part/1, truncate/1,
+    sign/1 and round/1 (= integer/1).
+
+  * ISO Syntax: Changed quoted atom and string syntax to support character
+    escapes, broken lines, etc.  These changes can be switched off
+    using ?- set_feature(character_escapes, false). for backward
+    compatibility.
+
+    Also, 0b110, 0xa2 and 0o70 (binary, hexadecimal and octal) number
+    representations are now recognised.
+
+  * ISO: Added features bounded, integer_rounding_function, max_arity.
+
+  * WIN32: Various changes to the console: use standard colours and
+    font, allow for changing colours.  Bind Control-Z to end-of-file
+    (alternative for Control-D, which is still valid).
+
+  * WIN32: `pl state.qlx' now assumes state.qlx is the result of a
+    qsave_program/[1,2] and automatically loads the state.  This
+    allows for associating states with the emulator.  Also, pl file.pl
+    will automatically chdir/1 to the directory containing the file
+    and load the file before entering the toplevel.
+
+  * WIN32: Fixed some filename case problems: expand_file_name/2 now
+    works case-insensitive.  Comparing files for sorting is done case
+    insenstive.
+
+  * WIN32: Command-line breaking now handles "quoted arguments".  Only
+    double quotes and no escape (I don't know the Windows'95 escape
+    conventions).
+
+  * WIN32: Fixed filename completion from console window.
+
+  * INSTALL: Fixed detection of non-gnu/gnu make
+
+  * FIXED: use_module/1, etc. to import predicates exported using the
+    export/1 directive instead of the module/2 directive.
+
+Version 2.1.9
+=============
+
+  * FIXED: Updated stack-shifter code for the changed layout of the
+    environment-stack frames.  This bug prevented pl-gc.c to compile
+    on machines having no virtual-memory based stack allocation.
+
+Version 2.1.8
+=============
+
+  * ADDED: check in exit code that removes possibly incomplete .qlf and
+    bootfiles if an error occurred while building the file.
+
+  * FIXED: WIN32 tmp_file/2.  This fixes help/1.
+
+  * FIXED: configure for users of a shell that doesn't export $PWD and
+    the system chooses the install-sh script.
+
+Version 2.1.7
+=============
+
+  * FIXED: management of clause index-table.  Old code lead to indefinite
+    growing of these tables with repetative assert/retract
+
+  * ADDED: Improved dirty-management on clause indexing system to improve
+    the performance on retract from hashed dynamic predicates.
+
+  * ADDED: absolute_file_name/3: options file_type, file_errors and
+    solutions for compatibility.
+
+  * Win32: compiled (with small updates) for Win32
+
+  * ADDED: Implemented open_null_stream/1 by defining a null-stream in
+    SWI-Prologs stream-i/o package to avoid the /dev/null dependency.
+
+  * ADDED: Saving current operator declarations with qsave_program/[1,2].
+
+  * FIXED: Garbage-collector error.
+
+  * FIXED: predicate-reference count problem
+  
+  * ADDED: style_check(+dynamic) to report on manipulation of predicates
+    that are active in the interpreter.
+
+Version 2.1.6
+=============
+
+  * INSTALL: installs pl in the SWI-Prolog tree and just creates a link
+    from the binary directory.  Makes it easier to move and redistribute
+    the SWI-Prolog binaries.
+
+  * CHPL.c: fixed conflict for basename()
+  
+  * FIXED: file-searching cache returning alternate answers in different
+    order.
+
+Version 2.1.5
+=============
+
+  * ADDED: notrace(+Goal) to run Goal invisible to the debugger.
+
+  * ADDED: open_shared_object/3 to be able to pass flags to dlopen().
+
+  * CLAUSE INDEXING: version 2.1.5 provides hashing to speed up first
+    argument indexing.  Numerous changes had to be made to realise this:
+    Indirection in the clause chain of predicates, implementation of a
+    lazy automatic system to guess the proper way to index a predicate,
+    a new clause-reference count system (avoiding problems with manipulation
+    of `active' predicates.  The representation of predicate and clauses
+    has changed in various ways.
+
+  * INSTALL: Changed various things to the configure options and detection,
+    to the defaults make more sence.  Upgraded to autoconf 2.4, fixed for
+    cross-compilation.
+
+  * PORT: Fixed various things for the Linux/ELF port.  Tested on
+    Linux 1.2.13 running libc-5.0.9.  Compiled with gcc-2.7.0.
+
+  * PERFORMANCE: Implemented automatic rehashing of all (previously)
+    fixed-size hash-tables.  Prevents performance degradation on very
+    large programs.
+
+  * FIXED: profile/3 problem (leading to crashes).
+
+  * FIXED: pl -O bug: trailing of is/2 was not handled properly.
+
+Version 2.1.4
+=============
+
+  * MODIFIED: Changed definition of absolute_file_name/2.  Moved
+    absolute_file_name/3 from library(quintus) to a built-in predicate.
+
+  * ADDED: file_directory_name/2 and file_base_name/2.
+
+  * ADDED: end_of_file is now passed to term_expansion/2.
+
+  * DOC: Many updates.
+
+  * FIXED: read/1 for foo.%comment (i.e. no space between the . and the
+    comment).  Note that foo./*comment*/ doesn't work as this will be
+    tokenised as `foo', `./*', `comment', `*/'.
+
+  * ADDED: lazy recomputation of clause indexing.  This notably speeds
+    up loading .qlf and bootfiles.
+
+  * ADDED: hash_term/2 for advanced indexing of databases.
+
+  * ADDED: setting file_search_path through the command line using:
+    pl -p mydir=/foo/bar.
+
+  * FIXED: Semantics of ensure_loaded/1 if the file is already loaded,
+    combined with the module system.  See ensure_loaded/1.
+
+  * FIXED: Grammar rule compiler's handling of non-proper lists in the
+    head or body (lists ending in a variable).  Lists of more then one
+    element are now translated into append/3.  The following now compiles
+    ok: string([H|T]) --> [H|T].
+
+  * MODIFIED: term_to_atom/2 and atom_to_term/3 to fail silently on a
+    syntax error.  Both predicates now also accept a string in the place
+    of the atom to parse strings: term_to_atom(X, "foo(bar)") works as
+    expected.
+
+  * ADDED: `swi' and `foreign' aliases to file_search_path/2.
+
+  * MODIFIED: Grammar rule translator now uses 'C'/3 instead of '$char'/3
+    to extract the head.  Compatibility.
+
+  * MODIFIED: at_initialisation/1 is now called at_initialization/1.
+
+  * INSTALL: Fixed Makefile and configure to be able to build the system
+    for multiple platforms.
+
+  * ADDED: Infra-structure for making portable saved-states (equivalents
+    of boot files):
+
+	+ initialization/1	(goals to run at initialization)
+	+ volatile/1		(predicates for which not to save clauses)
+	+ require/1		(define we require this predicate)
+	+ autoload/[0,1]	(autoload needed things now)
+	+ qsave_program/[1,2]	(make a quick-loadable state)
+
+  * ADDED: compound/1 to test for compound terms.
+
+  * FIXED: compilation of ``foo:Head :- Body'' to be equivalent to
+    foo:(Head :- Body).
+
+  * FIXED: problem in read/1 and number_chars/2 that may have lead to 
+    garbage collection errors.
+
+  * FIXED: setarg/3 integrated in the trail-system.  Removes its
+    choicepoint and ensures data consistency.
+
+Version 2.1.3
+=============
+
+  * ADDED: setarg/3 for extra-logical assignment to arguments of terms.
+
+  * MODIFIED: PL_new_integer() now returns a floating point value if the
+    argument exceeds SWI-Prolog's integer range.
+
+  * ADDED: Automatically dumps the top of the runtime stack on floating
+    point exceptions.
+
+  * FIXED: Trap floating point exceptions for the win32 version.
+
+Version 2.1.2
+=============
+
+  * FIXED: read/1 problem.  Try reading just '0'. ...  Reported by
+    Daniela Genius.
+
+  * FIXED: `toplevel' variable expansion system, leading to various strange
+    behaviours in handling queries from the user.  It now can also handle
+    cases as:
+
+    	?- X = 5.
+	?- X is $X + 1.
+
+Version 2.1.1
+=============
+
+  * MODIFIED: DCG translation of free variables now calls phrase/3, which
+    has been changed slightly to deal with `un-parsing'.  Modification
+    is probably not complete, but it fixes some problems encountered by
+    Michael Boehlen.
+
+  * MODIFIED: keysort/2 is now stable with regard to multiple values on
+    the same key.  Makes this predicate compatible with SICStus and
+    Quintus.
+
+  * FIXED: :- dynamic, :- multifile, :- module_transparent and
+    :- discontiguous to accept Module:Name/Arity, ...
+
+  * Moved call/[1..] into the compiler.  call/[1..6] is removed from
+    library(quintus) as it is now part of the base system. Also fail/0
+    and true/0 are now handled by virtual machine instructions.
+
+  * Upgrade to autoconf 2.3, fixed usage of `tr' for Solaris 2.x and
+    with that the configuration of --enable-shared.
+
+  * FIXED: number_chars/2 and name/2 now handle floating point numbers.
+
+  * FIXED: interaction between chdir/1 and absolute_file_name/2.
+
+  * FIXED: format('~*c', [10,45]) (or more in general, providing an argument
+    to ~c to print the character multiple times).  Thanks to Michael Boehlen.
+
+  * FIXED: PrologPrompt() to allow reading standard input from the -g and/or
+    -t goal options.
+
+Version 2.1.0
+==============
+
+  * Added facilities to allow for embedding SWI-Prolog in C applications.
+
+  * Fixed semantics of the cut in toplevel queries by compiling the query
+    instead of using meta-call.
+
+  * Fixed bagof(A, member([B, C]), L) to yield L = [B,C] instead of making
+    new variables.
+
+  * Fixed typo in dde.pl (reported by Thiebaut Moeglin)
+
+  * Integration of NeXT patches from Thomas Hoppe (hoppet@cs.tu-berlin.de).
+    Probably still not 100% ok, but should be closer now.
+
+  * Fixed XPCE event dispatching for pl -tty
+
+  * PL_univg() C-interface function added for supporting XPCE > 4.8.10
+    with better interface performance.
+
+  * Fixed operator precedence problem (reported by Dave Moffat)
+
+Version 2.0.9
+=============
+
+  * ADDED: HPUX interface for shared libraries, but a HPUX guru should
+    fix the import/export details (line was too slow to browse to lots
+    of manual pages).
+
+  * FIXED: pl-incl.h typo (breaks IRIX 5.3 port and propably others)
+
+  * FIXED: HPUX detection of mmap()'able stacks fixed.
+
+  * FIXED: generation of include/SWI-Exports, the AIX export declaration
+    file.
+
+Version 2.0.8
+=============
+
+  * FIXED: loading shared objects using dlopen() for solaris 2.x
+  
+  * FIXED: shlib.pl current_foreign_library/2 administration.
+
+Version 2.0.7
+=============
+
+  * FIXED: compilation (boot and .qlf) now donot look for compiled
+    (.qlf) files.
+
+  * CHANGED: Default goal writing the banner is now in the flag
+    $banner_goal (used by XPCE as a shared library).
+
+
+Version 2.0.6
+=============
+
+  * CHANGED: retractall/1 implementation is now compatible to Quintus,
+    avoiding the hacky redefinition in library(quintus.pl).  The difference
+    is that now the argument will only be matched against the clause-head.
+    on a match the clause will be removed, regardless of its body.  Makes
+    no difference for retractall on facts, but does make a difference on
+    clauses with a non-just-true body.  retractall/1 is now a deterministic
+    foreign predicate that no longer decompiles the clause body, making
+    it faster too.
+
+  * FIXED: made .qlf files independent of the directory they where compiled.
+
+  * FIXED: Path canonisation problem
+
+  * FIXED: loading .qlf files holding already-defined modules
+
+  * ADDED: file_search_path file-location system
+
+  * ADDED: access_file(File, exists) to check for bare existence.
+
+  * FIXED: Another clear_uninitialised() problem related to if-then-else
+    causing garbage collector and possibly stack-shift errors.  As the
+    implementation is now changed radically, this problem should be gone
+    forever ...
+
+  * FIXED: copy_term/2.  Now creates more efficient terms (less references)
+    and no longer creates bad references.
+
+Version 2.0.5
+=============
+
+  * MODIFIED: Replaced libc based stream IO with more general IOSTREAM
+    package.  Deleted folding capabilities as just about any IO device
+    has these built-in these days.  These changes are to facilate embedding
+    in window-based environments that do not support stdio.  See pl-stream.c
+
+  * FIX: dwim_match/2 for single character mismatch.
+
+  * ADDED: atom_chars/2, number_chars/2, atom_char/2, various new
+    unix/1 arguments.
+
+Version 2.0.4
+=============
+
+  * MODIFIED: Consult and friends (ensure_loaded, use_module, etc.)
+    no longer change directory to the directory in which the file
+    lives.  As a consequence, directives have to use prolog_load_context/2
+    or source_location/2 to find the context directory of the directive.
+
+    consult and related directives still load relative to the directory
+    in which the currently loading file lives.
+
+  * Added prolog_load_context/2 to provide context for directives.
+    Actually moved from library(quintus) to the boot image as the
+    predicate is now necessary.
+
+  * Added -DO_RUNTIME support to make a version	that is more suitable
+    for distribution of products: no profiling, no tracer, no readline
+    and no interrupt handling.  Setup using configure --enable-runtime
+
+Version 2.0.3
+=============
+
+  * Fixed: loading qlf files now push the source context while running
+    a directive, so source_location/2 should work while executing a
+    directive from a .qlf file.
+  * Fixed: recognise MAP_ANONYMOUS for configuring mmap() based stacks.
+  * Added feature(dynamic_stacks, Bool) for detection of virtual memory
+    based stack management.
+  * Fixed feature(open_shared_object, Bool) (Michael Kauschke)
+
+Version 2.0.2
+=============
+
+  * Fixed pl [options] -c file ...
+  * Improved VMI implementation for (if -> then ; else), \+ and (a;b).
+    Reduces overhead of these to about 1/3th.
+  * Added VMI support for fast calling of foreign system predicates that
+    are called with only variable arguments (i.e. `test(X) :- integer(X)'
+    is optimised; `test(X) :- integer(3)' is not).  Provides big speedup
+    for fail, true, integer/1 (etc.), and many other commonly called
+    foreign predicates.
+  * Support for mmap() using MAP_ANON.  Avoids a file-descriptor and hopefully
+    improves portability of dynamic stacks.
+  * Fix for Solaris 2.4 mmap() detection.
+  * Fix: added autoconf test for using asm("nop") in pl-wam.c or use slower
+    but more portable C alternative (fixes RS/6000 version)
+
+Version 2.0.1
+=============
+
+  * FIX in garbage collector of 2.0.0 was only half the story.  Should
+    be ok now.  Thanks to Thomas Hoppe for supplying me with the error
+    report.
+  * FIX & performance: current_functor/2 with the first argument is
+    instantiated.
+  * Installation: the libraries are now installed as
+    $(prefix)/lib/$(PL)-$(PLVERSION).  A possibly existing executable is moved
+    from $(prefix)/bin/$(PL) to $(prefix)/bin/$(PL).old
+
+
+Version 2.0.0
+=============
+
+  * Added `Quick Load File' compilation support.  See qcompile/1 and
+    qload/1.  Alpha stage.
+  * FIXED infrequent segmentation violation occurring on machines with
+    dynamic stack management, but whose signal handler is not provided
+    the address of the fault (Linux and Solaris 2 for example).  The
+    crash can be in various foreign predicates that use the local stack
+    as scratch area.
+  * Important FIX to the garbage collector.  This bug may happen iff
+    a garbage collection is invoked while clauses are active that have
+    \+ or (a -> b ; c) constructs that are not yet active.  Generally
+    the problem is reported as an inconsistency in the relocation count.
+  * Fix to virtual machine encoding that applies to versions compiled
+    with gcc 2.x and whose text-space starts at a high address.
+  * Modified absolute_file_name/2 to take specifications of the
+    form absolute_file_name(library('shell.pl'), X).
+  * Various fixes to the new .qlf format and support for compiliation 
+    of individual or combined sources into .qlf files.  .qlf files may
+    now be loaded as normal sourcefiles instead of only as `boot' file.
+
+
+Version 1.9.6:
+==============
+
+  * Fixed for BIG_ENDIAN machines (Intel, VAX, ...)
+  * Windows version: added dde_execute/2
+  * Added Quintus compatible foreign-language (C) interface.
+  * Changed .qlf (former .wic) format drastically.  The current
+    format gives about 30% shorter files and loads twice as fast.
+  * Changed basic clause representation.  VM op-codes are now
+    full machine words, avoiding the need for the `XR' table
+    management and related indirections.  Simplifies the instruction set,
+    speedup for compiler, decompiler (retract, clause) and execution
+    (about 10%).  Enlarges program-size with about 10%.
+
+
+Version 1.9.5:
+==============
+
+alpha-2
+
+  * Fixed prolog_frame_attribute/3 for key=parent.
+  * Added at_initialisation(+Goal) for initialisation hooks
+  * Fixed tracer problems introduced in 1.9.5-alpla-1.
+
+
+alpha-1
+
+  * Moved sourcecode administration from predicate to individual
+    clauses.  Purpose: better source-level debugger support, better
+    handling of multifile predicates.
+
+  * Recompiling files holding clauses for multifile predicates now
+    works properly. The clauses of the latest loaded file will
+    always be the last.
+
+  * Removing a predicate from a file and recompiling the file
+    now actually removes the definition from the Prolog database,
+    even if you are not using modules.
+
+  * Added prolog_frame_attribute(Frame, clause, ClauseRef) to get a
+    reference to the currently running clause.
+
+  * Added clause_property/2 to get the source information from a 
+    specific clause.
+
+  * Compiled state (-c compilation) has changed a little.  The system
+    does not load old states.
+
+
+Version 1.9.4.  Redefining system-predicates is no longer allowed.  This
+may be overruled using  :-   redefine_system_predicate(+Head).   Fix  in
+Makefile (from Kayvan Sylvan): fixes shell   syntax  error make install.
+Give warning on user-files trying  to   load  module  `user' or `system'
+(this is why library(system) could not   be loaded).  Fixed whereis/1 to
+find locations of predicates.   Fixed   trace/[1,2]  to  avoid low-level
+errors on bad specifications.  Specification now   also  accept the much
+more natural ?- trace(append, fail).  as a shorthand for [+fail].  Added
+autoloader handling to ed/1, listing/1, spy/1 and trace/2.  Manipulating
+not-yet-loaded autoload predicates will trap the autoloader.  Added hook
+for help-system, so we provide a   decent help-window when running under
+the XPCE graphical environment.  The   hook  is called show_help_file/2.
+Fixed  rename_file/2  (bug  introduced  in  pl-1.9.2).   Fixed  versions
+Windows-specific problems.  Added  prolog_to_os_filename/2   to  convert
+between internal and external names (DOS/Windows).  Integrated the 1.9.4
+patches for the Windows  version.   Fixed   to  compile  on  AIX.  Fixed
+compilation on some Solaris version.
+
+Version  1.9.3.   Fix  index/1  problem    introduced   in  1.9.2.   Fix
+stack-expansion problem in all versions that   lack hardware support for
+stack-expansion.  Some cleanup in pl-gc.c to make clean compilation with
+-Wall  and  -DO_DEBUG  possible.   Regenerated   common  prototype  file
+pl-funcs.h using mkproto tool (and some editing).
+
+Version 1.9.2.  Configuration is  now  based   on  GNU's  autoconf.  All
+md-*.h files have been removed from  the distribution.  $arch/2, $home/1
+and $version/1 have been replaced by feature/2.  A predicate read_link/3
+has been added to read symbolic links.   Installation is tested on SunOs
+4.1.3, Solaris 2.3 and Linux 1.0.9 with readline 2.0.3.
+
+Version 1.9.1.  Added: Windows DDE   interface,  Added Unix/System-V (?)
+interface to dlopen() and friends to access shared objects dynamically.
+
+Version 1.9.0.  Incorporation of various  ports: md-netbsd.h, md-mswin.h
+and  md-msdos.h.   There  is  a  binary   distribution  for  Windows  in
+win-pl.tgz of the main ftp server (swi.psy.uva.nl).  The DOS and Windows
+versions are created using the WATCOM-C/32 toolkit.
+
+
+=======================================================================
+Version 1.8.12.  Fixed tracer option `f' (fail) used on the exit port of
+a goal.  Thanks to Thomas Hoppe.
+
+Version 1.8.8.  Fix  in  the  parser   to  avoid  some  bad syntax-error
+messages.  Also fixed spurious crashes   trying to read bad-syntax-terms
+of the form ?- atom,.
+
+New in the quintus.pl library:  initialization/1, random/3, numbervars/3
+and absolute_file_name/3.
+
+Version  1.8.7  includes   the    catch/throw-like   control  structures
+block(+Label,  +Goal,  -Rval),  fail(+Label),  exit(+Label,  +Rval)  and
+!(+Label).  Also new is explain(+Anything) which will  try to tell you a
+lot of what the system knows about  the term you entered.  Additions and
+suggesions are welcome.  Also new: library(bim): A partial Prolog-by-BIM
+(tm) compatibility package by Henk Vandecasteele.  Thanks.
+
+Further fixes:
+
+	* Bug in detecting stack-overflow for the PC/linux version.
+	* Handling of SWI_HOME_DIR (fixes installation problem for
+ 	  XPCE/SWI-Prolog).
+	* atom_length/2: give warning (instead of crash) on invalid
+	  data-type (e.g. unbound, term).
+	* nth_clause/3: Removed errornous warning when cut-off and
+	  fixed returning 0-reference for defined predicates without
+	  clauses.
+
+Version 1.8.6 defines phrase/[2,3] for accessing grammar rules and fixes
+name/2 for numbers outside the  integer   range  (yielding  a float).  A
+predicate nth_clause/3 is added to provide access to specific clauses of
+predicates.  xmalloc(), xrealloc() are added to   fix some problems when
+linking with gnu-libraries.
+
+Version 1.8.5 contains a few fixes  for the SunOs-4/gcc-2.5 combination.
+DONOT USE GCC-2.5.[123] as the optimiser   appears broken.  gcc-2.5.4 is
+ok again.
+
+Version 1.8.4 fixes =@=/2, contains a more  logical form of arg/3, fixes
+passing empty-string arguments from the   Prolog  command-line and fixes
+some things for old non-ansi compilers.    There  are some extensions to
+the quintus.pl compatibility library.
+
+Version 1.8.3 Fixes some  more  readline   problems  having  to  do with
+running SWI-Prolog as an inferior process under EMACS.
+
+Version 1.8.2 fixes some serious  problems   in  the tracer intoduced by
+more global changes in 1.8.0.
+
+Version 1.8.1 fixes load_foreign for  both   SunOs  4.1.3  and PC/Linux.
+Extensive use of the stat(2) system call is reduced with some changes to
+the file administration.  This speeds up loading  many small files by an
+incredible amount, notably when reading over a (slow) network.
+
+The manual is  regenerated.   There  are   not  many  changes,  but  the
+PostScript files in these archives are  totally different as we upgrated
+LaTeX and dvips.  Therefore  the   patch  file **diff-1.8.0-1.8.1** does
+*not* include the patches to the PostScript manual.
+
+Version 1.8.0 includes a stack  shifter,   enabling  dynamic  stacks for
+machines that do not offer hardware support by providing suitable access
+to  the  virtual  memory  management.    Fixed    a   bug  in  concat/3.
+expand_file/2 is now sensitive to fileerrors/2   while expanding $var or
+~user.   More  bugfixes  to  the    readline   interface.   Manual  page
+contributed by Dave Sherrat.   RS6000  port   no  longer  uses -lbsd and
+compiles on gcc.
+
+================================================================
+Version 1.7.2 should compile on Solaris 2.2   using gcc 2.4.5.  It fixes
+the usual couple of portability problems,   the  terminal interface when
+connected  to  the  XPCE  graphics  library.     It  ads  line_count  to
+predicate_property to support a future graphical debugging tool.
+
+Version 1.7.1 fixes a very serious   memory  allocation violation in the
+connection to the readline library.  Make sure to update from 1.7.0!
+
+Version 1.7.0 contains a version linked   with  the GNU readline library
+for  bash/tcsh  compatible  line  editing.    The  library  readline  is
+distributed separately and must be   installed before installing prolog.
+The  file  readline-1.1.tar.gz  contains  the  unmodified  GNU  sources.
+librl-1.1.tar.z contains the binaries for PC/Linux.
+
+================================================================
+Version 1.6.18 contains a fix to load_foreign/[2,5] for PC/Linux.
+
+[Version 1.6.17 has been reinstalled at Jun  1 23:16 with two prototype
+fixes and a fix to save_program/1 necessary for the RS6000.]
+
+Version 1.6.17 fixes  some  minor   installation  problems  reported for
+1.6.16.  The online manual has been   updated for trace/[1,2].  Callback
+of undefined Prolog-predicates from C now correctly trap the autoloader.
+Analysis of the PATH variable to  find   the  Prolog executable has been
+fixed.  Nothing serious if you have a running system!
+
+Version 1.6.16 integrates port to 386  System-V   Unix  made  by Eric S.
+Raymond (esr@snark.thyrsus.com), who also ported   the  shell scripts to
+use sh rather than csh.  The new   predicates  trace/1 and trace/2 allow
+for tracing individual predicates non-interactively.
+
+Version 1.6.15  eliminates  some  compiler  limits,   fixes  a  bug  in
+trail-stacks management and provides a much   better  port for PC/Linux.
+Requires Linux kernel 99pl7 or later.
+
+Version 1.6.14 provides 8 bit character  support.  All characters in the
+range 128 ...  255 are treated as   lowercase letters.  op/3 is fixed to
+actually delete operators when priority 0 is specified.
+
+Version 1.6.13 implements  standard  order   compatible  to  Quintus and
+contains  a  fix  of  the  module  system  which  broke  the  Quintus.pl
+replacement of retractall/1.
+
+Version 1.6.12 is te result of  integrating   ports  to  LINUX, OS/2 and
+HP/UX with the main-stream (SunOs).
+                                                                                                                                                                                                                                                                                                                                                 rës}¹u¹m¹M¹çò~Ëû³øyñ«bè7ÈUÈ%ÈeÈCÈÈYÈuÈMÈyÈcˆ¦„é`ßaÕ°JX9¬¶şY‹|ƒ¬F¾@~A>F¾BV +‘>ä'dò!ò²
+ù95EDCÑh4
+E#Ğ\ô!4} MEÃĞÑ,Ì=ììßØ;ØÛØ[ØËØûØKXAH8DTŸÿ"N aHgIçH3(ã(û(s)íä™”^ò Êp
+ˆrˆ²‹r˜²•²†²2†2”²A¤N¤o¥Ï¡/¡/§o¡/££Ï¢O¢¡¯£O¡O¥¥ó%ŒŒf*3…icz™f.ÓÉeeqø,GÉ!s9'†câà°9\‘ç¨9VCãà8{¹î]n)÷7À=&8/x#¸&¸/p	Š¿
+r·7g¯^A¡àà­à´à„àŠ $Æˆ9bºx¿˜%Æ‹yb¦ø˜!&Š÷ˆÙâxñO˜d½t·t›t«T(ÃÊ2’Œ(Û.Û&ÃÈp2¼L!WÉC-òAŠ6y«¼OÈ;äíòoŠï
+œ’«d*‰JšR­LPò”x%CÉVR•ÍÊtÕU*WåP¥ªUnU¦J¯Ò¨õj£z™å¶z–f†ff’f®f¦DsD£ÔŞÕ’µ-K{1ñrâÕÄLZçÖu:œN çèôı)ıIı/úxÚ`5Xb£È¨22Œ£ÔÈ5ª#Ó8Ä´×d²(-[,±¹…iáZö[xœe³e­…b¡Y8¾e…hÅ[IÖ^ëÄ”á)ÃRBR¬~ëà”Ğ”¡)#S0¶ï¶·¶¶/¶¶¯¶2ÛSÛ¿¶×¶ÂÔŠT®]b—Ú™v]dO±'Úiö#v±=ÙÎ·Sí;Ï®¶kí[íl;Õaw¤::;şr<p\rüé¸ïxè(s~wÖ:}ÎvgŸ³ŞYé¬v^JÍ‘1>2£$ãRÆA×ÜµÃ…pmv!]×^ØrvA][]Û]ÜSİ<w‚›ã~â^ïAy6x¶xâ<[=8ÏAİõ¬ñì÷öìölôló`=¹Ù¹Ş,o¶÷¹÷™÷‰÷©·Ûë÷öz»¼ñ9²ENxîøÜ‰¹#s'äÎíÏíÈää^Î»˜w%¯,¿®ĞT<¶dbÉ¼’H3¤
+òÒùùòò
+Ò
+y©ƒP¡íP3Ì‹…ÿ@†ÄÏŒŸ@NŠ?"~LüØønä”ø¹ñÃãÃã»ÓPSPrtÚŒÎDÛÑjt2Z‡ £1‘˜(L†ƒ)ÃVcë°ï±ï°°X9î®W†«ÂUãjqå¸JÜwÜ<o!¤pDIDÄ7ÄwÄ‘¤=$éÒ^Ê6ÊAŠ’B¥Ğ($
+–‚¦È)K¨)t4Aÿ…®¢“è:”Î¢¯¡óéZº„q”ññqŒy’YÄ,äœädsîqÎqŞpq
+8×979g8W8ÿps~ãüÍ9Îù“ó3g?÷w5oµp’p@0QØ!X,Ü*œ'\&',ŒŸ`¨0V¸A¸J8_8Y¸T¸Rh.6
+	ÛºYâ<±Nl[ÄñV‰Gâ•ì’B¤tM– Éø²0¹[¾P1F1J1B1QQ¦¨PX”:¥^IQŞS•¨N¨.«N©~V¥«3ÔNõ
+M¬æ´æ”¦IãÓÕfkÓ´rm¶H›¥ÍĞş®MÑZ´$ŞN¼“xSwAW¨»­»£;¢{ª»¢»¤»¨»¡;¦+Õ]Õı®ûM÷Z÷XwV'ÒÿĞ—é¿ë‰¬!Å 1ŒF›ÑnÔMÆcŸq˜i’ié é‰¥ÔòÈòÀ’g)¶\²ZY~·Üµ¼±¸,·,¯,O-ÛRf¥lJ‰L‰NY“2-™²>eqJ»mpj‡­×ÖcØjm3R}¶ãv‡½Øş³İi?jÏ´ÿb?mÿÕ~ÒkwÛóí'ì	§Ãáxãxåxíà:óœÙÎ~ç¤Œ	“3&füœAv¡]xÍ…q]TÁ…sMwOsÏqËİ*·Ò-s«<g=O²'×ãõh=™BÏIO¢Çí9š}2ûTöÏÙ¿fÿ’ç-ôxÿö¾ö†ä$æ$çtåLÍ–{>÷bnhŞ¼Ñy#òîåÏ¿_¿½`GAGaWa{á­âM%JÂ !P?¤ÒıMÙ`©0'Ìk]‚¯ˆß¿1~Uü¶ø5ñ‹ãáñ xT¼,~]üÊø˜àKU	º}]ˆ>‡>…>æcFàüØQ¸NìhÜp\3®W‡kÀÑñ|!‹@%’ˆb9ññ;ñ+±‚øƒ¸$&]']%)(,Š€B  )&J"EDáR’('(.ÊJ:å,%Ÿò%‹r²‚Ê¡éjz1ıİFwÑ/Ğ¥gÒ³é§èú9úoô3ô|úYzıı2]ÎP2TŒsÌ3Ì+Ì‹Ìù	sj9ƒæ$LOp"&&ŒLhçN’ĞÄŸ á‚¸¿prq·	…!TÈ"„V!_ˆª„aºP#	éÂ!Zø¯@($IÂñYñEñIq¼¤@’¢¤YšÌ,K’dzù<ÅbÅ\E”b"B©ÈWÜPT*Ò•)J‡Ò­LS>S=TİP=UİQı«º¥úGµM³Y§Ù¢Y¯Ù¤9¯9§ùM{Qû@{EûHûX{O{Dû·öiâ]‡Î§óë>èu_uµº
+İ'İ7]®X÷Q×¦ëÕÉõJıy}~¡ÀXh,21æsS“·$ÏHn¶,K^<1y|òüäˆäIÉ–èdÀ24Ù”"KQ¤S˜)ªv
+&•r(‚³lá©ÃR'¤NLœ:2õ–ıµı±ı=ÛşÌŞc¿db¿o/µ_°¿³?·_³ÿaÿl?ä 9xojG¥£ÑÑä(wT8¾8êe¾³Äù³sizxúìôÈôqé‹Óç¦G¤ÏI¿‘>;cfÆÜŒÅ2–dÌÊ˜“Áq	\lß¥tÅ¸—»ºcİ)îTwšÛì~è¹é¹î©÷Tzîy.{ny^{{Z<—<¿e_ÌËš3,gD9Ç™“–“‘‘»4wVîåÜ‘yó&äMËûš÷OŞ÷¼Ïy¯òşÍ{÷1ïz~s¾/aÁî‚]ÊaÁĞ¢E¡E§Šï¿(>‰†•L€NƒN‚†C'CĞÓĞ¯P7,ÖÃÄsãÕñœxz¼*>!ÏˆÇãyñÔxEü=ôôcôC´ 3·§ÂµàÆâ.QÜ”S;å9ååå)å/Jõ!ııı&ıııı1ı>ı9½”şšş–~‡.c<b>aşÁ|À|Ìü¹%aCÂO	˜n:acÂ®j%á`ÂŞ„µ	¤„}	®’;„w_xQxTø§ğá=á	áeá]áÂkÂãÂ#Â+Â;â'âÄ¯Å‰ÿÿ!~!ş(ş"şSü@Ì–Ê~–åÊJdÅ²rÙhùùÅÅOŠE•âˆ²XY¢üUY«ú¤jTÕ¨«k@š=šCšƒššÚñ‰O´•ÚÏÚ2m¶Zûoâ»Ä‘Iã“†'ÍLšŸ4'ivÒˆ¤ğ$µş’¾EßªoÖ/2\624úÃMhÆt “¼/™ÌIŞ™¼?™ŸœLL6§”¤§Kq¦PlKRW¥F§.MH=z<µÚŞgo°·ÚCÒ¾ØkìÍöû ´Áiİö&{»½ËŞoç:øLG‡cWzlúšôéÓ×¦oÊX™±!cuÆÉŒãr—Ì¥rI\‰.kÛã—¹.³Ç³:sefdf¿gifXæŒÌğÌ™™“3WdNÏ¼™}Â{Ò{Úû¯wlÎøœ)9cr&æŒËÁåàs˜9¹91¹r7å®Ï]»17*7<oQŞœ¼™yy3òšòÊóZó~Ï¿•ïÏoÊ_Tà.˜\4¿hAÑ¢¢	E3‹>¿-v––,Î…F@WA;aéñ†xW|r|J|Fü¿è7èWèèÜ\Nƒ[gãonn~'p‰‡H·IO(÷))Õ”g”UÔ5Ôô§ôôôz5½‘ŞJ/§7ÑM3ã#óÓ•`I8–P˜ğ9áç„¤„œWÂ‘<÷÷w8ïƒ°Uø]øCøYX)lú„a£°LX'üWØ,lÖˆ¿‹›ÅÕâ*q“¸QÜ!ş!^+Ù#I%ÒS²²ã²“²=ŠŠCŠzÅeåiååYå	åoJŸ²[Õ§êPùTƒÔ'Ô§Õ(M©fXâ˜Äm·vtâş:öKâ·ÄòÄï‰¿&®HÚš´'i}Òª¤IK“¶$Å&íNÚ´&icÒ¾¤µIÛ’V&íÒ·ëûõbƒÄ 2RÃ#ãŸÆÆûÆ»ÆRãmããc­q„Il:lINJ.Lv'g%ŸO.HNI>™lO>Ì²ŞMy•r9åuÊ£”3)7Sn¤ü•ò,eSêºÔ]©R·¤M›65mzÚÌ´‘ióÒf§…¥…§mwlsH}€£ßÑãğ;N:÷§Lß—~ }WÆÖŒ»3¶eè]:—Ået™\×F÷Ïîbw¡ûp¦)sQ¦<ó@&#ó`æ´Ì¤L^&.S”‰ÍDd>Í~–ıwö_Ù²/z÷¾óÎÊ™“s$çMÎÜk¹kóåyç
+Îœ.ø­`SÑ¶¢´â—ÅßŠ¿-ş\¼µä`I9<;ş\üGôô‘TAYMí ·ÑèC}t?½›~ñ…¹€u9álÂŸ	7~O¸Ÿp.á|‰«âç‡Šú„ãEãD~q¿x@Ü#VJåÒ²RÙdy¼­€)n+K•7•·”cÕçÔUCÖ<Ğ<Ô,M\˜¸$qNâüÄˆÄšDD2‰˜„M¢$Á’0Iûô½z¿^iP_Gš^&ŸJ~üOò“äÉ7’ÿHö¥4¦´¥üH±¦^JíH]”¶1mYÚÒ4ˆcˆ“NKg¦ÓÓIéÈô»éû3g¤¸Ì.›ëŒû¬ûwV¦=Ó›y,óræ¹Ì³™2s3ó3s2ßf¿Ëş'ûßìrïïGïgï7oTÎÏ9Çs~ËéÍ9œÎ=”Ê…çŞÈİš·-oKŞŠ¼_óÆæßË-Z . .xZğ¤ PğWÁİh¡ˆ\ô£xrÉ²’ÕĞ_ãOÆCG—£;q®’Fb¥›ÒEé¤„0Æ1~0¿2«¾&|Jx“0S4W´H4C4[4Y4M4T2F‚–“¨¤émÙSY…,En•?®(+§«/ª¹fkâ¶Ä‰[×'Æ%r“øIê$NRB’4)YMÿ‡şwıc]ò×äúä“+“«’»“ı)Clcl½))äTRj|*1u{>¶?›J§íIÃ¤wt&¦KÒSÒé¼tMº,‘Êø-ÃîJs]tŸs—e¾Êüùgæ_™_2¿f¾Ë,Ï|ù!³2ó}fmæ—ì+Ş
+ï’œ…9”œ/9şb.:—{+wwŞş¼)ùÓóÇÔÔ¼+ø\ZD)’%ñŠ<Å9Å™ÅWŠ{`×ã¯Å_‰¿_‰ÃíÄép]¸'„Jecc:£š¹Õ˜°U#Z%
+—h¥/eTC±@½D½L½TıXÓ¥9”¸3ñp¢/±%ñ\†.)1É”tHbøddšüÉ½Éã­}ÉC­£¬Ã¬#­“l“môÔ©=©¢4^3M˜FJã¦sq¦¦Ó“ÓMéWÜÏÜÓ²B³™eÙ19rayĞ¼“yKócò×ç¯ÍŸX8¦P]|µ¸¶xe	©„VB)Yİ ½7ş~ü$ÿœĞO ÌfÌbd3ê˜ş„0n_Â%î!ÑLÉ	É;Ù[GñF	IÌHr$İÒOµ.·Î°Î·EÚ"lsm	©¼ÔÛ©²4eš.m¢ÓîLOK'eœÏ¸á^‘µ:kmÖOY²Ve-Í*ÏŞ³1gUÃÊeä¢òvçïÌËßšÿ2Q -X^]x¾èJÑı¢ß‹ŠŠ}ÅÓKğ%ÌVÉfè&è_ñOãŸÄëqo	¯	 @‰bŒäR¸PZdVÊìr‚§¸¬&'’“:Ãw£$U˜ÚŸjH›âœêt§g¦S2ö¹weA³`Y[r¶æü™s/‡›‹ÌCæÎ?£`aláÖÂM…oŠŞ­)á•$”d•üÿBÏXÊXÂhd†s?Éjè‰´DFbf’7)+©Ü¸ÁºÍk³§¹\.Z9‹ÅÎæâó°ù¸|Tş›ü·ù¯ò…¨ÂøÂª¢’ââWñuèe¢H¬(Ş+!z›~m£jËLó¤yÓ”¦™Î»î„¬9ûrvå<Êå’ò#Ğ¤ÂŞ¢¾¢Äb]ñ°e‰¤¤8…Kñ‰›lwS¦ßsK²DYâ\bŞ»üùÓEŸ”ùiÊ¬'9Ô|F~aRaÚéô‡n]VRVb–²PUØ]Œpè³f/’$äÇÌ,S,Iü¯Ÿî áAĞp|h4h/È	z/ÀKIã@)Ğ±  LĞ}ĞĞ_ \h?Œÿ>ŠY†	Ç„2ÆeîßÜI¼m’XĞfP-è¨Tú
+ú›?DÍGMÅ¬ÄqÜü&¼/Å‡Dñ	iBÌ[ÇÛÉÛÆÛÄ;'¹ ±KWÛs¼cÁÓÀËÀ IàVP¸4<<<	w€&€/B'ÂÂaÇa‘ğ¹ğÃp;|¢,ş{ü
+ÔÔÔfŒ“ˆIÆh1I%F‰ÇMÆGãñ¼Ÿ„ÿN-ÄÁ¤$é_Ò[ÒKJ¤Ò©*“J¥b¨d*–Ê ®gøÍŒ­¬¬¬M¬ŸXÛX›Y«YÓx{x0æà!xy‡xbQrErU’.]"×+ä¨^eJ4L:“ŞtØš”šçÊqåº
+\Y®Ho”ww¾7¼	LïÃÁtğV0“ÀÛÁhğrğjğ60œı:6ûv6NƒKàéğxb=b	Ø˜˜…ˆFLClA€Û‹Qˆ½ˆæøšøªøí¨İ¨C¨ı¨ƒ(j(&s“‹9‚ÉÁ¤ca\˜Ì	ÌQL:Îƒ[„_‚wâ3ğ6|>ïÁÛñV|&>ÿƒ0’8–˜FL%:ˆ6¢“8„4›¤")H¯I¯HÿšHµ¤fR;©ŒTIª õ‘|¤n’ŸBî ıD5SÔtj5‹šBSµTUD5RmT%UG•PeÔF£ÑÆèdìfíeaXHÖ!Ö>u˜…edıÃÎ›ÁSñX<.ÏÂKãeğÄ<!ÃËçñy)¼l^!É“ò<-/'iD4I©ä¶äOÉ#É=ÉÉCI¶4Gš)Í’z¤?É7Ê³äÙr£b‹z!Ûgp<†BƒË”aJ6¥›Ü¦L“İd6YL*Ç“ŒÒŒ×Q×¯®b×	×WŒw‘w¥w¹w5(œNëÀp
+X–SÁ°|œN çƒÕ`#XvÁYàb°lgƒ¹`¸zzº¶
+¶¶»	ß÷À³à)=Âˆp#L‚‹Ğ ’!C0N„AA¹‚… #ºã{ã…(	Šâ¢Ä(J2 ä(-JŠ’¡¨(6J‡Ù¹Š¹y‰y¹„ùsssó'ææ"æ6æ.æ/ÌÌcÇÀeâ²q»ğ{ñçğ¿àà¯âÏãOâÏâKğ?ãÃÃŸÆŸÀáÅ_Ã_ÀÇO%N"N'."E’æ“¢H’‰”DÒ‘¾‘ªHËÉÈÓÉ«È£ÈkÈ#ÉSÉ«É3ÈsÈËÈ‘ä1äpò
+òDòxòhòò,ò$êêoÔ+ÔWÔ;ÔÓÔkÔ§ÔsÔËÔóÔ›ÔSÔÔß©['7#˜ıŒ0ææp¦ŸÊÅÃÂ0Æ3Ã™]Ì‘¬d•Îò°,-+—eeYX2–“å`iX%,7+eféXF–Š¥fe±¢¹n÷w6/“×Èkà5ó>ò®ñŞò~ãÕğ®óşáİçİàıÉ{Äkâµñ^ó¾ò®ğì¼"÷w—ÃÎ{Ì»Àëå½äÕñ^ñ²D¹¢dQ¦È*²ˆÜ"¯È$Ê™E	’w’g’’'’/’×’·’O’¿%¯$¿HJ“—“‘•I¿ÊjeÛäqò­r‡<W~^Ñ®hU´(:=Ê~e¯Ò¯ìSv+w¨·©ªU­Æ¯‘'×2ç?~7\5üf˜g:bºk:cÊ7åš
+LWM'LçL·LÅ¦¦+¦“¦£¦S¦û¦_Lš®™™DV¡•oXã¯3e¼Éxñ.ãßŒ÷—\W\ç]—]\½[¼›½?ywzŸƒ‚ß€/Ÿ€Ÿïß‚¿€?‚o‚/ƒ?ƒƒßo€ï‚ÿ 7‚wÁöÃîÂîÃ¶Àá9p/<¿8Šøñ+â%âOÄóuÄ9Ä;Ä5ÄCÄ#Ä„qqq!A|C\@\E£JP¿ ¨Tª •…ÊEe òP¿¢òQÙ¨ôS†ù†iÆ„`[1_1}˜ ¦Ó…©Ä´aº1Ÿ1u˜vL'æf ÓiÂœÄÂÿƒÿ€ÿÿÿÿÿÿ	ÿÿÿÿÿÿÿÿşşş;¾ßKˆ Fçç£ˆˆ¿ˆ?%#­ Å“¬¤õädYB&’w“áä½äıdù9¼ƒL"G‘w‘Ñd&Y@ŞAİI}ICEë¤¥…Ò¨½Ôq´Ñ´j5„6‘6‰ÖGLóS[¨Û;§¥ŒuÌæ*æZæ,æf$s5s)ó'ælææFæ
+æ8V8ë«õëëë&«‡õu—uõÕÀªd}g]e=g]fu³ºXÍ¬
+Ö}Ö¬¬Vë«ŸõˆÕÄú›uUÍúÌêc=a=eıÉªg=c-âš¸î5î;îîî<^o9.3$ÿo5?Œ?ÿ<?„?›¿ƒ?ˆ?¿ÊÇããÏã/ãçGòGğÃù×E%¢;¢‹¢¢£¢+¢«¢S¢í’ı’D$‘J’§’JI­¤Aò]R/©–TH’¥KïKÿ’>”ş!½&½*½"m–JKïHÿ”>’ş.}&m”5ËVÈ÷Ê÷ÉOÈOËÕŠŠáÊPe˜rˆr¤²[áWô)j”µÊ¡ªñª	ª!ªpÕ8ÕXÕU¨j¢ê€úú z·z—ú_õsõKõ;õµA“¤y¥	ÑÒjU‰êD}¢!Ñ˜ª®¤Cëİz§ş~˜a¬aœa’a½áƒá±á‡á•á/Ã}Ã?†‡†
+ÃGÃÃSÃ¿†'†—†÷†jÃs`Œ0e™>šL½¦aæZSˆù_ÓOæÓ;S‡©ÑTfj3ušF›ı¦.S‹©ŞTiúaê3µ›šLJ«Ìšh•Z·Û@6–-ÁÆ±½I³³KœeÍ?2Z]·]¥®]]w\]Ï\¹Şºß¸ˆúmä)ÿoGK¹®)Œp®?¹ÚhØ›Jà#“hSuP1L.Z‘Œˆf‘>Ö÷ş¸Râ°vğĞ©(’ã­ëqÎŸ¤çOµVîs@ı‚/äûëšôØxú•8AOÃ–E—oÌQ4Á4ğ¾…°!e®C‘‚Ãgü¦“aVİÂMö˜Ã¦gÅÕÈ¶Ód4f‹ öÂ$1éˆ»ÿdïd¢i€‡¹ *afÆ«R“!¤0Úr€}›²Å@·Á]ºK}t•“J¤‘‰­8ÅoÆhÇÍ—~M;nÉ†İA’÷éõ*'Š~Cvİ½ø–„~ùvã¯Ğ§áé/i@f>ÛÅ†ƒ{ç 	PÉà}ûï°ÆÄO‹sùCf5ñÚñÛ¬^ÖÒ6sò¦“|½…BLvu,\ñf+ĞÆŠ²Ûƒ‡c°_|TËğV\Ï÷LÆ´º£;Ä×ùbHOy£…
+KGG¤O©U*LpU]Øõ¿z†¤›¡'?uçv~¹RÙìc’š§duîŒá¸¡Zei1¡Ğ­i¨œ6¦“,ÿÀ!•ÕÉÅpîÃLm‘…OØ1€xòq<,k&ã¡d’°p ıO’[rœaV¸ìäÌ{Üù5¨ï×«s¹Ü}•G<€v—­Ê-\eÖ²óŒîe«¤ìŞü4é"‡îŒà7Ç²­òóì–Ğà`î–ñÆŸnÌ\›/PÏÄm{dèÔ–ô@—”$2²A 9cËøÒ ÎØ™y
+%ˆÍ¸²8×·aÃ q@T”ıËoóz0®´ˆˆ–\y@×¤xGò/VÉaušƒ[“Gj£9Z€çóŒ…UëøRÀPËN¹´K¢j'­O˜*÷ƒX×æP¸lQpëá6AwE G¾u4p5\Dg¬€R¤>‚(X¼Ì/FÂî‡1anAQ¢ÊßO".¤İ8Z«ßÃµ,ö‚¥şëzHcA«$ßßëV÷-ä"Şíø„ò¸Ó`‡: *êñd£Vs Íu!°²½±gY¦@E6ÅÂÅ]yáN µˆ¸âŠeÆ†-Ôº6ÚNÄèÖo©£°ˆœ–ZŠ—Òw­¸ÍÜç¦ê0©GQjŸ ÇÙÄ²’2†ø&Š'0K³ÍüZ:¯uìœE8]Ö6¡Lõ«U‰œÛæ­>õŞÖ_ÃéÏqó¿`HH-cË'sİ€‹Å]‡_õ\c/cn||uº³YäTıT»|`ı9¾b¢iÒTÊL~
+vqs€³ú÷níîs0;OYd,Jj¥ç„}:ƒ*òé Ó°á˜Q¥†6jÆâ"æãòŠ
+‡½º£Rä½¤O“üGRí‘'•®‰¥š RÿF>ùè¤U>o`"Bcæ7ßÙÆ0ÀáÁû³.>C~ÃŸvî3ğëäéÚÔk´>U)Smæ J–B1‚ïó&Úeé¦²ğ[&şN1n-C³ß­nâi\‘´°ÿJe4£mtƒA›/Ôúââão¿^PìQ¡m:_ÙèÀhÏL·!xì·F¦¯De¼ÍX+]Èïöæ„ÍÅ)S²Ö[Úh©“Eø¦âÆÌO}dWÍ:pp\™‰æ„²\±¶$PyB+TúÕéÂÍã¯6å‰BŞ4`ÇI½jgSÁPFù©vö{Pø8§e^~rñèÄ-Ş›² xêÃòê:!Õ‚×ağbÉ:[™Gx`æ¿Vo³5ò5kÑ×[*´ùğ°<?Ä•ç[v‚1{§ë¦øÈu
+/TóòUo®Ÿş ¤Iœd›6 çŠ[±L;9Ì<K*wğk¥™Š¥r
+;ÑëıW¬Şç';i _’øû¸û÷hªo®h$&Ô+rÌ·8ww†	Gútökşñ2«Ô›Å
+#øõq}ÿ²I/Îî/2ßÇÀxE{Ä-à#ù£g¯)j}Œ Whd§Ø€¶ˆZhVxq?†“9ëV)ò$a'Êÿ×Nˆ€-uØ›€Ïzğsîx!lÛ¿¬†–¨±³[‚=âÿÃyÛ(ÄvìQ·G7ÕÛûË\´Ò½Èæu%Ñ|Ò|×©xOÍ%±U›xÀµRšzs#=ã=TÄU~…7)Şá¸’¾îì¿º-+G!cšDjÔ(û°İùQş·ñ>O ´ü^9õûêªxåÕ:-¤À+Hs´qê?jÊ¯véZESD«¢L>,©ÇÖ|(A 6Ò˜\±[Ãå=Ì¾éî»s©“Ë¤À£Î@ıû?LKœ.eb‡.\æ4£öÈD 8•íE0’ëªw•¿ü^n9©ûÜ—µ»Ò•Ë÷|¥gôÁ6áV0hÖœ°	uù§ÄVí-OÏÍM&Deï¥%§ñ…mûVğİ¡éØßûğ;-¿?Ic.­ÜË2çÁc¼¶µôè$èTE>ÚÜ?°bä <ƒ‰ÑêIğ©0®D&Ş0tÍìE<¬«G.ş§Dñóu¿NZ á¸&Ùûã]A·{ƒœ}Ay|ƒØæYıù û“Šs…Ã¸}™FuÎ‹ò|ƒíÎê®¥Z»}Ÿ÷®™Ş–~[Êôëk»Aze%‡w¼ŸâİwíX§Õß€˜ˆb^ºéàøy¨kH¦Ãøt’½PÎõ›f›"zé$JòÒİ½şK×FQ– &£å°ÏA½m
+~ ]ÔN	U%µ¥¡AmT{YD ˜I©ë²-õéJÿ‚qMN.¨Êàï#´Ã;1#Ÿäv3ä—ºÛãÑŞïëÔÍÆãÿfˆ-htQ>ØõÎ¾»ò~à`X‚7É7‡íî'IĞpçÓ›“ÀùY—;A±¨Ï%_Ù{«ëùùğây?ÙŞøKÅ‹„2åÊÖÔ.¦¹€Ivã)ÈK—lÍ¬å½‘9ÌôÕ%	¢&Áˆ0é†ö‹I8ZâHÍ}TØ'’ßc°C3’­ˆş>í¢ PÚĞf”©§tÜŒˆUÔ_	·=ëß¦Šx@Ìµİ´.í•·º	‚´y–JFW8|neW(—Ì¿[T«£xĞüşZÈü<(Êî\nn.Á¥ö€…é‹,ÕKa©Ló<ñhü ©G29SIN•1xm~	’¶Åe|ƒ?{°_UtH6ÂhÍƒP:3Õ3 ¯Ç2¼/Cc5 “oG;„Ò¬÷•©E’eŸãP®£–h ¦ZäJ
+Ü¥%<“ÜÜ“ÍàfÉã„áñ A –R3àï&ÆàwÖû­7n•}ØÖHÍÃıYTÈQz²=pšÂ`€f&Ã-˜íã©e½#nµ
+4ŒOÒß²#Ÿº½›¶7'†äz"ì~úv,iIaùÀ£¼âàjì­Õ_B&úÍEH ¤ÎddÌp 'Ìƒ1¯œ˜îkÆÊè¸¾
+’L÷[S£3o½V:¾‡0ÜÈ—º·`V™Òº»Æ¿—ãkÒõÇ£ÓMRN›°TûñMr¯‚4ËïÍD†R^˜‡YWº®Ã(d·Ë^Óìˆ@xïÕ p®ÍTğ¤æ+¸‹Åâ81Ÿõ1¥º¦»»§	Ñ:î#ÜÈë;Ø­F9Ù>Èwÿ -…­_Äs:VLÏÑşv”;ù_ÙRÁÛYÜøÏÿ2â1&¸y‹râ'-¥Ÿf‰{OôB@ºˆ%m…µ¡hO4 í‰$ÔË¬J
+cd¯2ƒM5Ïÿn¤šJñöéBqfÆ`Şu!‚é¥Ò¢O™×ğZ¾êË²«Ğ^ŒRå4jò2.mQ“‹Ephñ48«íüoÜ„6eVƒ†ÔÛ<ÕŸ'˜A³oÂğÈà®òÇ·/æ­D^C_Œ²‰'p#gü'2”Ò¯]üı¾I2IäÚ5Ñ.Ÿ2›ª«Âpï2r¨fÄ®izş86¾W¨µïÛgdGmı"6iáüéÈĞ-²-[šÊ©¨@ßı­.8àş}é¤RÃÇüU*$$&<D{O¤àéÖÚñ™E°u¸»#Xúw±ÊÇY…yÏk±AÏœĞã
+lgJÂû	8³èÍæŠ˜))¶ÛtÎ>T¥×â7ò?8°>nÆõ qõÉ§ò	¿_«<`I¢?e·µ¿å'?ÿÎL)
+ 7ÇùÁ¡òÆe¿²\j~zvlÁéû‹˜ä¹àNí>xÓÕğE‚)J\«â*ıëD¾Ëi¿£85iìŞaRZÎßlb9x € wı[m­‹ì×òóA©”[	µ48'	öşTaÀæŸ¸”øĞR[{•ñÚ“âvãŸ5äÁ¬1¦Vè<G;X&øı«JM‡Ç×ß7xCcû9šÁãDs À¡õ'bã|i£ÿ+É­U…ı¤¬’÷Ã@L£W]Ÿ´øº[iî!Ü£ûº¼Ê¾©†>2×
+±“’Œè '
+EÎn¼oZ/šâOIğÇË_¨«Ù^÷—
+Ìœ¸Cû×væŞRéj’#xõ©ŒĞŠ“5§5°OÖz±%6ıPsÖy…´gZ2U­şö¾ûwÀÒø5=Ìo–ïÒüi¶úH%ßÈ_ÑÉn:sGXîÌø3Èw8\¦
+TÛ3ˆx‡½©#İ4» ÍÉÁ ¯^ñÍ‰P5‹÷³m¸sPŸÏ©3¿©ò|Vy´¶Á“mÒÌ&ŠQ`ŒwCŸ(ÖK:É[t9söx,m0· áewÌÅ’{:í,Ùu	Cww÷»ş×~<Onx’ßÿ‰Š‘éœùU&kïo
+Ó­¹İƒè «Iôì®¬<zt>T6Ó—ã¦Qú+ÌR¦g¦Ë=@˜ÈögÈå	¿ ÎK[ö¼KFÙ­ôû{|gÀDnqC hQzÄh‚JvñkW+‹µV<ŞÇöv÷¤Ñ¬Ö:ñ£L;¸ŠÔ¸€L>2¾Âü®ıÌv{€ a¼¿\ºƒ^7$Ê¯íÈ³±s eÙ»N¼>by#÷`È;ïTkiD¼ÁpEì.‰P˜8œ#È"êÖ¨—Â ©P]Ä~ò²<æÚOå>À\…P¥+Ğ™m¥MªÑ—÷ê<GOÎõ'2z”îËÿ·ãİ8TĞÌ4Ñ¾ÉB”ô²Gçùì”²ÊGçMkÉÁ¨ËÁ Fä²B¤'Má³ŠÓê¢êFºâvïDÌÚA`¹x;‘Í@âB=ÎĞª=|úèĞÉUpûßËìÙÁ]ƒ§©à;DŞw{ó2n¿ XM–°T¶¾ÜÈBî¯é#÷>³W”Áy ßãñ&<>¦:Ø?_Ùß\ªÙŠv}:Ñ§%XŸ®Ø(aúš,*%¯}”j’ÀY–Ò©«äå]Ù¥ü·ƒåï†(¡™9yµ„-øYs z*îIájĞ@°Dœ;ø+—H„Ta¥¹ÜyÛènÛ2Ò0Ó8]ªQ9/<©t–ê¦=fªz”ÍÙìOÈÀX.Ä·¹°P´°¡Óc:'É§ƒ³WSY°PŞvŸ³h­GÙvç5ø_7tZ¶K˜=ßŞ°íö˜ï©9©¾RésZ4BJ›«Š<Ü‹]ù$¶÷<  @Gşæj-=ø¦Dö'¦•ªX­§H^´hM&¹PÒëôÙ‘ZÎP¤)t¦
+FŒón6ƒè,nÃT¼[$°®ò’j&8¦MËh.*:´ï~£¦^L‘>[ªcäüw_xªƒ{£«SÆFìA®ÜótQå%²¹—3›IŞäİÌ†£Uu
+½NÔ7ZÆ+:J3ÊrOÀÒ—ğBë¸Êoôáò|pR¿"X‹ÁS)c9f#s¥ó¥èĞTñJ_‘úd©hy'Î‚ãì‹mEN¢QmÙŸv:ßÅ:”§µIRsÌû±bõy§ÊM¦&.lBWw†Ñ÷>?Hbñé&ÆŞ¬ÄôiÁ‡Gô¾ç9:ü+0„üG‡‘jÂ²<ÿİıñª{BÂDW†T·¢2¢&‰zË¹a§Fn—Mï`âüğp6ÿ‰ù®e“Ÿ‡Ob±AATwÖDı¥H rœÃ™ªSÙoÈ2±ÛV02şöÓ{_pNiì\_xJŞR £yt< ¢SÏ´øÄJ„B˜ná0‚A-áG†
+nkêíjVˆhçp›'õ¬^Pbˆ"~kæœô"ùº9ö|“Ô5Wh%–ŠaÒT28&1·qI ­ïu»²<|B81æÁïŞéRÄÏõ›–‰5,vv±¤¨§o`Ô0ûu¿r·›Í¾ŠvÛW¿[šª,øv@[Ÿ^È>qà\ù¬êì"~³ı_?CÜU¬a ±Åş'|ä‡ù_58,‹¬í±í„ÒvÕõÒ{ÑŞ=1J£óšã<‘ÜSR\³©y¨n†.DOÃeºï×~ÿ£M©ëÇ¯°Ã:qcb†Z÷WX
+p-8&VDé­ '¨"S	İÛÄÀº.Ëİ-ŠZÛˆ/){ßÖqú)Â­q0U€µe÷7NõùçaNåÈ3IOm@êk¥âs~­üü h /"ù¿üŒ\¢C±Ğ >»æpöûíIÚŞ©gÄŠDŸÏ›ĞÈœA²mz£¼@¼ñÁób—Ş­¾,ëüıB;Ğå×åRe`¾9ÕúâğF:Dx&‚ÅşÄmü÷{Ñi›gwä…ÎûØÛßóKÊõ Ic©˜×LˆØêÄÉîAàkÀù¤G¹±Rô·”äŞ†² EÔÏ7{~CYUMÛ6ûã8N4B‹ÂM-‘JvÊ›’Áóùx¾‡–f‹Õy¹nLÅ"•o™R0¬€8®'»ëÒo¸XÏŒhÜÒÙ‰C€pNùËC4³¬ÚÕò„›ú5N­9ûÕÿåµ9ÏÖ[TÃ¡v›¹Áÿ®ßMÑ¹+tìÙLÙY/Wê‡‡lIèI€Õá‰¾æU¸e¦ĞaªÔåÿUü'ÂÀ“\ÕB¨ÂQ"xûÊµmTÀQì[’å	[†övFéX¸ó^,R_&ø¾]vc˜îAÿéØs°ö¨7nÁ~%{AD¿R¢)+;Øó¤ |‡ûµ§á5‘OSò.¾C¼ó´Z·Ë ğÜ±ñÈ¨™{+şŠ¾ıE®|ƒİrfŸÇ” ş´ÿ—$Å$;å¢@eå­mYâÎêŠÃÎDºûÅY s­{©É?†Ïí“‹Ø,Ğ’ìì‚_úí ÿkmYÌ=!ÍESr‚7It[Û¥uÔ´"ıfûr“á»¢hKPX"æµ­³ŠÊ3\‚ÃñçÚ#ÀgM,¿£tj_Xà™ë+ì3?¤¤ká˜­è¢—J­i\Mvøû’NyM~kC:‚êevªPÇÉ›Ú¸ôŸgÏ i¾#Ë–¼síÁwµ}IÜC.WÁÀ™•ÍUní¿í´3¬ß:÷‡˜&HŞĞä¿øU;†7*cBº_OÆ½P¾“,E9IªøËLÍŸ±6úâ[Õÿ@}z|¼éèÌ_„G¦O™Ç¸/\Î?ıŒ¦@mŒ¶XÀ*ş‰€WÕd‘+'<iÂÓ
+ëuZ'cnÑ8£Ğ!M¼ÔHºhGX ?Î˜¸İ4§ûúİÙ¢õÎùMÈ¼ó©êbPöíŸmƒ;VVÈÓ,D\X İ˜‘Šƒ‘íwş¥	(çö¼xy+ğÔ¡”xåb†´4FQov—”ñœC© ÉûJ¡n…	¶Râ‡zÿ^ô•'Ø©5æå*@WÙaÁ™ÎÆ2a?^‡ßìk„uXˆñ+OıÀ¨ÔÊñs®ª—£E5îDêİ„±Œ6Ü³=+@º“¾B,î•zìş¬ĞŒ	îp’|“cZ…“ÂNH¦è¤¨)jdùDr–z¿Õ¹ yàXóaAGY…ÄO°hà’ş}û¶`Hş2ò3Zbé2ö9Ü6Æ¦Æ2VFĞ#ÏU±´.2kş—áwówE³Cøü³bvä“6ìú*ãEá#w€¢™MÑ4/ì²víÂ·ÔøÌ²âp‰’š.z¥¦ëCTEm]˜ş"²7»>
+”«:¾cçqaó&Í‘Ÿ¿ï_,Ö*Œû¼ë¦Õ^‹¨÷½)‘CŒƒµŞè¢ñ'Ôgñp >>:×ƒéz'êËöcØT Ãõ¤œƒ®è‘É›üÈ;‰ÌOaEFo8»Î¹$Ö1wJ±uœOØ†š2 ŠB`z‰R­¯¯S,ÌyLõXUÎ¸ı 0áÊ±’ëæêÈö!¤FNÃâ´Õ5v,ï²zE“&×“Ğ¨i@İW9B¬Sƒ3åoèŒº;oyg‰MÆG	š¥×[‹§}†J¶=wãCj—AçöğŸ ¼Kkå7~)ÿºNüqY§ßûÌ5ÌÚƒñ?[ø›Ë­“°QİUJvä>Àk?(dg·Ò×”Yr[9ÁŸ$¥$Í“ÙW@ Ë°–m?Üf;S¬á©lKu.ñæş\qá=U+Í/–½¾ÿT£a-"7E‰ì1×”
+…ÀÆôf½´pÈVÔ)C\šR|¸|
+~¾ôágeIVFYlS¼aO_ú¤3¶È¶Ü:n®,ıÏ_„En²[–€QÀ^b*Ñg…eÙÌÈ!(_,çİ¯óÛSWÑ(ç£j%ç(k¥DSóî”†pŒÙókˆ/”c+’êc=BJÇğ1\àEˆV`xD¬@ysÏ‡"¸¸Nù1Ñö¬ÊóâË+é«Ì¸îŸ%Î¦·õÉÏÑê‘§Uo†ÁÛŸÙğbÈ€a¼FK·PEëŞ½¥ó~ùürKHİkº^ ]‡>|˜èÒ±ÓqkÇCøÆ®U¯úŞ/Ÿ4‹-	S]p•Í_ EüñiF@éŠ= ÷.‚ˆâBcõ¢Äræ°§¬YIÀ6)öÖdş³ùvksd!›ÏÔx\!›áËº@ë†1m™a`[ßù¸Û²¢‚;~°¾PMAç×y¨ø <Ëê¡‘`ûšœIŸ*UİbÉWb;Ù$jæ(&(Aê$¸ˆÊÕâ°E
+ŒëqE˜Õ}‡x$	M	®&ñâIXJttÄ'º-XñdÉSÉ^jÚ1­îÉ«Úƒ)
+şJ›~¤0£½/cß€ût¼Ëñd"Ô	h.Â>‰å¼*ğ(WälíØ·QÑ•j†L"«¶#Ô¿yÄ¶X0øÈ_íã˜ÚI k~³•w}?1 •\té‹ºŒxû?íévŠ	”X>ÿ½p¦säm!n…ìr ¶nÌ[ğçPÕºÄ[íÏA õÇËQf€Ã?.bƒİùáÆÜ#mªœøÔÖùú¹Êzö÷~›CÉäå³~jŸ¹cÏ'Ø%ªÿjUæ•ÄĞÈ¹ÇXu CJ¹Ÿ7Qş¸°=h´9ï~“¿Mú“)Û—lİÈ‡Y©©øG_®¿‚w¢›««“×!³,k¯SĞh¿-ãW¥·y¨Uæ_FÙüŞP…PYNe M¹@Óüñ¤êÕğDÅç*¦Û™‚*ş‹úï®,ÔUs¡õü€¤/°AtØ§tŠ0¸¥Ğ@ Ó@ò#¿©Á	'™úÌaŞÏˆÁ†pÛÿÊõ…k¸JÅROZUp±ó.(*„ÏÁùfl—ˆl^İÎš¿l3Áj: Mt9?º·^$ïrò“Á@çF	$—İÀ/¹ş¯±(>h¾™—YnUÇh"§–±§Kí…[¤YLŞ<ûõÿ¤¬‚O>®ÿà¤«5MIæ
+•Õ~vŠŠ­ Û°ƒàO99ª6„ü‡^	—˜—RÍŒvS~7<0Ù$^‡ÿ&–5~×øfëœön—„öû58ü/ğx€¯Î	dQ#Ä˜¨è„Å’TwwÒ`r_€E
+¯Fâ­ömÆ3o+Cª­üŞâ~Kpú,²e5Ş[f;Q'¡¤,Âˆ6±°ÿ" s÷-‡–V`Å\M¢4Aæô+G\øuüuh§ã{Ÿ]Ï‹ÆëÎ/j&Š@©.s-k°ˆ$K¾ïÒ¯pÍ¿Sñ©Í³Ï#¬B|ùÕĞ}Nø|‹ !ôh<[Ë<ó¨2åˆÀpMÕXXã}>†Ù¦¤Û#ØGÉj†­ƒ’‡óòÅïRI­p;‹×›€Aı×Óº¤¶0+UœÓÇ´3¾yûé-F®«®Ê€ˆA,ŸıÉ'8X'’[«›¡ Kç¶Í“68Ë©« Şå9ïì J3ƒ¿.èkOÎ|ÎïænYØ0€€2¨(ı!œ"H0y¥ãwûôCİÇŒœ%¾YËœ´	Õ6k?‰¼¤ã 0k‹®gÌ*ƒ’	-€P°QÚ»PmL”g8Â“À²y{E ‡¼µŠ‹É/G¾\ùOæÃÂŒˆpõ»şOÒd9ÉJ<$O:’@rICGd¾­JsËjE)Ì%®ÙXp&+t(=”qŸÌÆZ½ÎHs™wÁµÕæâü1`Í¤¤šï™ 6²vŞGĞ4"ä^ÜI“eU—§UG%’ÑİÙÜ!
+0„%v÷‘ŠĞOürbÏ]ùá†ØsŒƒz¡:.é™«Û,Û1”n^Bw\a¾QO·/]ªå$»
+[_ìPyÛà`·ûN×CÀ•¶ïˆ«|z›ûf‚@ÙÊ;Mæ’övı·^¤ì½ÜQwRÙS{ï»~šâèµ»ŠgR>|L:Í!šµ–âßŠ{‚;»G”Â#ŞcŞ Ò›ÔÄzá|uP·œêÚzÒË®–ééÕóÖğŒÅ^uo´¥XòñĞğC³¦ptÜesËEnï#›—IÙn¯ tîXbfá¹+š£Ì”• ©xAôş¥ÊªÎ%UçIUQ<WMö°_ˆH{|E’P v®5f6_™åã2ƒä¼"}˜jœRiøƒ…ØúwF—¸¢6îm!iUßÓKT‚2¢Ò†Áá¿òÆŞH±	l#Ùmd¥nÆaî¬µ·¼xi‘B€&¾M¨éè™Ğù
+ÒcÂÚ¼Ã3ŒPvôÓ€÷o0EˆëıI[˜D’÷yøéºòŒl!›„*HıA=¬3úà;—çâ„){"ÏÀÕô ÈQÙŸ÷Éd(lcqšöú„ÙSéhh”:¡à7Ê@bÅ~6ÓœˆÊ³ŠíN…¥$BXïÕGG²„j¿3:ÂşnşìŠŸzO:øÆØ‰³Bş8!¡nĞ½á9p÷áBÛÿ4ïpHÆ^U¤!ZÒv¨¨äˆÛÈT‡d’+Íå’˜¤©œD•Äáå= rrŠ¬ª	4ĞÆ•Ú6LShÉ®M[¨ğp#ô¦eLnnr"¼ş\×¦]ªË“„EV¼Õ·_w%¹K‚¬Wt£¥ug÷ "ŒD|åÔ’0=Î,‰»ƒÑZx*ÜGTãrQw÷G¨²·ÎRñE-•^YkIBçò1SuŠµ®aƒ$[xço«CfƒÅ)•”®O¹H¦D[WV0uZË
+¡UllV×%¿ùıĞ2ô;J‘gu…ÓõÇø(äŠ×\oM±âY.r@¿æßŒ¬ÓÙ—ºa³¿:$Cdx Ìoq£&î^¶ÌWİ
+Ì¶N­óîª*ÌR»ø¨’Å—IşnœŒsw]×º¼ŠÆÃß†¿Ç ÖP„(‰±(S¤Á·ƒ¹Ô¢})ZÌËß ùDÔ0Ü•„ï&cºØP´ãv–×PÍ¶
+tÃj*&R­@FÀ]Œís<ºİÎF‹ÿ(ü /x×ú8™ø=Ál?"¢>‘‚¼H²;\ş0Éˆèn`\ıoZFË¾[Í³‰a§úê#‹Çé00ô@è¨N¸)(…ÌbÁ®ªŒ¤…;·B­À7ë•–2“k›hyØ}‘ÍÍP&íÛ»H+ß$ÃƒÂ¬æ?ˆÇéüFbÖ™ü%3wÀaXêËHt,š-ƒR³y<‰GI4cpòVôƒú#|nî9]’IaÁÛX‘ºÍ\ŞØÃ’º #`ÔCT›Våo˜ÖÁÆ
+©2éI0‹ÎÑÒøå¿oÖoáŒ;R†•ÀúIsÌîAöâÿĞŠ¼ÑÈ:~-E[ø¥íæm‰q‹Aß^”^Àïâ'EÔÎw&g–Œ˜6;Oô>1x3Õé`ùC)g­”ì<°D=˜óŠîÚ&¦5òmı
+ĞG¼'ó$[_zÓp´¡ÕˆM–Ö]ìò½Q¼ ']ap`ŠsŠ5WlÂlóŸgìq¼NÕ…|Bo«‡QªVqG/‡óAy™@;Z@n‚w6_l,UµÜŒŠá“²ÈŠ9OêT”ÇæÚ[ûáÑËÚ@Q9ç}â´j€Ç ÊÕéòs©¢œl)È!‚°èî%¥òM7ô­dH‹³
+ÌK#±½g/ıù‹y“ÊÄüÁ™‰xÃ|¾ë{p¡h_ë²Iq\*Xÿ{.îŸä*¦‚(¦~º‰´SV¸H±i+3uØ›ŞêGRTì»eQ7İÕÜËñ½}6²àx=sTËttÍE‰¸ohc¿ŒÏN»YğoµÏ_7şåhO¯*î¥=ècPp¸¹íu”¹¸"^?ªáê]h¯¤YGã€
+S¬Ô¥‘áÂ0ù#sEÀlßcgÉ:ÛŞ"TÙR‹EÍ/@qÔ¨ãí[bŞîeÙ»êsR!N‚E|ôSĞÓƒÊÖ˜`IÚäQ¤¼odœb=%qfWvY-o"ğ\LÜğ ©·Q‘—şˆâ•@{Ï8å82K*Èå_Üa2«mÓãR
+­r‚ÄFÖ¿7p¿-3+­}ûòä+|Ó§ä2!¼y[šÚcˆ×²â½2¸ñÇ±h5ıã“	GU\ŒAÁ” [àÏOúnGmSl $>‹Ü”nn²;i¾¢å2şèT £Zîp5*½ó×ñ‹8°$ìºê—Y4ç¨&(¯6	
+:°H$è2u€˜\T/€¥&˜S@ñÒ¸şò°C¯gîØş~1[7^¼ÔµpË¹À¼RÅß‚Ô,ºÂH{Ù-CfñÚâ7HXàşÄy=‡6.TCáßÜh2B‰TÌl	?+ï}`{•Úcì„OeìHÑT)Ã¥x"*ÁÓS>Œî£Åx@Š÷dêóí¶…Urw>©uèå*ËkåW1UÙ&¦%Î_8‹´*Yå¸"y<\‚fgÒ†¢H¤<¦ÛD©Œub©VcP£äøÁ	hÇÚ¿B(“Ê6ÓÜ¦‚,q(MpBÛ`x 8Š_F;[±Wèæ3~=OÂöp—Á…&,2zR{§A3S¾™»mWÕá C%ÆšŸOÒ‰X*[&ríWVéôÈ5tÖ©—ş4;u
+woÒXæÀ=sg (ÔuÛğM·HÑ«ßÑ]=oa.Ş:ÅQì#Åôÿèjo÷Y‰·'kEçëK«ßÂ	D{mÍú£qza›ö^/½£u‘€ñ
+ŒÆL6+“	ivOWæ#@½¾>BÛ§yª6’Ä¥Ñj%4]æ¿²÷3ê^+x™ìö=Új¤ÄßÂ?CØŸHÛİì’s²ÜÑ*FÚÜ
+ŠD‚NŒÈ]~	R'5Ç• ¶ÁV\ĞE cFü_¡¡æãà>…5ò]rÁ;)Õf½ŒäÑ‘]"­%Lq‡B÷ğÒ>ö”¬9¾NÉ×˜‹¼ !J¬ƒ“lwô™g±+Ò®\‹.ÑAâiÕ¦G³J‡GìYKºW>¡jf‡¿yª“;‚å¥åÌà1Œ¼Tó4@®;¯ù×ØX%æß-ô*Í2ò 0.&İÎ>n"“7R$»Õ6"Ú…]”<
+Õıˆ‰şK}¤mş×DÅÊóWºÎŒXj+ÓIF²D!æ'O	ü¦È<S
+–í5Nì/‰HôÒ‡=üEësÃœäTêáü¦Â*èåŒ ä1„¶ƒ…&¡ôûÌTöV„‡Û²s	ım~OB4”©H‹Ğã}_ºc{×J4”B-oeTIc“Ê]¥xQô~øoBO¢l2İvhÏ‰+xtÔZbÈz•ÂàÍĞò{ /x—¸±jgæ7>EÓR€^œÏ¨QÂgÖÏSCh’ ¾“Hpü ²è.˜dyğb|/Ÿ œïû*õoÉ“;Ú˜d°m£tV)¦Ä «â¥8q%Ø.õpégiîæ"Mx‘§ü  ZZš‚šlëÀ‰¬®Hc[Ñ]'´d†‡è˜*oĞÁz@À
+"G†’uƒV‰}¯Ä/IŸÀyÚ8²VÑìyÿ”ïğê“@i¿óÆŠİÅøÅ`}(O´²Q4$\ùT<ÏŠYyÏU+E2=?ÊîÏÚ İGÂÍõäîçTm5·WUÆbëaK"´ÔüX¸ó2¶ïìıfd¶ÚšŞ}o«—ú(mñ%Í_“o*R¢^“æ»6ìGzaËğ…Ï53c'3uÍÿÁ‰eæ÷¢áY‡ Ê8ùœ’hß:¿—.Eb’	 &Ğw`k™¾–M]¶R×‚ÍY/2Z±‘9½›n­ûH¬!i$¥"'·cÇ–b¹R]µ³ş(£P¯yé“óŸ9nf’¢…1Şlsşóş¤¡Öî&¿ğJ~vÄ³ŸFalÀÙØÄ|!Càı+Z²r,¥Îˆ…‚Q8b'CƒKZóìQ¼À>“O)„ä¿òœ/H¬Vœ×î^÷T’uº*Œ	ØiPV¡‹mÂlÎÏwV)äTGRÊô«x“‡±!x;ïÿ®¥êòß¡°iE´à	Ø}¾œ‘¥*³á÷3RQ%W„ı4YY!ºı¶ë™7#LàGÍP/­ÙK¶`ÙÀÍ(Q%6ÑpuŒ`•£oĞ¤ÉËD£S³ƒçã´=cŞl¨µ“û·â4¨¨Œ[Y­€[ƒ´ò"u·
+î!ÇÔÊ™Ô9ßFk“ç$‘Ğş¾„×ª‰&5ÙømxìòúÀ¦®uÍ_KâoŒo¡	-n0ü il2ÉC.Ÿ§Æø#´C¢|bSŞ¡Ï8W!KBDÌøç€aÒÉÜ8†©ÿ½5ÒÛ<NÙÓ{d­xXŒÃÇ\¨æpl%OrîôÏwT®o5/0D Ø$ƒÚ}’-4*‚.W˜tˆ)Ï‹GœS15eÀçß9ºiJÕ?®«‡€èüSÙÚyW']T*+–CµzEXfcí<ŞCõ³Ş°0¢§†xwõ>.@8=†<HÎ*ª»¿íÑ{?ö0Ùj‰$ÒÄRDós„`Éu8Ü8ƒV»1šÄËÏ4.|]©ráÅü"vóë_¡õ(]÷ôôAÆ/¨Ñ çp¯¡IAOÏÆrsbAZ÷rÎŞÀcúf{€–êJ‹ÛÁ{Œvé¯¢D¼†ÈaGçŸ’QÏ=aL”ãDó¢gú,ÖÔuc$i¶Sê†ˆIX:[z³1;féø¬ÏqÓÜÁòCã¤UÉ9?æ”;Y_û[˜Šßœy—òş„CÆYV1äcKŒˆÍµÒºË:ÀNDh˜Ê…ş¶-­Aé±ØH¦Ùêğ5K'½[JÉ	íÃ˜C½ç
+y™pn6‡âv”V£ì•üo¾Í¹Øöšà6m#K´Z×jÆ5Ñqxòıì /€Ì£„1!ˆ[0l[×ú1Ñ6Pg, Rì;Ş3YÛ 5¾lxá8”kxò)Œ“Ô»ñOË„-¸x.éö•ã×T«‚•îM+ë²¦&èxÑñ^Êåı,?»PásÛËK•TÀa¬RmâDw•2Ø¯¨Bò‡¼€½åo°§_ƒ=vƒŞÈ§\¶È)5bÙ“F•xI€Ähü´«N<£^ÔLã¼V¦‰Êµ9¼ÈwFS©W7‰î¥^uöÛKâ³º•ï…XÍ%ÍNÔ» ±SúG³¾0–n‚›ÚœP°5ä„Æ’Ÿ]Í¬)œVQäîTäp±êÏ>æI‡ñj8{÷nÃ˜ºµŠgÈ9"iœ<H¬øX<ID”J:zÀ:·"T:0é}+ïÁE\fa÷Td‹VÚ’.tû_½ìS}{ÍÃ[m¹ÀFVEMë¤ë(åâ{½ºv„°øÛö"6yPu^«…V¡ª¥|¶uó*p%{G*à`/%=R)^‘æ¹­¶p® *] ¯¨»<@§P’•Zl†u˜°re°)Ã#¾ó]ı—6yt…9šÓxıŒÍÌ”5•ÚÈgpÒ?ÏyÒ2A }è_;“ìã÷^y3vôàf$U®–µy÷$çŸ¬ÇfÀpëv•X›[ºLw¦ù‡×à†q³†elZ§×Ç¨SFÁ·õY@~'¨‘¡ÉÇè¤R¬ä@ nPšò\Ç¼sXÄu©¿‚ıY=I7¿ó#áİ½R`ıÙ{µ ;4édŠ<×åDÒtˆÇ7‘x[­‡œé
+	<¤ğyNñ¾„+ãV­¾ÏåîôR²NÑù1Æ;ì¤2û‹×vßÂ·ty›¡fj>&:ö’å5p!|Û1ß?«Ä§ïˆù]ÒÒï›a?êüÓfŞ¯1æ'çvß'3\æ­‰!>IM¨Ñ¾Œİ».<ÒÃñYñ,ı€3C`^ÏİHî*oVêxàràUÒ”§z›£`ôûÕ¹YòNÇˆDØj\³(ÓYqÿÆÑ
+:ÕëåŠ)}È˜“'HzşÎ‚d“úVÅÍpi]ÓèHî"b}#t•ıx«d2ÜøÓŸƒñéÃÎvƒAq…ÃÇ\ãÜî”¦‘-1½³`˜T/u¿!e·[ÂbD¦Y¼ƒÀ­ÖQõ¨&,·Ş+q à÷4bïÖX€£¡KJÅ¿­„Ök¿%kŞ˜£èÛRÓÀÓah¤nwıcÍ®s%×©ÂéhYÛ:èè7'ı!a}ßöQJ«í©­F¢m¼pí¿TÂ¾&XF	D¦õ!€Ÿsü¬qjˆ…ÅTP¾½Bk½Y_E=ğ#`É_Ã~gòÁîå*Æ™½‘`"}n$ìE²úO(áO@åŠbW‡OŠ:|RáÎ˜©ÂöX! 4
+ÿ¡ı1XD(ËD'E4†I	™0ùhÂ§]»÷Æ‰—AØ'ÂB,^h†°¨v,‰¯P}7FVH·|ÆüîÈeµäzŞú-jëo,?O^>¸š‡Š”X¾WÎ¸0 ¿¢ˆ6m§5?Ë‡}®45a`>¸¿Ï¾tÿˆº£ÏÅáDÒÅƒGÙóàÉ/Æ]äZxï6_Q!ˆ"9Ö¶:S“V‚¢@°³z¡’N;9ÿÍ—kZ4‹âƒ‰`ˆZ™X_ø²êĞ"t¹34Ş°†ò5^ïòãˆ°çHØmeÉİğb4”Ñ–´Dè„£ràkÆ8´5äŒœuÇoœ"O‘:³ŞùÎ*Gš(±TV—NğŠşQ%×ò¬dk¶RíD#ÃtT4Œ$Ñ–V@‚Fº”£§~yƒ°wgN7~Ì®°N§UïîŠ^Ë´¨ŞnC“Ô.{ìmk`ÅxòĞ,èç½HÅˆbîWÙMÛß"S6÷Zm9•¸ê{)):íIr]ìIÓ'm~¦Ø`‰^pĞŸŸÁı\sV“>øÌâE}×—Ö\ßæ6§{2EörU/}]}FÆÈ.‡o>c<N
+µ*Eè!Ä`¥”*şÌZX‹EÆŒƒGÕ´Ò[ËŒlvêmø®=:„_’0í&İs9¦¬´@óÖ¤Äb×¬˜;P±˜VÇéâ3½€ıyìİÈaSô6f1IKÍª~5$–MßêR&jWAÍ8²ÙÈä¯y-~lfq807Op½ãÈÇ—¶ğñókÈ…Ú å†Ç”0÷³¤#šË×N²²Ş¯ªşÒvS?°óV5Á/+²|…Óùñ&Óm
+W(Òkë¿1H•0ğ„€İÜì3›¢µ¼BŸØ ßÂ!v?ğÁ>#Ğ£Ï+ì.™4˜ŠÜœ|ï± ~ÕU5Å,¾ì­ğä5ÈP¿H,­©=Ö\ıë`cƒ ×Ûê 2cw›¼ïËsşˆ•çU.ÖxHy5®ù­­_lòî±ĞÅëì~R¸ÙôÇ™ì¼^ï¦"ÿŠËé÷Æ_xO²-­Nçë["ÕÙpyï,Ş‰6ºò›Ô¸Rû‹¯úÑÒê–xÌî¨1Ò> ¯löGî—4¼İì™¼-'ifã=O0jIÏš’Ğ}!é••1ãâñüôè_bøóOï²7lúx//åMy"}í_iÇb§èÕyİ˜à¶ÑFM¼qÄš–yÉ‚#àgû$~Uõ=X~ßØæwyàJúò’
+ô	œ¤£Ò×JU³©‡Âàñ*›g¬¢‰\}N¸”`KòßLRÃã¼ñ®Zì>ñ û^òkÑt¶¾…íW}MÕş©—ì=-îŒ±è³ªFŞ˜ğÆ‡±2Ã
+eìr„€HÁd”¡uéğò›±iÖGâ’D#,«p‰Ë,5 2‡Jƒ¼P‹ `]+ëÜæÚ?Ş³ú>xõ`s8kxkpÇ†¹BşCSzñÕpd….+¡ªyŒ6Éö ‡áç—ë!šôŒÖª_õ­#%¿aM.êJoığqâú¾Â‰­x†v(ñ%ÍDKŒá$áÑŞ\£šİB¥ €˜šiâ4	ô´¼€îjqlÅ‹<zv³”}¢¤zÉÙmº&"¦l<É·<ı¡Æ7¬ŸPŠ:ÊãÔ‡Š~5ş(å4 }Än¨7£¬ŒÔ¸ÈzøoN¶§ô `+8«d»‚#òÎiQ–Æ™tâª/¶xÚCı'ü%bá,ÍŠ¾Š…kRï€Áí<-¿…)ÚÈ15ZTÎvï×cm.»]*’ ½Geïª²µÿq¸ZèË»^OBÅèº„{PÃtõŸ?8™%ßPmOÒ†zz7T³Œ4UÖmó·[åŒÖ,†èZ´+Ç²ÒìIlı‘02–¯0)×°1Ô™`€Xÿl›U­EöÇÌÉ=Ìb&aŞJ+ìG¢&xÅ°ÌtM%ò6!@…\]ğïS3Z{Gıÿ0‘–'1=cw†­X´!øQøòÊÍA^c-­+×Â/Íã•™¦>o	ùĞZn2E6Ÿ8†‚Q){¹¢oÊŒwTÊÄ.‚…¼Ò:|HÅ‹N¥Ï|'=Ó°7tLT÷uøÀsí<ó"…S¬é(ÛvÂJì)>e‘+a¢Í€ó»ÀEĞ°5¤¥0¹E	n+7E%¯»Ş<KèƒÒ_Lªø<Yñ·ºÙ“R•Ø¾ç•›¶}{¶»ºßºÈí¬ÖÎÚnñôãğ_c‚EàøèLÛœ¹«ÏÀ1hµM®wÜ4¬	x¡s¯“-k:âxqçúMà .“áİ6Ïm¯Ô àä^¯ å|fU·wÿy1 í[Æ‚¡Aß2¯Ôü¹äÀûÃ&¿­´6w¢rL	Fİ,NL» Ki6š]Ô«¹L£p¥†a¦‹¤!
+ W@õrsœô¸T+¨’†¬ĞøhòğOÜeˆ ›@tJÂ9²:=ÕğMÓ}¸èâ÷–`ÊîzÕZÖ)M£´¶<&ÎèDy¯î~ÈmjUğäcˆVëØÏâ¿VF}ğ
+ÖŸª
+µŒ^£~ĞcZdWœ>d5âN™38B
+AÍ¶Õ•¤ÁıR¦Ü°r695ÙG¿ü—-½I€³‚æ¯€¸•„\¹ ">êÉ•_0zjîØIÚOQ?Ô\Àí+Ä(W>ûÍX*+X–¡$ùRş³/‘o“ È–;ßy$TŸ,~ ~BzBÚzàÛSkÁÏ9÷ Êè•êp–Z¯rÄ§¤>ˆáQûKÍ%ÜÚØ’vJ7bFâİeAdàÔIÜ–{—ûÆgş§ku1ŠéµhJ[çÿ—øç5Q:]ú°éÌvÈoCçQ5‚Ï Î'FAòòbV#]JÉ[>‘ÑÄ6%?ÄSNy<¥3ÁUòás‡^¨ —d@ÒÂ'ºjŠ‘½®©7H@j"öšÀ‰YŞ†$Ê#ã¾Hƒ‹‰¤H{ûªyµ‰ŸÇ¢kª³‡0ˆ,Ÿïı/„^ô¨4‰&‹;~©…R”Å®’F"šÌX(lÀâ&«{ñĞÿµ°Q¹ëAö$Üë"Ñ®˜Î§t:%†¢emD½œZy¿Õ±P/øğo×Ã¶n{ÓçÃò„ŸqCW¤µ3åX›yøbëÎ‰áXµÂ‡8$C™›‚èŒGÁÜ™H'à“&B×Y¶ğ~ÚémE/ÉËMí}WU©Œ)9@O½–â¨MjëH ×óÏÈquÛ\V‘IW%œb	9İ`W…ê+€*Êifqg¢xEìÀÃŠ–%¿æÙ¡9ñıP>£ÅÔ­4üTÄ
+èÑš©ô&¹CNì£÷Ò«Êd¥C#2™¼¶l&‚Ç?
+Úzş*¹ LÀ6Ú¡îiLnÏoeÕQnPê5v/††¡j&ì—Rİ(R /ŞZ#¡#40Ä°•—,rAKÍ%tÖºäœ€%'…æ÷c”æÙĞşï¶ø¼bÙçóB0
+¦>$Ù…yV‰A¼=d¹‰Õ^|Ø°¡aøåÍhŒˆ"Yµ5uKOÄƒŸ{HƒIº°·å&‰JQªHŠNÕ óá^y—ş²îµ?óø{ïÏì¸¶)Ó²‡€C\éîK7ÙĞ×N4ejŸã0¢¤î0­ÔciPQ5³õ”#W¡²ı€®Ğ&úüë–'ö@LÒö&IöRú§…éz=„@Ì‹üN6%NÜRI.ˆ2§vYò-_¦.$TãF¢k0aìÒ9«º\	‰Öğ+‰vÅdëŸèÑğYûîõ)x!wu**Š¤f¬¹ñ	V2€4íZIâCÃ\…²òai9c	¯ß¡‘ƒ•Ö©ŸŠ3d@¦'àœÛU!É9ÂöZ¦‰óDL±Î…ålPµƒÁqFÓº×g›ŞÉVÔ¡×d2¯ø¿àK>°´cxZ¢krÏónh¯ïH´F,}É#êÅòyó¤Ì–üÿ®àõ8`¥¬âv/I-Mì›—\'oGF‚–œ(Bè)„2Î­ml‘©²ízR´Á·=†µğ.ˆµ_TÂ{·½½q—;ú›X¤ˆ²î=Ûx#ËY¹­ëÀ(·WÎàê	(î^h¨íIİ(=0­Ôwƒİdíª®°µµ›Á¥	ö(Ú>Š>aã!1ôÙ›)b}`Š:èiÑ6º
+ª„3S¥E¡=òˆ`dÍ/h„Oû¬å¿¤Ô"Ë–yÑ±l^RÜÎŸä7†F7qÆ—¸ş÷™v¯-Ãºxù–""ş*s7œ3:İæB&Û—+Y|âßÔy;E$ ºgVº0_Ÿ@ÉßØùd
+{qşX8†®o¡ıñ¾æÖ\<Õé@#©ø;Ûa'~PvºIx#ï ßÄüÁ+sşØgÈµ»¦uéNKÂ	ƒE1ğTÖwû::ŸdÓ;M¡h?HÊ¶jIUÊd„[JÊ.‰
+ÃÑĞğ¬KzšÑçMŒ²N_ËûßÓvµMãëÈS«‰°-ì‘"ûÛèxJ:Û=ŸU[ö6£Ìuá®[‘	.|·¼Ç'ì¾µƒ@rò<T‰‹¨Á ¤ÙñD9‘ËæÆ‰b/·“_„U|î]ÈFa¦¢dÁKpÆ|'``…Îî&î„g‹7	jİ®©[±Õ\Y+cš¬íüào>Úèñí›æxä@^”Œ\5,×nt¨»úCÇq‚ëlë´l¬ çºÏ|U±Ü¼‚ˆ»]yHÂ—ª»2çé[çøÙ´Ñ	|¶¢lªr¢!{X´@ÌCçÜ|£aˆO»Æš„Áé¶ÏU|w/9 eX‡VëŸ‚‚5ŞV+4¬gÛe*š+;gÁr»—ô1ú¨X”c.U/”­ú=WyU¨ÙÓE8ìP5–ğåÿSYäØÄ’şí„£,½po3rY³œö½OÌê-•D­›ú	n¬[1eUªCgÄ(2¨ãKä TE¡_»rGqoFkü˜@ß …²û¥JTšÕr—kÔñÈjær¶(‰Qò¦lËEšh‚CQØtñü‚Å>k/çÑ_íïÂGöÒŸUÚ·½±Z?D¿8¶ÍõÛ ²âÏËürÿšÎújY›O(}œ£«TÒ:Š±ì|r­Pß¹b$…ê†c4w.ü’„ØiÆÉîŞ‡W	‡h¢1—¦bõÚú+£qPÉZ²†Œ+„	Ÿ£á–?şóRé7Ä'4lØt,™q—CoÒ¡¸˜édAK¶úFé]Ò¼º~Õ²S—OuÆÒyêŠº›ëPŞ´x2XÙşßSå^4" É¸<pxÜzCµWsÚ€F4²Ÿ;™«¦ÄaHÅ†Ô/ÙË§çcÂ/ì²Wg3~–ÿËg‰4LowXÜ“ øúH	ƒYõ’P·a“JˆĞPGY4qro"*kJ¥ ¶ŒÊ’·ÆzÎÏo²5MÖÏ¿áYFCº…iÇ¨ÜKZ_"Ã¿HH´ÍFÉŞŞ¨§/3‹´?ÓRfmuÛíH l;"Ç'¢cb…Z<m ²”¼
+/ûë§ôÖÓÆÊ›äIÔ >Ş]Ñ:¼‘Ôw¼³rM>	ÏÊûë}e¿Ï©ılÇ­ëşG ‹1'zõKªKb vúë=ÂÛX+Ü!:”ª¾° 3~@sÏ‡ãĞa …^¼î©Í”[‘cFÀÅ5'Ø˜vâÀ’ºlÀ’åè $<Ç×¯^Tó¾Ãco¸{B©Œ’Ô÷0 ]Ô[ó|E¿m!5´;ı  åœkºÌOÌş»ğ„î+¥D0×ˆ×ÑnpnÛjŸŸbô¬AşÔóWU¦›Ac}Ù/TˆØ@„£C4˜³€rŞQY×ğË¦kÙWFª>Ê¤X#ğ–LC¸ÜTë'­R'Uh‘+fŸ¶ÕÏyóâé†±ûèïvÚu9 iq¿1sèÄsáÆÂÇÛ<«m¬êÕÊtƒ#˜%Ø“!È¾úÜSí,*[1cokHîÓ$ykØÉd¼šÆ"½°j=1”«lõä¾ Âàùœ’w¯C1bŞŞ¨‘cîàâ÷2D^ùM$ü[İ®ˆ²jØ›»¼¯{©!æÃ¥ºDj‘DÈÂ€f9aŒ`™_úæBĞ}ÚÈD;RâàZMBiÒxDhg’<ÇÔÄDƒÓl‡TğrÂ/v˜'Ô™LiÑ:'ÕÈËÃâ^ØM ©²êÅ?3öH¤ó¢¸/5U­ä—L¦_ˆ¤bTk>s´ÆòŞ²-’¬z2ãH£[{--ëé$Ï&•À%
+{w`@³émóv¹h–®ân£Nù 4·P%İ–QsªÈ~g;âwp¾uàs*(ùbNò
+¢u@ê3?	*6[
+\®ÙÕ4xt¦òJÌñ©ø›ÉlŞ¤ZaÑRàŠ_bac	ÑË´¥Ô¡G*^ÊSy¬YÇùüâƒ<nvôGa#àa/ÕCÅ	;ƒ¯ª¼~³1¼¶BC‰ô9éjXÆ`1}9î÷‹5¹±ILÈø3'WFdğ@ä9ì.= ]Óûa;s“g’4«u¿AKl™œ^Z0~’\³z÷UÖÚß\$½âMDC«; 3±d½1]¬ı{>ì~ÓaÑ”û› Cqlwe;!Å°2½¿@ì×®îŒØŒç)	XÉ»¿[°PJî:¤º ³”'ª˜V§97ûKÄaøÈ¶y»¢ûšŠÈ/#zzIñ´âjl2†Âëü? ;}&?$Ô
+›mzÛ²fYéÛ¯‘¼¥ä^¬Ã®…ë‡‘.˜aÙ€H)C <9{7ßPwgDßL×½_œ:»’”¯îcÛ ¦®NA€imo¬“u¼Îşİ!6«ós@ü)ëıQ^‰Z'QÛ–(3ô!ß—ğ¸%€ØjÍ¾ù#_oì/o‹à±×À}¸âÒÙô¥«+­ÙÔî…9¹ÛğpG­mrâìÀì#›@˜1%<û5{öeÏX½‡äú1Päs~#j—.âÒ¹Î¨Æ)ÑæM`=Éöãü9î%+ÊÌci
+§Aãà"€¡Ò®&?32Ñ™ê‘¿÷NÇú! …ûƒ5í |P…=µ¡x’†ûÌ0Îr×ÉÀĞ¾ÀjµÏäí¶–0– LÑ§õš`÷OPs0mR®/Ô~X¯±Œ'Ò€Ç@Ó’tº§¾Œ/Ğ°ãÊ	ÿ .^¹àØMÇ(t@ü?:k)ëœZ—`lÖVX¤Éßd*yr•ÔËaB¸ßPã^kÆiü"w6²9CZUÏEÍ`p®rL“kõXò¡aíÄ:&V™¾7¹Ÿ>Ø‘;W4°R•1ÎŒ1Æ°IYâ«Í[l¼~h½¢+P…À.G· ˜–¬nÅ÷ÿUJ"©-Ø“G:5oÉfËa½°ÿ jÕVkp©"\»ê¤¨7?ÏX_û’ !¥8Ú–äl«²A¡C´°?òĞÚ« ïŸP*ˆ¤:I_«š)Fx@Ÿ¼î#ê3Ş”µx —O‘í†3‹\º9Ô¼é±@@‘˜&²õÔÔOo çƒ¿Nî,fck”¾±¿9*¯ÊÅáşú4û$ˆ˜ØïÛ_ˆŠ½öQ³\Î@Ÿ¼ø…+mü­gÛ­ò¬3»{ä*İØ<±’.ôõÕ`D$yB@$[=£V£á?§ªC*Œkçêf„ŒUa|Z>±D
+¶Æ¶æßU)AÊuùI66‘!é/A·Î¡ª¬Ê|vãgj5in©»ëÆ¥=Ş#U%7+6ş›‹k©Q™˜úÁnzüe_E¹ÕÉÉşw"¥’ô&²UGN ^`‡	ãG6¾Ü±g#‰¸ª™Ÿqğ"0»Å}¾[ê{÷âùlÄU=·¶1  ¿—æ¬1wgZL%¯D‹‘ãKôŸV!åé»­¦@|¼};Ñä*É‡å¤ÇºDáŒ›ä59]¢Á`BoøA‘£±­¾ÒŠ×ÄW=Õá4–ï§–¯\Fz'ày	¨tÆT²Tú|=ùN¯É÷dÁ!Æ÷†û9{˜,õºàd†¡fc*ä?·ÎÌ¤ûAÀ¼"‡à	A¸vhÅhÂ˜²²¤è´•ÿL½ˆKXiÛKÓ,âòuú·¦e1ÌfhŠÁ\å¿Ÿeêğ€„s¥óÈËÛ î~ØÄ÷–áu‘Rá¾õÇ]o¨—vÈ 6çšüQ²úB®óö‡Ïh+2éYì–…Z¯6îòÅR*İ[¾³R¶œ› ¡e0†º˜ Å!sËS­Àâÿ³p©ØyxUŠåsŠ?Œ±é¯h_ÿ9&ñªû«r)¯)OBb/ÅD°(Ğ òº>;Û˜§­Då^åRìQ¦¶½SìVÏúdš{Ï—"äEP0Dğq‚+öô¢dîË`âÏÚ¾ØãkK¼ğõ•sÉ—ı(hĞÆĞ¸~4lÛ]ùı:ïV_7-¤y•j€µ[+-¥g\ÆOŠ¦ğ‚”3%ˆêÃµùÚ#å,fˆ”³_>Ì(Å³3‹îê)(h»ÒĞ÷è×†îiĞœû®å¢‰Ô2¥k®ú«À íQ'b@é+¼Üh)E«U’ÓôÃÙm4“AmfØºM‰™Æd©æ?MÈ£‡2šÜê>â¬
+=…€‚¨Eaºê'?ÿ -Ğ{ $À;¶f±®¢S·OÇX ıf ^Õƒ´^Ô·0TzCÃ,/Ğõî§°E‘óá r`Qa¸’é?.ÏĞ‘£Ú9ÅßDR‰ƒ§cğªwU;"ë¿.÷ŞØtwê–_®åjÄ5¼Å*sï"í¹4C¹’{ÒÅ sìË_:ä|Ö(-}ÅÄ4¥»Ê«aKÅÌC˜Ápbçibók]5VÀHš K¼½ˆÅ<×áìFP™u-Š¸0
+ëœî"Ş£±ê-L
+Ÿ—XTcn!‰:›ëû	´‹ùÉ7‰†JøAÄˆª[à"³JÑU^ÏõØ¬èAcöj„±-ñB%¨…®C)"¯(ó‹é©~*=x¡ÓübÌŞrØÀq$qİ~‹*ïj~ÙŸÀ)}~âl›ËN"°)XA~ŠLQ²à™£$s›ß¹#á2_
+fíğ‚lŞ,mùÓ?¨jí_Õ†âı0åÖ 1ZšĞàƒÓ-Jï©64vß«te®Ëc'óúÙ4ê°E‹‰¹ŸYÃh/²(Ó|«©Èï7ÍxÑvöG04öQˆp¢PhçvöpÉŠÿÚã8 ü‘}¶ó[Ìv$ôè€è½ø+ú qï¶¡·Ğª½mŸ
+÷ãëot°
+‰¡fŠµ	"Ê²½T|yq@A¿ú[™kÃ°ŠHzsâó2¶…°'8÷XŸ¯ÇÊ´+äzæ,%;-n@?ƒ0gyÇAoyêt@©@2Æå¥qî÷¥ü<ÇƒÑÂñÌ1]`)3¦2å·5ÚSÑìkÁ‘÷Î)\yıªMW>ì{8'ó¸øšõ4’ğƒaÉ¼±¸ZC‚ãdq6VĞè©Äœ³ö:ã…]¡ÿ|Ôõ)soe©Ÿ 1\ï©ß'CpÆˆº“©Í{É˜È&„;àù-T:Şç—”û‘Ál6”ÑWõü7EpÛĞçˆ)U¹hÓy°…Ş%äÓ˜"$ÄL4¥ºi[ °D¸Zšåû6±œci3ïÀÃ$C»5‰Õ§`5E|¢¸Í‹ç3!;‰.Û­,qİ©M7Äÿ¾bæJ™ş*ßéš`ĞëıùNt$­HÃçTgx|0"¥¶Hí'¶œ Çg¬ÒËfÜ8pm°P¾:qGçİƒOEU?™Oœoäa–NıønmtiÕÖCvnûô»·2•í¨¼}’@ Ò;¾§a7æê¨ãù5ë?@ÔóöxB„^*²FˆÄÀ	ÚFRY"®œ6Ê´øÂYdòs—ëg¦_’@Rí@Bâÿ±©¢ú¹²v	¿QÜ"É­j·~¯Õ÷}Ôø}Ö²ğ™·jòÍGõ÷`±¾¥?lF),ñ$8ÀÖ Ì›Ş4ÿuŠ‰nH,5g?ªÙ‘ªB"[ÌĞ=³6Ğ-èÖ¢9„$ói´Ş°Á©­I£ƒQL Ùi‹GœÉ8p³±:ú´¾ÌÙ÷ˆö
+7ßiˆ‹’9lÇ¹ÌB' Ş­ç#!yà¼¡À+xj#Y×eüˆì“ë“.¹Ña*lÈH¨rs2S¼Ro‡ıQ¹a£Ğıö®ıîí‡Ÿê˜bÖÓtßn¹ƒÅQgK`X1ôğ~;é·µƒï}Š.® 13[ ~ï+n\ECÂ	U¼x"°LÌ´ì†8ô¹d5£öçJÑX7•…RÖºd±ğÍ0?æ«;|½ö™Æ÷O¯ıßÔ½±¹¸|}«%f—Èê„5ÓÖrvĞdÊÏ„íû^O˜åYúe> Cc
+nõ¹Oaéíû¯ĞuNæp\^Ÿc„Urì¶•R¾k…øv‹¨ï5GÖÕQÆÃæ7À{‘È„ÊÁÛfC’Í©£íºj¬¦IFT¡…ØŠ»š]îOc=õzşª7¼‘„/8++!x°¹Òß|[)Âi‰lÆ8tJ3Ñ8Çèq¸‚XÍC»Ëc‚]ÆTÁ¡+>¶ ½?eÄ-±ŸôáØÓ};„Ua1È¬+àĞŸ¥˜iânÏKH˜–ó—5ÕÆR¸‘zÅšéQ³\	neÄÉ'SRhùÚÓb…\’ìÒR\ˆ¨Ğrkó
+i|i&úWŞ-¸W¨å'úoNù˜ÆÈÆcÙ&L^™@SA›q0Iš—Óÿjİ0­ğTŸsÒôñe)ez>9ŸH¹å˜É®ã”O´ı3;N
+pƒ˜¢>\ÿÎ-öúnª‹ácoSŒyMÈ|óÏÇÛ5&:ıÉ£÷8ì9?…TŠy&)°¬H !™H-lgºIÊ$Çk.¾¥­Ğrmv»n»”?€X9WÄ´5:¿.íóX*nü•!µwı&ÎuÓƒ;Ôì7wšõÆ&Wš,G¯ôYbììÌp9ÁÃpåi7jí %ƒÄYO^x+Ãà‘I¹B­ÊÅ‘Õ…pğİ`zİÎÑü<9c[kã²§œ’]qs›º×(Fb!ËŸ…†WŠ 'É^¾w3µ—‘l @úë—vÚ××”_Nt.ue¬|[@ ¶Ú AŠ»0Û`çR6qa™¾¿„r‹¡QxÄØùF®6ï•zÌ÷N¹×d°ğZHQcN\óF9Mrê¯™Şóç?ÉR/ 1\õ=8ºÁÎuÚYy±œıß.Ôeá—yy4Œ‹Ğœ÷÷."æÇ0/dWÇéDyNæx•ÚsÑNz>¿ôŞğø	ì_»võşUü
+ï¨¹¦Öãqœ“J°Kmö²_C]±½qËS«n"GõÂI}½„ùãŠs–?Ë­?@ÂuÌ_Ù7bfh"3§ (32_ú$œšÄÛtÓ–hş»4²üXÒ"ğ‰elïQ¾êÂAz„ÃÛS“ƒò•2h‰½…N*ˆBÁY7€#ä¦UÕ3…åR•’zFÑËÚÛÒÌÍB¹Ùº^_‚¶\d–³Úb^èŸıYšò8è‚D™~¬dG#Œ¨ xÇWIğh¦dzİœô°a)l#×ˆ1ÕbÜÂpûÉOŞßÑö’J&4ü#½€BWY·jW¤6‰¶Ãì_º¾ERœÔÍãLÁ~¿öú«ı­ 'çÌŸØĞÆ\ä«7pXEô”\¸z
+Ş¹Ç¯+\Ğd¢GF3^±×'|lkª¨ÕÑÄÎÄHÌ.¤½ˆAX¸r›şS ªûŠñÿàŒE…úâ2œ¶¸ŞbBsß¼—ŒÊ@zIIÏéFáßxëM'ïDL]tÿïúóè²‚]Øaœ( a5ø¹[L¢·6˜TO}9j19rãAÃ•^©ÖQ¡óÊKáÈ^jz#¥ÑCÊø¾å µ5Ãw¾Ç¼h/ÿ×zÏSª°,!¡ƒ$ì¯ä6+²Šµ¾_ïª“Ÿ8f0b¤Ÿ;c¾ÿqáæë.:Ø;Ğv¬ÒÇKÚ|(”¶3z3Ú*©gÄ°â­¤µ¤Î5åÆÃZt'k‰5ÕÛd2†¶Ñ¿È-c»ÿ¬‡L6#QÔ°ñªŸ|ïuæê²®;ıiÈ¦""ağ'\ù†ˆÇíØƒŸxĞä(·‘	ËnÄS×1'3şKò_OŞu.WJeÛAb½
+	‰tÿŠË+·àªÉAäÇ+ÈuËpä›ZëIÃ÷í*	mÃ!¬íÎÀ.¥¾~É
+·@Ÿ?f?¡F`n¬wgÿÀ*˜àTC¨ÑşÛ‡Î-¾6åü'O"
+J0‚  ÄuUyQiÌ°½n¿­`IDÑ.mğso “u]Ú¿T€§gxËyŠKì.ß7UóNh  î4‡4%ZÊ$C0&¾e¡·JÃhÊte'/’®wµr’ÿh²t$›	VQ2TZ`ïW^ªZÛŒ‹Æ¾—Š}ÛZÃÄ‰¼µÓÉ5·Ÿ.Û¢ÏõÍ8J…4ñI6¢ …Æf°`t°Ohèd>Z?º[ÈK ­ßŞö˜™Ìi`–>õ<Dº£ØãˆÌyÌ5k‰F›0ÆWtğg?óB•Èp ”Îq3ô±~YÂs1™ œ@ÁƒÂÃ—¨àN 	 º2™õhß^üK¥i¢«€¶æI,=rÌ¡aYlù•Ç”olÇ@p4JBÌ ¾;åÒÔçèœJ®[
+ C-øá:q;Üa-Ò|Åy[z½ÜÉˆÖĞ Ç¸ƒ	ˆÏV¾QØ›A­]ç8S®> R‘zå@_¤’ËÔ>ÜWÔ$Ïˆ1‘Ü¨NLyÅQÿ@Š©m4¯ÛŠ¸ó«ÑöMò?ñÑ{ n³yd%­O8«+CÄù1ÙB~ø®Õ9ãbxuªıRmujağ+œ¨Ö[Ì„P?6H¢ÙäCæ
+1Ôõ]QÀQßm¹MÜNŸ¥È‡ö—§Ô$SÈ‡Õ€^)ŸÓ‡0ùÊl÷*EdŠ"•Œ€¸àğÆ9·}®³ˆàeIÆ§»‡]s&—72LµqÆ˜S@â¯OıÚ¿îü±g|:úÀÂg¡ë]Ax¥ûâF¡TF¿%\…ÔjÙ0;a€ÑŞ$H†—÷~Š™zE¨íáNdä}ÛÖHCŸO7	ŞŸ’Òs>°ÿo€}+T>¯Ùl©ËìüÏªòØs0ìÕ>ıhûé¼†beWçG®ë üz0ƒ^O	Êíè»qèæâ¹œGL$õïR0·í8eòÁãıOa
+ÉZ`ÈëCÓ qÇ4ïh,ìKDÎ¸
+Ğ1Ñÿß–õÂŠVo†|±SäBÂû²"oLxİ©À"‘ÅŞK(ßôĞãŸÉÕ*äÁSé™rgcÁ‘H99î…I>Û×µr§QÕ‡›Pàegï?Û«V*6ÿÈz*¯ÊkuZi¡Âöw5ÁĞuµJüŸŠù÷[¥‘£¨=ÄİIÒ¼õ¢Î”C{M›!¼˜EÃ——£Û´J¸£¤M·UüÕÜT«.vtÛ0‹ÖÜbÍçÎw=ë÷ƒDÒ|"‡Æ1 –ÆçØ°„ÿ]zøÊ(Œ:Pb+»j,H&FÏz.ZœJë‰™)¸+·ômSD^Ú†_üå4ËYŸò}ò6Ï¥” Z—F¤$ŞŞù¿f´¿5R¯Àn—%s”š•èıífè†Ÿ;´zÚºh’6	HKaæh2 6¾ÙÑ<(üì(Ö X”‡”P?ÊŞãÓ]Ç·­¨Î ›¢ó{o¾›W¸,9ğšMªĞã=êkÜ°OÄ~Ïáî}^$1¡Œ€|’)¹Æ›±‰^µ>ÂÓ@;Ì£jüĞ'iâ’Ø‡£ıÔOj™ŒŸ¬É!†ü¢ßR®˜$M~¢yßàMŒ¢óºó²–9ÍßÎ^ Ö8;›.±D÷$¡Í<—š§`·uGfÅ’=òÒ?Èi;È’Å ^Lz€Yø~‘DLfLòÇÈm2$ÔÈ˜bÎvzE":1 ß%Ë-IÉì<?Ÿ“)ÿ<ßE}Ş<»ä´©sÍRÆûV è'b5îÏW2£›ì¾Llêïwì]¬›Àb÷Š/İéÿ©@xŒ2•Ñ›8Å•ßfÜOµn¤¬N”ÉùvÁÑjÖfzÅXäÛN¾.¿âm¸±áñ×º¥•1‹;(ÃGJv /ó<¢»Åäp¢í\‘Adz‰ó.hŒêşl³§u$u'ŞÕ¼ŠŸ¡`Š.8–ğÒs}Îê1ö-Ò<§&KLiZz×¦V #myoopl)?ánšr¶•ëîF?x
+kË9‹i»¿‚åÄMq²C¦ü»µgÈèªı>šGèa)œ™üú‡üºŞ³äÊgXêtã÷|<&mğıC?uşTèC¢¼ùß¿jšÄcœÂí3n¾²
+–^À;7ÚÕy‚1Œx ÿ{£Ç5ÛrvôO/è^èåÖ˜%obëÛØMS=~zlá.9y5if•-©]HÙ!Æ+»et(,21¤¾ÜºµŞ}³œ' 6‘¼ÍÒ1sÙ?ş¼`¼.F%üŒzV®Ë¯øLçmB Vvô(N• gvÑl¼›o1“?Ûåìö^2ÜåWšÂAl0Ê¯u^–#k¾‹Qh«ù/ñóœ'İ\×Ç~/³¾e´+øxtÎ%È×“òGKóˆo<ÜåãÙ ´Mgb÷•§ÏûHun³Ûl£Âë,\¯¾«a …½—¡QaÄQ¡™û?8%Ô[m ØCÓkë!=Utô¦½ îrm3:Zg	àb_zéˆÓÜ‘<.ƒä«Q	Ÿ¾€³ÈŞÍ"rC‚ş¡~\÷âÕ½`Î­[ñsü¥EŸò¼–©Ù•Ä_¶€¯=nÏ’¨nâ4¨Úš?Ó.j#¥:¿nĞ*G=µƒqˆ°Ül¢¡®ãOo àb„`éÆ`ªzBôË&)ıE!¡/ò¼)äk–o¿[”bp¼ê>3Uùºè6,¦è×qh@äØFî»’Œ>À4ÊfKE.şCãKZ–‚b‹öHîÿ’µT¾›-¬ZYÄø÷i:#O€?%¦îÅ3
+V/øL|wp¥™wh¦öëãX¤4Ğ=q¨Š©úf«ÃÜIBl‚‡í]-o“l{€=Êlıb
+Š;ß@÷ï¹/sê¬ÅÏñpH¾V÷¶È€Ò±HJÆšPI°4yzkSß‡0+¡|=BHk³§±sböF)©uÉóf•¼äy–Å“ßÚâPº\´„Ğ…P"y"Æ:€Êªxì½Åâ‹zwzF±ò!…:¬±İ—.êÃ0"¯?´aUÖ\Ğló
+Õ&Î<n{ÌÍãú½9¡”T“§úØÓ è/;9Ü‘â¬°‹Ø-Ó‹ƒäá&ÁV¥úÓpy\jqY.päY{F5«ñõd…C€ÿPS	jĞåB°Iãù¥/ÔA‚=ïÊMW‡²¦½sÔi$ßãPjEòùe¸n~àJ*Aî£†VäZ‚ö¡Úô¸¼ÈÒÈ’•F6A#B<ÿG÷ôŒ›(*´ 8ş"ì¯U®ÿæH@Ş+rY7	ÚÑ‘O"ÉH‘ †Xòµ8¢Ék@ğ5¹§:uÌ8º:Õãëà5H»3ŸÙ*+oQÀÛ¨*NJ4‰Û`TU‘*æ=ùîá«™e}ß×°ük‡Hÿ”fÙË• ‡ô]…vöX7WÕ Q±7š™ÕZ­n0N*¢Y^£ÚkÜwTØ÷â_)Ğ”8*$ß*½qh·ÿª‘%v}çÄ~é9ÄÆ¡:|*™‘>&—ÒñOŸúj{‰lš™× ÙØC“]ŠOÿôîw@ÆÚf<Çz~7àÂò’š’=ªüˆ¾ <Ùm¡ØáÓ"ÖÎ÷©Ä¹C­äG:håşg­9š‚2¸üîBÇíØ¿ß§ œz‘<…&kı8‰L¨+)Xâ€°âÀ°õĞ= Üî¯Æ+AJØzkFÀ•E¯,CÚ™(Ë¢!«¶_-Ü¦S?ÿùl©Y"ê}±Ç°+ÓÙäg’ mjÿYA¾;NÚ$â£	³ô|CÄyÆÿ¦ùÑ”€²§Â\›vA¯ŞîcÓ3÷]–ŸÏ»+VóBa>!6ĞÓ-â+È…Ûxb{Æ*ŞfB¹?Ëx€]çsÁˆ4@âk¥˜ìÑ{½*MMç«.…v™Ù*šøÁåb &‹<®×ÌL½ÍèWË-BYù;xj$áÌÿ'@ı™Ó×Óh•ÇæDlöV9~ ŸÊ †Ã	T3Å.‘â9IU¼s¶:÷P
+cTDpâ‚ï^ıN¸¡¯÷´ÒíœvC_ +–t©Ì¸%ß°ZªƒV4m§O‚Åcz›|W…wF¯ÃPPÓ7½ÍêN©TÅxØä›3¶®5L°\ÇgäØØ´Æ»ªeI@‚™ì«~sÔCaã ê¥÷ÑÆc¡ñBÔšeã(·Å’İæö#wçHK«\Š(äŞ9áŠ“Ucağj›¥×G=(	E1:ZG£4|Ì's
+NûúäX=:cFÂ´.O¦XÙ‚IPuº$ÜR¬É0b“m),¥EİSØ,gcQC™M y|“´üÍİ}2‘Ô”hğP—!7)Ú	²Á¾Å¢ÚÕ$±sƒåüéT™>âøå!ƒûÂ^¥0C³útöë2@”ßÿÈN×¶/njñ‚–¾=P™z‹dÁsRàñøYÑ¶¨Áes¾Ó+ínïë“óD5‚…cÛ$€e#±kîåo¢ÓZ–yw× P$Ô†Ÿºî sÀéUe3¥s3ùCQ9Ë’~ÆN5¸”mFˆfDÈíziÄßå~jj¥äÂ¥¹Î7H­÷Â/CtÑnëÉ2´ÂfÚÏ®Ã>ì¡³ŸüG–øâM±'&¹¦vu‹±g”>»D8_lu¢Ù5^Ùågõı%»S:ºïhfß)~f+OÈkD´'õı˜\A°6²·í$ÃºøÕ‡Ãı!xÊÀÊEq“«gx¨8zâGÑüï:9ºr¢^ÅòE)¸9h÷C¸¨%¾4£];NµxM‚¼Xï1C±êı²âöÅ|*YÓJ-’ûV+ObÉŠc
+¶YÉMü¬3bª‰¨±x€z0_4Ù`—ôâÏÑCºØ¡f!0ÑEå¡…õ$ïrj°Ôå}Šô¹•bD³«lè+ğ¤@Û…aÒq}šì‹v-ƒêBaåÔá«ª¬|$Ÿ»ÑEÏÙbT6N.ÂÉb=§d^à‹bP¯;Ê DQô‹$ùyÈvó>–•¦|wİA«‚^üµûïóâıJ6ĞŸ”¥–*õŠáşÆ÷î¿0g™ŸhOé©*³(·ì%7u·åå‡"Lj:Ë°şw”ºŞi<‹&@sé‡÷„Vf®ögĞ0EzN·_]€÷º²ñ<o|@÷­fP^†~êöDô€j!‘Ñ2ìıOŞàmÌZ¥Âáê•«•ôä%GŞQ£8Yh=íİïo¹çı`¡•2Iê’¿m'×ø÷‘aÖÁğV›dn7Qşñªş 5Á»1^¹R¼Ñğ8“Ïª»<mŒ­¼s±`{Fır•‡UWÕk}R®F.î]vp²&‚øASSLøj´f0½åÏ;¦q#ë~$¬­˜ˆcsoZ§]}„Û6ÆÜ@ü±¬¡ö'Gj[½æq©onëæå
+»b0Â%
+Õ‰¿ˆÍ£F¿´&Ş6MÅË“Ğ’RFM{­(òÅ2êe®Zj MDÏ½ºŸ¨¾àŠ©»±e;RàwJïÍõ¤­Ö>W
+IÀÜ8Ç8âu:ã8ï@ù®ñ(ÂËSó"È!áÍ©Ñna¼±ÃIŸA?âçJ4>qÕ\·kbÛ–¶ù‰°ï‰®­ù"€jz`µû¿äö‘û‚Êf.~}Eä¦o'( sH”•H«â=BV¨#P¹—_Ú¤-è"#~f9•AI†¨äAƒ©A™	’û·~G¥ô2Ó^‘³>(ë ıØküyÍİêÜ S%eÅŞ[P}š×s3-5‹³´9a‚÷$	şÈ8é®İ³Zm¸´sŒÉQ¦>ê>¢*m&|æ7kÿ«›`@OY,ã€4«"»˜s2·`MyÆ:ç%i
+8
+Lgío†§ß $P¡xƒ:=§nXã¾UXÏ˜ø2yYİ¦·£ÚÆ£¶¾ç¶p÷ ¿ŒbiUuÜPóZÊ±fff’"ÂáÚÃ çœv{—ôÂFÙÄOR9¢hgÙ:K{(¬$…æz"b!Z$#¢\&ühJÌÊ„±ü˜Ş3x$EŒ·ZÌ ÓöKC×P/«é£´J9$aóp“·ßû¶æŞök¡u$*F¸tN”Úi”pûô
+«^n¨;•¸‚wÈk"*OzÔ€R)´Ìğ	/¾+Øw
+éğã~ÓJâÒ¶ÃĞŒMõñLï¬râmß¦N› 4)w[„¢d¿UV’dñ~2¬Zô¸ +7ÜÖ5V“–(TÃ€«Ş×JñŠXá/j\.*˜›{½äÔ®0
+ñP›‹q"D·Î•_–)Ôú™kÇ±
+ À;µK¸Oq ­öï|ê<Lap0'‡^|”èx`(ò47h$d½Y°åªíÇ°û»V¤İN4¦óß^ÚWZ~,êMÍpÜd¥Ÿ)€ï\I„Ü]\´\âşÖB¸âpE}\Ÿ­)£jHÎ?ˆJe§IĞã•}:=µ§x,k p£kóô q•b>G¢8gŠ¼ŒiÛÃ±–ŒNa÷ôH,ó²xz<È?^k8Ş‡L7Âv=Îµ+ÄóºĞG	s»§¥¦sÀPw¯JN¥±qîV	µ(ÚZÁlÖÆZJ÷İÃS£Ih’^Ùö’Ø´ÿ•¼A5Œ£Ô56`«‰RßÕ©{ş›õk!®TU¦fü_|R„Óë2$ç†"Ö‡ƒ#ëÔ:}ç:O~RºÉÿ¹½O‰¼ü`Qq™÷`×ešÉÕlcH¬b¬”ùïº9o8&z|§¬Ş×{~îF	•˜~Ã @Å‘#ÉBnÂ†š`R:ŸEŞÇyßÊAÒÂ/Ş Š‰-‡m°@ƒŠÈğ&a'†#D©JsâUjÛ;Â§<!åG.•~½“h F.3x(dXR{³¤VŞ)åR2åÅõõZF…Ô^YItÂ0Ê¬½Ø¢ËQgS´­M#0gãbcúb7&ËXVæ\/‹ãD˜VC0“|[‚øZ&¯#b6åÁåz;Y½(jÛ¼°™DÇË‚OHxHôæu‰JåÿùPd«B/0Øé­ŞhğVw¹… Q«ã‹!›iğHhÇsaÙó†yTÁDADÀ#Íªóê´&"q##Œ3vP6ªñ¾’¹X4N—r½|ïñç÷ü?Íô…Õd û+q5*Y¡ç/AÍGÛÁ^[ûZˆá®æ½arÚ×ö€ô´FmÛÿr—¤TL“D”ìZ®Õ±A @A«»_”yİC§¡É4ô•œÊrr_ıˆ…QK€ÓŞ^xk1†é.yÊa.Šsuåp
+²XLêTuJŒØO„¦\à\^3ÙòÆP“á YÉ†1Æè’Fp—Dâ=(ù´
+:Pm©»¯Ûpµ;?C×šxzÕãg	•@ ¿ ótmNÂšğº]ó½O¤bYZßø@äô’€¯¸
+m2r!b…Ù§ÏQ€ô†&÷ì“’cr—µ`Î÷,–/QVRHørYØ©Yr‡#wŒèÔÌ7µngòâ¯m¦çf#¸,ôâßl¿&jë&ì´œZ‚F–ƒ~0ëñ—(Y¿uÍjQûÖeÃÇŸ£œÕmåÀSÕ^—ï¸n–’¤´£Ş"¸oú1‡@X&`Ãä^–Tîñpİp¨+ eï|ëd»©}Å‘šÈÓ4~íª­ªÛ‚z³Ô@Ã¬?N3…;â%¶ŠÍ3Jõ/Ò4¦U¥äğµ‹­,çùˆä¯w¨È£J\’’ã5ø¡Œx=*´·èHÙ®Ú`'~w°0^pJpœL¤!ÒUÏˆé­;ß¶VŞı3§zbP"Fzx¡$‹Lpy»vøä´ó~nèzy>ä^î<b‡ÑWX 3ªšXvH°Ì4YÔõŸƒûÁGã,ÒÊXÑxºV>>¨•j%=©áœƒ’)PÍ
+Ä½_+‰o“9s¾ˆ]ü(¬¬Œö»öwê•‘6•€{H5¦“OÀ¨Í£I,>À4ëbY”“GíĞÛ!şÑWgALĞ(ó&‡¨ì	O<¡Ï¯}Ö2ïcC_°s²‘ùß¥tyÅ%07!EB8¶
+¶upIb>Z6“åq0D³<óíØ/Ü¡ÉšÏĞ½bS-àLÚÉŞ3NÑÚDÙ÷;†€(VSsû…:Ô¿÷:ºeZ‰@6KĞo¾sGrH]'0n“z`¬+äÃ#›ßÆs9»Á}®TùŞ¿Ò^¾ÁFÖa“6€AªÍ•›ÿ©Ä¹xÌ‰}
+£Òˆobob€XÛ;³&×¯écc1‘å~Ì,p'Ae¹ş«àœ’å©¡ÔŞkáOª=›Ü±î©>3U…µÃ©ƒ’ğT”°"ÈêÖ‡b Å jR	¾
+Åµ{_ 8í&AÕ]¸º@ÉõÍYÎz,´’¤˜@á]‘àİN‹‚¯E\Ø‰şlÿôxj”¥èïŸÆEËïj‰4¶ó””şå9?çg–«'ùVX‘~áÒuNVËÙ°>ú…h*ïóª ½ïb‘‚yA{(®2~Ş–#â¤øx/Åöš«”)}Ÿ=~¾Po‚?oÅ}!Èsjp6üazØ;=ÅöÙeª•y*½õ7–¨”wë5¸ê•Xãfà_dÅ,SuğùB€ÂãÀ‡.E/İqy¯ŠÈÍÉ¨V‰¼õë}÷ø©®å“_7¯$ÒepIà6DKÑş²4c|*¶(Ú*.kûñ”NF ñÔ0D[Ü£CSÁ­¦¸!ÁzywIFˆ”<z ¨:òÚÉInƒ‚*‡drbæ¼W`KóÊ»*#?š˜2–¤>W„éş!5º1øWƒîJO@óı€Î7—¯ôì€¡ß±šT¾v+0¤å‡¦ÑÅûëä7cp}¢Véİ*:½z“‚np¨cî‰,ãG¬£&ŞšI	pC“iJöfÆ™%QÕïà‚JÛûˆ^ÆªÉC¼?—Büã81¾o¤\‚rò¤fmpK‡¨ı»1—`.>D³Ì<æÒ p'Ê½Vr¤©P\l(o	ø%t·×Ë„ßšyÀxÊ’$áI 0P²h¾}š¿ıx³Ù±ÅæÏtÈöY4+£²à':ƒ}/.&bg0ğ(›jZÕ•°D°«ûÃÚ0O·\ò5cE_ş½Ó8GÏ=ÖÎ‘‡Núc½§ciù*šˆRNâ¢ÿ»¼ND¶""­£É
+*-hÇ¸l‘wüVX	¹´w¯U5q[ÏQÄ4©·‘`QÃË@agHÏôFfäğV
+÷iÈ¶O°¸§Ğ[n#¹Øâ,{¶G“îµå0/¦0›^ên‹X:UEÎÆ°	Ô½¸Ç«^K@l}Q´"ÚIs‘ÏéÙ#ìieñ"4sÍx¶LaÖÇ¯Ü ²‘,ô]G‚ÛÄf[•·=P]«¦«§ñr¾0MPx¡î¡5im™Ôß‹ŸbıP°ÚR¬$›7³$–xĞ5~„ÿ*½wÕj'ƒR¥Â ÜnSúA´Œ—_áúp:9:NÄK½øñÂÔlHÌ3oııê8tJmu€;Yxƒ	È)HÈÒÈ_œŒnEµ—kÀøŠzr¼È°ÉSH­˜]uâ}°9Y;ˆrŠÀBW”ø§M»$¸Yæ |JF&!(R¯i+JN¼íµ&hGµÁÃÎ$.¿'Ûß;£·mî– ÷c>(utk í~¾a©üİÓÏşM×¹6	ò^Ï6.]„sÂ%C¡±+«$`Ñ¬³ÿ?ÃHTıN‚äZ­p:tRà©±	 	ù(¦ÕTçó®Qçr4Tàß­„4¾5İlË¶úRVé/Icˆ"ˆÜËĞ‹¿‚Ÿz—u¼ĞÛ„ÆoÿƒØê6ü[Š=,F4ÕUËÿ©Bº’Ì=oi	NS·“CïfÿÿÀç@—±Ë²=–Ê…u…oçÍSÂnÒnû’¦¤RÈdt[œqW…s™dó(g%¢‰÷‡Èl&ê`öâRáŸ³Æ¶	÷2=¼=[ºÛÂöz4\SI^¤¬{X»@-yÉõ¤Ó!,E¿;ŒÉ|áA•x„î{"1d³Y©,dù¢öÉ/z9ÇëI2v7è¡•Ë)’.7òwU\V7uà5gÔÍ™0ì‡CMÌw–a.nòÏ/!}a0¾üsgc’Fv*s¨Òèdİ«pËw_¿Oä: .éÖºçM{ğó?gN/¡bHÑOõÔŒõëï¶è¼å,?ª{ õ¡b‘Âˆ†/|éDV×‚;Ô½¦„ßàĞ­–ßNº	iqà­õÜ·Œ&ÏJı¢š"ÑaX¹È'ÑÑˆ¶QKª¾VÔšß™Iä–ohF#)BsêÊeq„Ë–{Sb•ü_°3RnÄv×•-’4?JMj&–m8§¦v>jmë |I—~v¿c©ë¯Ù‡x´+ÓDˆŒbà„Ğ5+<¯1S|JRä™IÓ`œî=æ­5Ñíaş€¯»ş¿B¼ôŒı©¹“jl„rvy§Óè.
+«=Bm«iLzŠQ)ûÙR9‚›Üİmú;Ÿäë JÖ“6EÚ\\ÿtéÆ\N‹Zí[Q‘ƒpküÏ€»‹éÆ=ƒŸS£P(9zqÇ^¿n4\üòbk4*Ï(6t¬Õñ-š§.Ä®ĞŸÈÓmAJ¢bĞğ‰ŒêÄæÒº‡œ}¦³5²†½VR+=[*ÒÃÿHc§:é$ˆ“<²ÙKd£˜á±”H»›ØGÎÇÆÉ}aá˜ßÖ0”;ºªòó„c™ßNøî³õ5ó°ü™Î’ÀCûŞújj÷ğ‡Ê›w·9ÁıÚˆ÷qÚæJ¦6Ğ2Ë5/pEOÕJq*†4õz*­Ğıp¡šÂtY£ãQ¹îR ò
+o™µä[08M+NÅùë)²(KÍ}Šk{MlyŸÙyY–š+
+Bÿ|ö|£0J¤|˜ŠDu„˜'íİ [Ùw4 úôXÿÙùÍQ˜~·ÛMtîèr€ì/ëZt³ĞÈGK*R2ß5ãª°Õ³8ÚäÅUM5½ÄßZpO®ƒö­§øRò^NbæÆ^=p«Bæ<ş-°v¾k´1ygCÕ¸¢?¿(Ê]½¥Ï¢’ê•ÙÆæØ9:ÃUáô5g” Kà V·ûC_tŸá´n±ÙÚÜ½€‚oj!ò\	Ã"èÜŒ•æ´VwPi¦‰vTÀ½¥…Şâİ—ï´Î¢ß %5BCÒÜ'xBƒQE„¨AáŞ4É…3§Š¯{kì<Dgúzj±kœß©â¤¹QŸíÖ³„½!lkkãR¹›R‘LÉ¿Jhb_Ø¦¬:Kv°!>©ëµ\‰Ş>öÜ«Ì¢:€¸¡«·ˆÎ·?dªİpö#´·4Wé`Rñq•B¹¢û¢.É1~3µ¤~åı²T2Kê*ólI×,¥à­ã²	º·Ÿc•3=7FÄçË+šî„;Â[m¼ÃÛÒ2ìê=y¸Ba@J+Ñ/ œtiF]ÛKsƒÕúZ÷eoœÜ0ÛÛïÑG’‘ê£wŒKÚG,išqI´tt ¦Ñ•s“x‡n ¥ˆdÜPƒñ¬±ßƒ›.Ş>Hê:­tõ¾8ùê½æü ¡®ú©¾ %c½û	¶W–§P_…¨?Ö*§üÎí^†zfİ'£oÖ—–º6¢	VM½éÚß¶(ÀÌcJŸ†Üe‹é@¢MÙ ÿñY€—j–Ú#6Ÿ£³Äà> nÊ,^%ÇÖ
+87q6.ºÔ‡iqu‰¼ié_9 QF 4IÎ<!—ƒßãÂÕïº1ÙìJÀBÕÕ˜$÷ä+u¥)=úäÃ‡&áé|÷#¡/­Ëš:;N>õTWªr—Â¹:&iÅÃ<éK Eæ¾È9JJû4½Óa*š#Ì1×/Àh_ƒ4Ğ‚Ø>^D¬eõdP{–VNÁ*P†´-€İÈ25
+Çˆ‹ÏYv‡#Øö¥)U9Y›J(ÙÂz~®iîğãk‘7Êk½&¯ÿo|§	*ö"ÄOa -tÄ„şbCË²–0i:»êëœ¶@J‘0Ÿ¡d×–1Ò°ŒÈ¸;üTw”úŒ>KÜ•|Aè~‘P‹Ïÿ(ñN1i-	=¶|]F\¯X¨.M Fo™çÑ`¿²0ëŠRj1nÍÚV·
+(ÄÓ—´Ò‚ŞF´-)»7§
+’ò} aÑİ¯báşğ#;Xs•ŞïoæSzN™”²‡Æ«ˆpzEáPÇge1ßæ8„*ıZ¦Eµ	/KùªÛÌ‡Ò$~‘W”"}ù3ºuAÆãV²­ê"@o# mCÜú¡šVÒ|÷E"xê×Kx1éóø—.âÉã5 {³_:‹99,É7:[zÍ†ÓJ¹G…XO„N‰Á‘œÀøn—†ğ½IÔøÌ ŒfµÒ.Şé{øu¨åäÒÖFvGsL,†íŸch(ÏO©:—6¸Ö.Ñ±C±àûwxÀŸUj]DÆ’’8GOüÀş¬êÙxÅ)nQ l~˜où¾ªsE›:g\qHWÚƒ~¿IQ½`èb´]G5ÆùpJ-á†Ë¢ûôY~‰—#ƒÖÜ4¤ş0
+E´ŠM[utšøƒ€´ˆ1÷6×Yİ+E+ßMü_³Áø½5£èüp(ëôn%%c/ß<Ò–#áoÔªh€\^ò&41óá;ko#]©…VãY7r¾áİüËà Ã+(P4Gê¢´ã#&Ü6W!Y©[Höµéàhas¦†ÛO±nôØtTÈØhÁ¨Ä¡A~şôÚÒ¢‡u){¾P4N,É*ì¡Æ- ‚zúØšòø5ã&`HO¡|“ÔAÚ™ ?÷÷oÁvÙĞ…B7á[ÀI;ég..kê[Zvªµıxh+¥úXz˜Ä¹úr ‹C‡ÀkÉä¬-Ä2c|hFr™Ï¾Á$×`Í¼z3Ü@&ŞÓLIâpıˆï=˜8×I¥ÄşÛŸ:œá6£7seÎ¼³"í°ƒÁ'ÇQûÏag³ööÓÜë0&ƒ“‚~ª³]¯¾c³isó}Âìv»Ñ5••ÎÅº¬ìè~ö•d„(«ÇÌ]¹îûÿÖÄ@ÔQ5Qõh¢jÚıu‚ =8ÙC$RŸ¬æ{Ü.'-ÔÇ¼É°aš©i‡V;¿?Dß¿í¿ÂØ1{;D!ï”^ZPïŞhúûEÙ®839QËPÀ¨áµÍv8Ş˜/!ü®ªH¹Gú-W·Â?¼M0Méå%EÎÃxÅQDP"qb¦üÄ»4“™ªªBuâm²f~k»?‡İí†i—%,0_ä©/$7Óââ ¿ìJÏñjúÁ±ŠJl×2­jrF#×<7Àz“YÖŞ·x±ÕÊ}à}bŸJxˆ§ò5ÿlÕoDLÈï¨à^ùÈæYWğTº5?.©¥j_€‘•%ñ+a—ÅÌÈV_¸;5•_ÌÚ»ºšBª0,tÚÛu’
+P/,6| ¡èM’N0N…‰Äkj‰ë*]K¥ ípñË¡;6˜ŒGjÔTQ£k‹ùp;èwŸß©l[Óå›Ïisê6ŸÒ§şZTD^#³I•VZBFq“ô7¥¹z6O¦s6Ÿ¬÷YÎ³>™Bô#Hzİ^­µİ“˜ì_éÀIYÍæÆ¡øQü6åjd,ÍŠEòøÄ©~O²Õ«öFæoGFk+@ëÀÍ'“76o:©¤Hõz,‚š4m4 z|î»F/Ú“?¿Uù{2®>¼•5k±ÔbÊ$aìT¢û€¯N`ˆÈ¢“€ÄïjA6è‰6úo¿}J¥\q³ëvßpo°”-™ôzĞGèiaçubr}í)a,¨‚µG+RµKá©á/’*f¾YÚ³r/cÏIE½@;—k›èK:Dİ‰ø< Z"„ïû­û&N+˜4æZ½;•¨J÷+æÏN¢ËAÌ±e›«ªEIkÜ äŸEI
+DØŸv«F!zÆ¯^9X «.SÛvV ÷8!>Ş#Š+ÛJ¥õçÒYÖ[Huwd0L'!}e£·ßÕÍñLÄÇzaEU`¥ãbNêvîF³ÎÒPRóØÑG"¹f¬PíB4¡îrn4İ\¾&s°LÔ0¨ÂÂË¸a›‚Lbaš$®‡ÙÂÑ4ˆLnPµ„L-‰¯	[¶…¥>^'kÓÆ­[ÁÂÇ'ÖF.IjêJşSGûßèòŸ@)î$^]À…àQš?' !ö¯R_Øv¿v5½ïåˆ
+u4fS‘ÂZtnÔfF\aÂ \Ó°É~ÕÉé·¾>Õ7Œ€ÔZĞ²cFLê ¦>gŸÈ™'Æy¬>Ş’ÍjeªC†Bµu  ¡GÃ‚‘“Ío¿k4V;,Ñ’H%mÇ'X_<ó[áhÄ’Ø9ÕË¢*×=„EĞö¬EO!,múSà	×H·Ö‡89Ê–b=%BZhÂmğñ{%İ?MZhƒıXĞ¯GH;³^wµª­ÜØ§Y/5ÖÊ/ıdÛ¶Š¤8Z•©6ı	È×Jø«+Æİ"hàÚ$d`”,¨ß‹{š4J~34¾nV]ËXªYv%‘~¨††ú—Ô…àÛ_—æ‡ “X¢‰ç¨¼Í"ïh·È=°eMg+.™‰„yü÷Ñ
+ZYëŞ'€e‚#ü°öµs$"†Ö~\qÎÖŸ+ã'‚GJ…ø"%Ü\V³Ü;p›î*!Ğ¤ÏåCNö‘J¶Ëì'÷ø¨Rv¹W~­Œª@DG%Ïå@†Úğ#9bp1 sŞ4UåÒE&¤UpøÕcRÄbn3¸ 5“şéæKZ¨¯5!< Ù™¤Ú“Ò Ñ÷Ës¤$y¼†¥jªÊÃIc4>—µ	ñ{C/æ3gºÑ®\šü'%_„¦u•/ä¨»õ_it>z©±XFj.\«ÏßŸÉ)æC5²AšN¸ûfC';KÉÇŒŠr€·Ï-,¹)æÈ´…Æ¨o'û,tÏ>®3À“D{Ú1¡ß0ålË8´L±ÃôÛ–˜ìÂ Öa¢³XXĞTû+‡âôJb-¶õËÉq#Ó(Ù™‹ãƒ8§=Ô‰X@h¿İú7
+åÿ×2 Q°ÍºS€î4wÄ³ş™?şˆ§†qÏpöKî=ÜNT'ò,‘¾ä8TˆæeP~¸à­P¯¦°ü:ë×Î@²Š÷µÕ|¼zb&SÔIÏUxÌ aTÎŞ\ëU9ñ`dê‡fÊ¢­šŒo{Ø.dHJ„<º FÙUÿyZÑ,ô1Á{ÛAaÂğõ*^;ğPGl4Üø¼rnâªíÔ"ÈÜÙ*@‚ˆÓŞ8\¿¯ßè4± ¨‹{)éDÏYŠª |§Ç3F«45)î³êjd"Ã›pwÁ¢Ã.Úç7ø=g!¤hãiÅ-ÆÂÜÊh&FmÃ‘_³Å©yÌ²¨ğÛEd-D7œèï·W=„ûÀ^·HËËÚtÃÀn¡}O¦,¬Â+d06ƒ…pÍ®ÆEúä=ÎL %•³©V^/Ÿ[îå`yßÜ›â "êŸñ±¤ÇÍ‡‹¶®çô…Öwÿ"âå“ÜÏÌÿ| ‡®^ZUdÕîÛæeæÖÖs+š$7HX]lĞt–)4}vŞ:(WQ%ÖDÛİ·çïâ°Vùe#àço[¢Cİš0-5a·½]¶ëã6ö‘«¢ªì%n	ìÜÍtü™=`Ÿ™Bº¡Âæ‚ÖËTˆº"¿Àı…³±sÍfñ/iGù\&Ú¶cÓ/ÈÄºËŸ‡ğÕ4Ú¿íÒ¾û¯”¤;>4üTVåHe‹¨vëñÇF9úûÑî—… ú–ÂqUßÍ¸’Ä0Ú,óg$ ÷BùÚ\¥è²cFfo¶a©SeÇÙ©vòfbòë6ªöå„T¯”ŒïÌh6BqÁ¡—]~ƒfá«çŞ±Bd	ú÷æ¶Ä¨dt©‚/¨¬ĞA¹–¶„˜ƒ1¸­©T¢ü®ÓûÒ)ˆ¡„Ä7i;,|%ueñüZß›æàÍßÆ^â<B/ôÒ‚˜>ÊäÊvÏİ»"¥ÎØÆ2Š¯4J;Îßâ¶ö”Än—Ğ¡
+NïÙøC‘Eg)01ĞEß‰Pmb!°¢owâ¡"¨2.ˆËùa«î1èÇu—Ô+¶TKoÿ¢p»,[×îJå‘7İP­ÛßşYM«Ì¹½Ñû[{ßÕ	‚J”Šy•k£ a!!ıı'EÂo@e¦ÜÛáÑ°0ÜÌÃ$´ç¤-)„²t»NHb%Ú¿D¢QÔÈlİá/ºçR«ñn¡ôVÁŠó§Ò,™ÕÈ0È%ÑØ/Á%;_AöE+Ü~©Z+XEJëÖ£{¤OÖsˆò×f2rÛ+®ëù±=lgíö)ØQÆÒ/İ	§ç†„`ĞÖr£ÅÃ•™ÂĞ—kõ,x‡ÂzhõcBV0ƒOğì î‚·{¹,Pèœ•Ş+Òx{èCÜ¥¡Ì¶œ­Œï·p™E‘Å¼v”ÆYz+şƒ†˜·(|Q<«ø
+$1ÉHAHŠæ	¢Üf›6i@ |óùN¦ñíokîÎpBp¡<ÉZW7ÓÙ~¤5UºîÈÙRÖÆˆC{´
+/pÍ£} íÁ¥@¾$)Gî_'‚ûĞş~vûx1Õgóı(ïí„rü*um’^÷Óå±~[¦ƒ6T>EXl“’l~nÉ½ùˆ$kJ	µ¿L`¡+ƒ]á×c±ã2âBíspŞOæ£°ç¦÷)ë­p‚«4
+z€	I åöğİ×sz|2é3£äıl_S#øq&»yy“‘–ïÓ,NÂK·`)Ÿì&\®$„Èó:Öãcô®Ç
+?©l%æ’ff‚ÑBôºuÅâ«ŒÃ_,^èdNÜEŒsÂ¼¦n}„Ãomï2ùˆ9I©| $œå:Bn\,_¸+¬P¿Aˆ-	S+ER†
+Pû@Gì•(\ w‚"çørC.Ï£’¨ÆÇCÏvT#2eŒ	g,8ãÊ¹	?[VV'ØÀÓa,2Qæeà/I¸ÿåDÖÕ’…©÷ÎeÅ–T>H:…hXt—p<O,EÕö'¼´Znh¶ıÏÕğŸ[–W÷Cøu8Šôé.Ë?c»ONl¥%£‹üÑĞ´ên®¤yïPf¿õƒ˜¤Œëû\‘?ŠòsÊÆAjÓA5IÃvö«¯Éî›¿`ç ^Û+ÖÎz¯'¤Âó†‚•(Æˆ=yì`šÅß‚±Tî¹ÂÈŠ—ÄÄëïí´Æ‘Y3mº£g—_¸zUNÅ¡£\íBs)öŞqÈYf†p¹XGo6µ¦<m½RòÙ‘g2:ã‚v­f6¢Â÷ó¼R8`ÒOŠŸ”0ÍNştİ_Ãc½ÇŸÚÕd²Ü
+@or…àâQEõ±ò…qõÉ
+˜Éàøî§@½;ÆP-|Ó^¨îß?ª¿90#‡vC.ÄblÇ¦¤XFSD~¢ëmQü¬¨¡ó™!SAo‡cŞ‹µ§Á.'Õú<T‘õüĞb‹;¿vı¼â‹j;’A›4å8ä%(ë>“±Ìc#ôÉ¡çî·ıkÃw¯ß´ÙõÎGno¼áµP^•oìŸ¥Zªíë^õ¿Ú'³v.Ô‰b‘£¶.8"'fEfà-q“@Š±õ5Îæšb7öÀá{ à)Nà²áY¨·jwktÎ2¿ÀbÂ\<€F¾z$EKƒnÃQ$&JsE—ÁÚVÍWt¬È¸ˆjj[á¢İ÷Ñ*>‡J·2>ë9òæúçYÅ‹r·{¶ñF@²R!´P‡k©h&“rÈUØÿ]eˆÍ¢I³$òæÜÀ`²İebı`%]6e˜I÷^½#ly-úòã;îIˆ÷İ&ûYT”ÙÁ ¬L|É·êt>jzºù‚âSòE\$óüDïšoÈ·SÕt[8EvPÏîy_%e[7¬°Eeo­Ëh1H¾‚b÷ÛÒ¼0‡’'âò½ÂÙĞ¬G†å25)›Lø=ÇN”A²™d6ƒ²Vm7ì³šc;®±JÈr©\FÆ†Ÿ/Xày9ŒI4ë†nÓEÈö5Ô ¥Ú×]Ó¦jÆ¼=™¹Ê|ƒÂ`–õ™ë—…¸c9NMlÿµƒ&2®õ“5Ë3'8Æ»‹ÜB~G]]?‘¥#%¦?	hõ¹ø‹\|öı@Bp¡Ï ÊºI÷{¯@ŞBæÔĞu˜Œ‹”7gÛ%‰,öK„J‰4:€-7Ë±ÑØ¤t¹­}? Í2ïªøM)È,[¯>‚£&+ØXŒ *ãöz–‹W8éÌXÕ°Ae{™,‰’W¨İ×i$ä…o¢j&Õ€³y}ÑRÄî‡üQÚø0¢±`õêÖ é‡ÊÁOş»EŒLU¤ÓòWÛ½tûÑ…ÛjÜ|óV#i“È#D†õò‘¥ ºşmÇ=ø«ÚsÏÃ#"’ûrì	¨_×ïú¦Æ—ÈjŠÎ†C[ÒMœKeöÖçz›ÿ¹5‹¶ôÇ	2×ë¤©æ´>µ<Ij# €®sînñ@@ßûËlœFb‹ <Û·>¤à˜ÊÕkEîêÊw¥¢hu«Uìà Q!oš_ìh®(GõÆÕŒd§Æ	Û„qƒ­í+G¦¯jIkÇi¸$ºÏ—z=xéûÉ•Œê‹ª<zT–Æ¿ÛP»"ğ¹¢ùÕ´ÒÆ~âgşWs ÉK²ÌŒöíĞBÑïÿÛãÁÜƒb†­0vÈRTäÇrB‹Ø¶d“Š½z÷*£g¸ßæC…ÔîêÂÒqğ|Nl£2º' '|å¶na:P“˜§=‚Ñ%¢ †‹'ˆnÆ8k4;šÙ7ıÀ§“´~XÎ€j/ñÊ„-ˆì¨ğäeèÎF%Ÿàs~yĞšÉõ†®ÎôËİÚ€&=1ˆ~·*;$áRµ3eÃ¾·yã^£ø¬’¬@SïRÙÌ Ì9İïõú‘œî·#=-¼¹+Bz=ÔÊº9ĞšÇ!€(F³ŞOì]Ws°¶Éöø=´Á xÖPH\ŠÚ«	ó§ô˜Û¼’ÁW÷Æ„ËúiçÓA{‡.uƒ’„Q€ŠYğÄÍï—çµİ}s¯¸aŠn/ß‘«³S¯”ÀùÍä?8]ï”"=i^ãÑ³eÑZÒ»B¥˜ ¡qEéñlnàJ Ú…5U–Ğ„lò’udi%w3åãğ¥´bró¬’ÕÅõ×L&cuqÔŠuI­êVµ/Ë†"UU8-©Ô“b&:İÜš¢¾f#"ß>.ã¼Æö®•Ãˆ¡ÌèÜ0È"‰×µ1yuÈ×sêU+úÄ=ºbyPáA/"Ëã›ª‹D?u-óà§m=½]•GĞ9ûáÁÄlÕªfˆúeB1&!©Íñ)’æÍ;1„Š(İ“`°¯¾?ğP»m.M
+zWuöhøÌñU”ä!~Î^¿ÑêÇÎğ&à0ıı¥¿_÷©¨HSÀŠ	à ·]PÉMQ¿ó…êDŸöTnœííÛÄñ]p[òKR™®Ö`)ãCí*E
+ôz+ T32I£Ö /h;Ç{)pMívY&fÍÌÂEûh¨< \ö?ÖûVCËH4ÂpÏÈÖpôÏvj¡lÃUa[È›³æ–ÿ`rMîcéÖ§HJ-H«É+ÆÅŠ«üàÀµ®r†Š_ÌíÀ~ˆ£ è¤«bn¹u› r,¦ÍŒµtğ+ä“½Êl¬2­ZŠ×|>ŒFÚHùë*d‰î!e7W¼ï™Ãz¸sIç‡åİ‘~Ê«Âñ…Q$ -úŒ\5Ô¦E/|ÏÛ–´´n¿ÂŠö’šyœ”$Z{/øKÓÃ¹1còö…^çÊ	Œ’Z¤O¸ÿ“iá¸‹f±f=FWøaÅ¡:ÏX¶n)ëyPGTlkÕ_ì%«N?"øäÿşŸhV}ºéàó™ŸûÜÎcœ•øe3¹4dõ¢¦¹`OZòÏ5öÏcN+TßCX`p=ÉQ‡0oÔ’7p…ä¹M¶qˆ¾H¹„À¤lÇo§O(´x¥'‹j«Óİ$ı6¤‰7á9`Ëª}T¼(Fn[¯ˆy½©¤ÍµÊi÷ĞÅ2P|³7Ãl sUòà!öà45Sc„ÊV$OŒ*v½š&OÊ¼÷eÉŞ	qûä¤WÀJ+¿$,Ÿ[/#çÉsKqxŒâ¦aƒÈ3ø]‹Ìp7ÚıK„œAé5[oxçùuå@>AÿÄ£…|ùÙ1ÁdRÈK1ì©Ï…û%o&´C×à,¸ª¾ÀùÓóº¯_.æeùWİ1†òĞšürÒe$*áß¹ 5ÂÛËğ¨…«×2üï®£'8<tm±˜Ö¦ÏYUØ8.˜—Oq1^ÌzQ²èË´°&Pc4Ñ;’¦])Â_q»¯â&qz/3Õ÷‡[ç;ŒáæôåYpo-=õ@WIGÉ;Xg3*Âçd®q”t0u-‹†/ÆYšÁ5‰×-®ß(ÚË%lŸ£µ Ç¸Só_m·sİ~/Ö?da˜‘¤¢‰4˜.ò!DT‰@©’˜RAĞ²][9›áß'ü»BÕN§B´¦,ÈB92Iş†DÊïÌ^¨ËÀ0÷™†%„'¯­>I/
+*B©ßµw$’á	Üdæ^)"¾××ã¥°é¸Lt
+[A€¥J `ñ©#4ovÇŠ+F.^8ê!¦·®;¹Ç”©ğ»9ay]d¯Ş/ì¥NéT}ú§³WZ_å&õ=Ù¸
+¶yÔg'æ‰ ¶\ˆûîş$Ü–Ì_Ñ°¹€}BşÕBEiÙ›nÔö“’*wÇå³ÊÔGïPä¾7ÆÛtöë´æQø˜6ÿ˜A"ËÊä;K=È)şºÈŸŞ×Ã¹¹ÀµšÀ•#™áPÁòÜ˜Ü‘ğÇáV¢¤ÕsO@ÖºØaqÇB¦4µÏü=¥ªØã¸Ipó„‚åA¤Ñ0³¯E»	p›uJÏ [{u*ºÖÎ¯DÏ«#¨J‰Ô$ˆÂ¨éİ¶pWñ^HÖÉtöN#wö>Ú/k;Asÿ´ÎSJ*kjëƒ^ë:l”?œ®SH·ÜÏYXïÏM°Ë^.©jåøwP›‚l*psò]fØE–xªÂ@²Ë0W`	hÖ71’ Í'&–c¨_ó}QH¼#È¿hİÏoó> ­Kì®ìs®íÁøõg±©ÍÉ˜PjC‹@V!ä¦G7Úû‹İ/ UíQåO50¶¡Ğ?Gè™d-KÍƒ=„á²å…>H:¢QÙ´£-Ø_tÖOÍa‡z=Â}2ÿ8d%U9BNÖĞ·–G0%q/Ùg«à¶kè:6K)¾†pw\$ñÒ3{r£Œ8ŒïH±¬ÿO‚’R»^wá"QGr’g&à@DÌ…d5v[%x”-¯(¤[}çjƒyF–ošõhêM 1¤ØÓëk°#÷(ca¢U!9ÇÄêÇIß¯ „Ÿ¿Àã1úBQú(1ô	/’ø(9ª¬ÁÊ¢Æ8ìH·Ó¹{aå®¬§ ´´×%Ò")‰¯n71]0Ígª+,kÿ1AÌâS:Mü“ÏX
+J›©2ÆZmÿïOãĞ~ä¦ØÃA0àëïp—+Ò€öšEZæssšºı–ó"8à‘‚3th÷«¼±ß×µu=3uÇYåeÂ^ˆK—€ëIyatçîCÏg]çÛ &ÛæÙâ·á5¸H¤ÚPK—¾•¸™¢Îf¾TˆÁÌ‹Ë‡‡¹ÄÒƒË‡Mï:_fn²	“'!-¯ñùYR×8FÄuŸ‹BtÛÃv²RB]h=.ºÕr¤`Ğs 
+›F34Ü˜-k_	6Ü_æÍ-®\»İ¨D÷Ie‰İ9¬’^×lçFU4¾ÛbNîLŸóF¡XèRí‘è¸„TïÄœ¶pm…P´œäG—zA=òMû6–€eÄdùB
+ÅĞb3ŠÁ*3ˆ­oßGš©¢îèÓ1ãLó1÷ ç–bÁYvD\¶™ı4h­(
+©èBG¦ñü´…ö}hH›±íÍ1Ú 5Îqód/İiÚ"§dl—›ãËğğÎÆ€l‡ª6i~Ë"¸»ïyµ¿•Ğ‰"g)(å\Ö‹»f~Ş\ß'Ib?«ø›«”¹æ‚îÁpRİJ3$\ØşÎ¸/ÏŠ‰Æ¾¬6Ëüdm¶wıíRKü'2BºZm–¹aqñ¾WØükak£ÿ]Ş´¸3{^"w œå‹n;5?#(TOthşû«?y1-ÃèF6Œ®à›Zc´šM¿œİ²e’+°Xêz3÷’æW´jU‚@sQšqFÂ8e$‹E¸Ä@¬|Õ”]ø•Ce'Å»&2–»..2	 6).IÀ:¬Ï|¾‹úğÚ@ÿ»OÌ°mX>×ÑÒü‰y­uI±İÖÎPyqÅšU;ˆÍ¦eãçÍ{èsË|2P…c¥€œÏI2mÖ=×ÉOd	úñjâúRC^Ã`X>h²+¬‚à‚pRöŸd\Ä†«åŞœ½5cQÙ¥1ÊØ”!§ÔV•yg	Ûß•Ş†øjõM±ÈıAÌô< áêõwC
+×¥¹	ò´ÊE¡¨4*¨0†S´m€ìs%È™¤×Éòª”œÕ°Xœî·½Á©½€ù,ÌÜ·Í)ouå%R
+Ã­V‚œ€ïMÅ,[ïsîü¨‚ÅŒ³ÍL°Ì¡!Yr;ûF›ic½wpe8ü¸ğ¹şó©#.xÑ–fÏç_pa›(¯¾¯TõŠ{ oíy@I?—Î´›¦ğˆ‡—E³rõŠm¼÷ó£Ì¸éæ² ^‚­ö°X‰¸…F›x&ËI„œ¤¦"«2§áÂ£KoHSÇ Å¼¬±·§‰X£yğ>á4¬Q×4™àÀª*3vÿğdR—¥A³³Ud³—2¼ Éáó@üJiI²×§<3*`0e¢½(Åı>ô
+¾zÑˆ{ëããt ®ÖRq«'_-?–Z¬–W~êc=A*¨t=Dë	vî#_-"ââr%Ø¹B8 JÖ»K¦)-Ö–ê×.S÷Î’¼Z§L¸=ºİ)(¨mÿûi˜oïèpó’!MıjÚ‰ÅÅ°¥úBßxÔ+'¥µ”6YHqÄ…üîs,Œ§[ñ©l…½­ÔUšL¥%qëÌ/xexŸ…ê<tUDV4ÂÇÁGÜ]‡³f,®ÀR(|[tI(h.º0™^Ø5sÈØdÌşÊ+B³YÉµğwĞégZ+’ ŞÌIËòúñ[á’²¬Ìµ“|ŸŠŠÎ=rÒ@|¦«öœ–i„^íÚñùd
+®éñÏ·uaŸÖ%Îs„„¸Ìí˜¶†;7%tğ9]¿Ñ¥VMÛ9†$Ät§ ´ƒ£ËÜZàÔ£+Î`<¹ÛJî»a½g§Ò×æ¡›éš±-wî¹‰G¥u2–	¬´òXàvÆ‹ åöŠ`)ëm
+µR7b€Ú%¨˜BƒÉ¯[M.^I) ¶­|{»Ùp]	&æ“6-aNÈ«*GšpÍ«9›?û Òe.Cªò<AÏ›=jÎO©ItÈRBiK0	ùPšek•˜Åé½ŠÜOa]ÚcÇóªÄ„môîşY`u-mÂğ¬q}*ğÂbÄZìÃJ™È*äHX&VıæÕÔ,€RW(Ìd®8jÄb´b(y!¹s‡Qsü¯¾n±ºxûécö¯Ì|wÅ²ß¶löUxş®Ü$­YÇ2ø¤1=y¢êµ4F’±æOüü\®´É.%â…q~jK¢V¯F;ËİI&'#›VÂ‚ZjĞ32Ùğt=Ñæ§iç=¡o¸ŞxÖú®aÌëFHEX›Å}#×Ö“É/á²$µJÅ¬ãÙ7XÖ¸’‡n<yP8Qí5^™ß@ç`¶!’­(ì“Ôóÿä8>SÓ9²€»ğâ¼¿´L©ñ8Î•-P|ô_(ã¹¹z-Ì¬+‰É53–ŠqgèËQÇûR„Š7[Fœ,C'KâmO·(ú\8A¦xhòÄAUğ7¸Ú‘«:…îÎÑµ1f""k¨áN¿ŠÜÛTd<í!.	›·Ï8¸UaT_HÄQÄCÅ1è FuqÀ%\jVÿ•¥>ALéÛSÉ™°(c¤¾=d,#ÛôÅ|[{RâÓÁ_oŸ%ë8ÿj„Û»03J`”#%êEQêõ¨èPZdL5•øôÛ„
+˜l†/Œd!*ÊŠ}Ñª¶9­N†g›³•€vº—õe¾¼Ğ	‰lH¸Íä¤˜á¸G#ïù}¢W.M&ïÁ|pîT'uPp&#<LsÑ.ì’¦ºYh¼&{wˆ$°cªø<nOÅ‰x'pñ±t)k	öˆ÷Ö?Âá]‚gÊ`,7w ä’B•EÖúaøÜ›‹UjÚÙD¶3è"íl ŸÏfqŸBí‘è[ùBqI¦‡·gğ[¢ Ÿ`Şò-^9ññ’loS©%85˜i%Ÿÿ>ö4‡ˆt3É…j«Œìá&†˜\‰ğØX¹E;4ÿÜ¯H˜ÿö—,HÑ¨ñ4¦tùz<ˆ”>Í»­F—€Ú|rœ%Æ×PÈfñSÓšå-(RV¯e%?ÈUm”Èú'Àîó¥^ÒËË{ÃºÇĞ“ïÕ6êi¤°Q›ıt7õ#cÇÒN¼> …8ŸU†] Ï+Ÿ¥Q<[ò¶;M^¨_ò23F[i*7b³ØDğœQOt]ˆwmë±Ê®Â©®{{‹%¡‰j§UI½‡»
+6ZëÃëø½^«ÈM·`cÆ^ Ñ­Å§ùš«·Ä•ß÷¬–{"¼5¾\‘Ì¿ßx•Å“c!“p2Ûñ¹*Ç@kN4İfÓI&ÏÍÏ`šâsô[Of¶{ó3<ÒñŞ¶ÀáÂÃru±›XûÛæH€|‡Yw¸ÁmÊÏÓi¥rHÕéÊ „'•Èöòjô_:ñRqpPÔ¡}3úìê$•®,Íçü„Ï˜¸oESğõ4?‹¥qù8®Û‚{üb‰OÛªw‚Û²JZÙi¤Ÿ}´kPQ+5˜×ÏbJu%ºZò5ÌEUC5•ÂÂbŸ"ğ¸b°á4Ää¢ò®¡ÁŒ#'p¹®’×Ÿ©¼—N’r
+š4n54!l s
+’˜ÈöŞAƒ¼sOfoú©sŞ$MW×Ù!©Ä5L„\N…#3Åç01vû¨°w2
+tûƒÙ21ºLì(š¢¹òÒ'¬†2qñˆ
+KİÂó|íìbÎì„C-£œÎt«éÓ5Ÿ¹ö0±“ÍÇ«8PPR–ÿó m1Lmä3.y·§]½Ê o°+‡¬ÚœAOTÎ÷¸»¾;2<íO7İrWöí}%e¥0Zò0S›]¨í‡HoÂn°¥géo2]'âäVjn‘&_%0~F tG_½sœÿ…¦V rĞ5÷|ôåUÀM#UTåTP—©hŠ¯ü¿2Ï6j†O¨¸ÕOŞ.¦n«úÑy"f¼ÕFÒ«ÆtÛwqX}kÄÔL1Úb¿«EnC7ôÁ„ØçëªØku¥qIC¶Q}}½Á#Ûi9„±®;=¨µM)T§nSp`cÄLı¥œiy{&œ.™;,Ö³ÒÙV0„üÎPx-
+)Hƒf"\ÔŞ÷îÁòÃÃ‹×Ÿ¿lz1É¯‚Æeñ(Fn
+ñT¸sKæCª"kíäHòğ,Í¹u¼€=÷ñOjPO”cô‘1Dr%€JÃNÖp„¬*~ÎÛzuÿ×şQÚ3h}.«òYTnóù	ÌeİWÃókf«´Şğ“áª—"6nq4è+2åC_ÂşÑQûõ`ƒH–÷õ`µÆ^7.e×Omö-J2%£î'È'ı®N§ıö‚ Z¢@¿P¾é¾šèÜÄmZÇì?”Òí-Øı‘Ùškñqw¥ôñŠŞJƒ;Å6hëÚæ€ÚÅÉ’n•º¥wÔ1:Yp!ë©9£!\w³]kV P>Œm³¥ ÆÿT‚/x”¡ğ«(€bÇ™Gs$ˆ›²Qt½Äó–•èJäˆ1k0®‡ ç^iP±óı4ôdç;ÉĞ4ZÏ7½ymK¦²×˜Û6\Ÿ†¼<Kä?2.ƒŞÍ.İ"Õ¯úésÀÕ2-‡J’"¨%—¼±•àQÚxbY‘DØt‡V:>{ÜT^ÊÇ¯›|İ%ˆÉóòI° é1ÛX¾õ³ËÅAe*l+¹¨H€`ÈÒ¸Œ[”Óğ¼\æ“Un’ÕeÜšHsú'|Ê	Ğ‚®äcgÉ,Ïˆ°Ê$}SòêØãŞ?«\2yzğêõò;,Š[ŸÕ;¤àÅúB*À@ÜX-EátOØÚ±œ<Ê«ÜÒ¿åŞQp¤cŒ1'’qaÅÜŸÛT¹\ÍQı…?Tù$a¤âmõ5ÊĞîÔşÁ)u}Îü³ŞU©æ›ƒE]‰2¥¿†Û%Siı˜ÛV¦¬ À ÔW¸×ŸbcvĞŞJÍßF9Aˆ¿êH¸ŒsØ£Î’³ãÎ#ÀÁŸrª«ã¤KÜÿ&ó1&šZ¼1H©èc¹ÑØÎù‹FÚgÿÿ/m~Nüàd/g½0{•]$;e§|²ÖöFä¼ï¡A¡®såsÀÖèéäxTKsFmv•]PoÃ÷–ãªÚ"¢à$³Æ0ŸÇ_ŒpŠû%¢ƒ$UcVávğÔ,.Éı ÉĞf=õ·µ(Oš@±-"Ÿ<Œ²~+(U³¥	“i3÷‹uì'Y,œNAí«×ÁS‰' y¾ö•rg7$5ØÕÚ›éQe=I²¦1
+ã¾oÆ&ŒÚœiÇó1{,ã\ºÔşãâ«h'k'@FşÖô_\‰:Ë5áÈ ¾k÷]«i6ŸKvÿÎfªpº«˜ÃØ…{„ok»htÍ_dºÖUKÆó{â"gV{È¨±ª3	-I±ÕƒÅ5Î©(oíğQ7“®~Ÿv4ÔØ<¨Çíşëj©8ûy©›ÛVGŒbc&ëöÕ] õ÷ì„Å–¹M°°áaö¥DáX²ôtí«v¥sO–?Ä+¥°¤l§ÊÃïï(NXõLv%™øµ†¡ğ6ntÜÄ´‘¡[²l*v[¿±Ú÷­3µ|c™‘ï«DÛo<Åabô²‘7ö„4‘Anõ›(äkxvNQ¿µ­>/V-Å”9-€‡¿:§º ªóeD¦¾€ªTs5>Vƒ×<İÍHÂ'HslÊıĞ¯:bxg{ûœw{?ª°üPğÀ°Åd^8ÛyüóıqâRŒ~q¦y`xØè‰¥¹—~çBó1•äÊÛ4©¹NÀaWôÌqsÉër¿×qaÂ	yvæ¬‹ ’z²EÌi#	A7Èä¯¿Cœ×Kp"àºñÚ!}?`Üb–”ªH3Òï~­=l¥^œ×j´[Õ‘ ©Yr«=÷ˆ|ìÊ·Ñºæ1qÛÜ2”<h¥ÎB¾&šrµªPzÓ¸×íR^&şÖ ¹Au»J^©¡Ñ=ŒÆ³OŠ¶©$sê2m ø¸»0€F¬±µË‘&àE’¤RéÛç¦U-ñ£ÿ½HE9EsäXå×ï5sƒQl¥ãh­|­åÛz[Ö¤½¯@14gqp›iß/I-ÁD vÿ2œê=ĞÀQsnRW½Î9òŞµ,¸ñòTÑËfÈo×-¼¾9“‚ä
+ ¹”2ìE"~‘Šêñ²«@-¶cïràOå*ÃñÏEÿ“0søñ¢pj£*ü0Àr=ëÈkÈ£}ß)–~¦¸{œ÷jó<[Ô/ìf½ìƒS¦¡B„‘z÷>Ç¨üõKLyÒLPVs{ƒ¨ù4ÃsÃ6t‡ÍÅŞ-€ñËkñ£ğÏúÖ9¯0ƒ5–Å3‘b£.²Äş”Vy³Lb±µÂ>O›­/íûªçCÓÉÏÀZæÿ—°ôd%/JzUÂoâBâ½4»hòíâÓ{pMXq¤å§>Ôç {&¾º›XÄä˜Knı#T7>°G"7L^0ÊknQ*)ßvOš,hT*‡Œ@Ğ×ß;N
+Æõj>“üsI­~ç¸y±/ûü¾]o+Â:Ê4cSƒ	œBÅ†U‹¶$±İW‡ùgAõKj!t7]&„¹J¬“záMÇm„k7T&›jê‘vF†¿†sQ$:»?|yfæ¢9rÂ!c-öHE]fÊ8²6Ta_ñ:ñS'ËÍôÂ:-ˆ%MYİÿn¤×Hğ®hl›–ä¢m®\6R>†KOvÃ&zÛœú
+3ú“ë¿{VÄh¬2u¼……òU¹zA#¦*J÷×%hñŞ‹¶€S°­oÿY±ŸWlğø¤oˆ“Iè00«X#©n™vV9![óÚé(DÈ:÷FgÅ¸îÆ‹ ¯ó- úéˆHaàÕògjr)QjRSÒÿÙĞçN!7„ Hÿ`']h>Ô2‰6°:Tjb(´“«¨ôÇ3º—±²Î0ğpgk–©¦Ä{Òq!á’nn¦Ü:9äuÈ_Ši¬›Ç)Zaúás6&€e(kàáŠ³_önø\©‚g¼úNÃÎÉâ8ô[n¼	t“]³³áÕ3Z°Š*b'ä>¼¨œUWøô“ôÁ59^¡¼.Å¯0¡I¹âÀª	ß#6”€4KÚ6:ÖÙøWy÷+|e°Áşõc_¨¾L@ :‰ŒĞb¥‰ˆ­Ê%êéÉCagjªØèşÚN*èêÁfÈÿ8c5°¼æÖôÍNkXIà5‰}=‰ˆ†Á2—zYò€hn:’2)…Òö]	@«ÌwˆaµïÛµt8â®	lw|V¬æü=îÅı—%Kñ™–7½Kİ»£• AoA·áü)ÛgF!^RÏÖí¥ÿwŞi‘i¾¿RÇW	-ÔN¬\ÙÿÆİ¬…sÖ’¾ˆ‡‹"L6{`Qåê^¯éõ\¶ü°EBDÃz@/¸s†„®Qíxé&9F2³ Íî§ÈàAXN¿††$‚öá(3º·ğÚ²4¹GÇ¯‚‘¶›ıà$äP4ì81é©ÈÙˆvÌz|­Jö@¼…Fo zŞÜ;pª<(r˜ «—œB´ÚšB¦€2]öh-4Âs&€ê€Ä*–wÇtÌ—Ó5”Ôı gÇ¶ì^—ş`Îš¸:[ODµ€œŸ%é?š‰T‹©2
+z=0Ìî¥kÁcšM\°n}cÍ¬YÚº>¢İï›uYjƒÉØ•õô„bT·(Ìü`DÜ¼!ÆÄ»dv¯Ö‘d éroÆà	«We¡ğÛËíœè „3„ »H}G‚¥Ô@4Ö‰›w˜Ô5+ãxÛ´¬ÂØÒšmz£CmŞÒô¾
+YNpEaçOyßõyæı›!P†RÊGl!Âqã~†ÔÌLğWBà1i{†EÖ®õh,›KÁ,Æ×ãX@‚(Km³¶ÿK&RÌë†èkî·ÿÜA>2u¼Ç–¤ ĞY$I›—Vòxz&ĞT§åsHş¨”+ö9ÌÏÏëœ¸y†THô&˜0º‰möÊØà‹ıÇp§&ªÂQ{5÷)uñ1!f±…÷6Xn1ÿ98œ ªñ·c;ú’½hä¥4ğÜcÄÉ_l*JˆXÎÏ¸,<Õî2öŞµ1@p“_lD%I…’<Q,ai]Ú%•#KOö<kãY7N¯tÓ…Gr-@)“†û3,OS²¨s§h‹KI ÿ0Ü¬ş´’1³İª 5†fÉ¿V¤RÉÃ*‚A	…ƒP“IïÃÌF{šJoÌ7}şZ½e¡b2öÑQJóÁğÂZÖ`&qŸs$É•şÅ™/¨CßÛ²2fŠ&ßYËŒ:ãŞ­ŒNT2«
+H`cs«F|FêÍößÎ³ÈîËÔ9ghpCˆÑ¦Î¨7ŠÍh%tóæ8…N™™@GxöJyDìñÜEftq‹=íR+VÊ±Êz¢¼•õ[$[`N¨fÜí4„‡t0Ç¨Bæì :R¸æB 
+{Û!?D¡_;¯e÷k«ìxÅ´™‡ŸQYÁÑ üc~•}‰ÄÍJ›ç´Ÿ]%2NlÒóOŸBwŒiD‘˜ÕĞíÅ‰Yâ—lEÖö•šOŸ•ª£º®%y× ébÒñÍ3Ù–q%ÿjî¤–(BŠË(º¯7åx İ­Ÿ¼Nógr~=_¹kcOœV­qîÒ½ı,kò?¯z"¼Ã®ØîÑ°#¶åäı&ŸéòºX»kxƒM™&CYann»#=ô‚p '	’…]·‘YrÀBà­İÀ|Y–]·Şº³^Š“ÌX[‡~‹2e&LµäSN2±:dˆ?Á¬kMßïKÒò°öÔöˆÅœr§w‡‘ù¸ó
+LÈ±j>áñy¿’`Õ*‹	ÛIoqßÓfb¶GzB?GjÎ–xiˆ	t~@ì‡ó'˜Ÿõ‘<ŸlğY?ÔÂNß‘¤Oå sfk‚²%‹ûbñäº)Sƒ
+ñS'ÍsvjƒçhÂò´OÖ4ÏÀ¾"‰tr?ùÒOÙÏúúQ0>•…§ñ†]n5Jôº·[éàçÛû40*…¿/d¦:>şy3ŠÈQÅÁnÂb×ÁÌ «dİÛ5+ƒs¢d×„ˆõu]Ÿr¥†_›cz³ÌÏò¤O¿TR|œ¦wà[‡M Ñù5Ì«~@Ñ¯†èa]†şĞ¾Imç¸K;5¼>—t ƒ»ÎXMi’­’öœœ%#z‡@ß	T­m ¥q2^ºæ6X-$¤!'‰°9jš³ŸŠÅ+­Á²bº1wz—‘ááëüvÊQƒ,RH,JïÚ«\#íä§âç÷—ÔZq­ZËê¾ó¦gì/A§_GÇ‡mPPø‰4-{q’å+:Ã4….Ï5qˆ	 ´hiˆ†¨n"öÖ½˜ÒŒ$qÚ5÷ƒàr"úÖ(T˜QÎ.+x9÷†‡Ì=¹)ošS¡ åI¢H0`Èç‘ã=ƒİ…*W1²€ä€*½•ÄNú8	…ÓÅ(‰((;È…°A\\rÑ¶*“ê™W¦İçaÄGıœHŒî\,Ã²Òä«¹aÇïÃØzAJT´bµïf–É)²Ùôúw®S=L=M0,÷9ÇÄ–2d6ÔÂP'§®%MM@Æıè|¶?¥?¦ó­Ë±%áÙ½0ÛQÛBl…]ê†ı±ĞZïAÈ·—û®–æĞõ?E–ĞJš‘Åğé#ùáfÆBX¡ÃĞ&Gw
+âĞgûç2Ë‘v¬‰üÓzî*¿ã•î†ÚzlhÓ:9™> ³!ñ®Ø7Á3Újğ—%Æƒ„üÑƒR'àÜ˜‹Î>@@¼t`MD¿ÙDP×qkĞ|­M÷ı…gJ½“_@ºŸù6ÛVÏ	€|©	ôrôTZ;¤dœoº>›ûÁƒRK %p¿´ñJg™È¿>Î–nKb'3€sãMÈe{RTœ\êZSØmI"5&§ıtK¾¥\˜_—V¡h ã	ß! 6ê¬C<ÆêNÏ+Ù‚07Ğa†fU†0•xÏ¯Ôdf®›ÜÖ‡}OJv¦KĞôÁFè›DBØùP©Öì¼•¸é[(#ŠÊüHÅ¿Æ„™IX±ÉÖd#›««}øş¡Ç>G¿Áø7Æ”g†ò…"´Mğ9”©¬Mãß£,èQ r_ŒwŸ§×3Å»Ÿò-b÷—ÂˆÎÊÅW>~U¯“ÆÔeZŠ§Ú^Š*v–½ osÀGÕ‚{‚‘ ’#  îhÜY¿÷É>Cø†™ÒãÚ|€’táôÌR§FëW÷—f¸7	ä•í°íF¢+,-—ìp»©çxÏBq.£ÑšÉ|`2M].1Š©–·pŠã•3c¢¥–İn§ENŸåLiI6F#Ë/Ä[_bÊ:U|ŒwËƒÌáliIØè×¸­Ëø:åTIÄûFàk‡êÕn§ €_!O_Gâß…|^U›7n%zHz^Æ”‡Éµ–x«*ŞäI)h¾Jé¯£nİX„Íôl„´³«c6Û/XÀ±ËER’w¸ÎÒâ;R÷u<øpñ!L”H·À²²"(Zx}eh]$ ùŠ÷‡=s˜î+l_,
+Ê¼GÁW¼¢"?‘meBs²ÅĞ%æÀ>Ğ½{{fÃô+¦ÖŸ*ÄÛ¯aïò4Mx®J6ÉÏª²™Jªzÿ&´¼ÒñüT¶„sûœz–TT7vÒ¢J(¨ÊQÿİwnA¶n€–a<i_\Ğ’µ÷ÍC$Àw ª©¹ØCD‚F¢¥
+§N¢–ïWyZ}6L ¾ÉJr¬!+ôZ8é:i«YœŠm¿l­‚?=ÇğE™m°	FÚ¢[A˜jPŸ›Cf•ìô¯ÀâË.š]ÕNŸÓuê{1I"¨®†d¿6Ğ@««Úß;¤¨bìek}ĞR&§µóŠ=óÿrÜœ§MÂcêw·fíáè•®²ÉÌW+µEfKËt=é80ÚQÙ)~ÜiÖd½6H ™mÌ&¥¡‹×ˆqŞ!KÇvJç5‡@Ó²IBÃ}yæ{“ñøB ¢ª ’Šn½Æ‹mÒùÙ¼6#Ï	¾œi<2ËNXùš}kZà¶Å¬
+wÃÑ³ª(W®9#ßól“
+Å±;’ñĞ}zš?Sz/ç?YVß*<5xšªücF~Ó}A*`”ì ¼gÃ—²Z)ŠØXò"f–#D8¶œÜÄ©µ 8ã`MX©iöUğlw’}×wGéÒ‹U¢Ú©3³¤Ó¹Ûª§ÌUİ-{¢t†A¹ÄvT" CÕ4ŸaGÆ‘ã0@³	(xÛ^CnAŠŞ¨ 
+ØæúRËa§LV!…*×R™©å½cE?ö8ò–¡™§bJ%Y~cnÄOµúú²_®ÇåÑ
+Xåx.JS+úVËIÛGOûƒá£ã¡‹ƒklö¥¥ïrEM4°æXpşÀ'^ew•[Şİ jiˆ=2iŞPE;Å¤òæq Ç©ô`™ŠD€=(ãõ»Ï±»£¤d‘7âP®Ú7A‹DØô³šÊYÕÖ¾&ËäaV¢"h²Riòiò“~óä-û–nB*îÏwMĞo \+ÎÇ™B9—§ğ8éhâ/ÏÂUı¦­YÀ€İÔigÙüÌË+Q0VÍ±'COFí	î†gİµ•â“Ô|#—%ãÈ›'—Uê…T`dŒîÒğùS‰ÕêckXrZFÒrÍ»¸´éGUƒÓUŸQRnß
+>8t•Dt†¨n7ÖX¦ÁbŸu­ƒıÆm%§)ÖøŸŞÍz8Å¢#*Š‹clMlÕ8n§´F~?4V¶íMËµ«œoFIÈ'¢”µ>f>íŞ÷ƒ˜½íÙc?d-Uu¿®sã¦Î†©Tõ¤µêÇó×ª„ıWŠ&Á¾\ÁV€÷H1¥ÃÊÂk¿z$4.’D+u#ª×ÎUİ½}˜Gù‡ùéTğiaÖœÀ{sÖT¯÷âqÙÍÇÁåÕÌ}9?Áõ÷)}mÉËnt~ó9KÓ;¯¥_X2{±ÌŠWbÁÖÖÚÒPOFÃ­˜SÜ®Åkã¸ŒI34I,ÑÇkUöÄ<)¼€X%wËÜ6IA8/	sà÷şóˆít0­ıâåE` INíºüSkRs4·¶ÅjÓp:»Ö)–= »¼Sÿ2¸
+PWÈ©s©Q8±ú£©DPğKŒH¯‚y¯~Nâ‹…$:tyõRA«Ö…Ñ»²ø‰Ë–­Vv»ˆèöø6JÀ<$–!¶\ñ'£y3šÁDÜÑÂŠºî&] ¢
+&Dùwb§¤MqTĞˆnÎª®‘mÒË¡Ç  v4œqAM'îİWHc¾‡b{Be¬[­°orä/!kË¼/Ø ‹Å7’x¥^b7üÖ1ØªÖë|ëö°œ‘ÉAÓY-Ú~zõDe^&ùöÑ
+<£FcS2F/=„'#
+º¨A8ï˜97rÙŒôğftKª$µÑA¨²ªş?4Ò$Ô^0=tâ`È ¶rËâ¿—8úFUtÜ¾@k­Ÿƒé‡T¿©Öl É‘K}/ÔÙ$xj¯y¼fÀ±kÎ9Æà&$„½hÄ`Ù ª¬µµŸá®8±¹ÚÅıÕ9–ˆÆE2aÜ×Ø„#`"®C òcE‰d%nØ¿™ÂärŞ,´D¨T6hØdüÅÀü@w^óYyöJoæ*“Ï&¦4B•ü(‡~ı“ºáû ıYL_O3I3fé^4f t)Ï	ÚºóZkÔ;x¡¾ó•ÔEoå úÑhùT,îœéwêu”ÿ·ÏLÒl
+J3S¦<ş"g6?óT¡ùS|ÿÛLG:<»h4ÇÅï%S›FM
+'ä¬=¯	(vDÆµwø9×à[ÂÜ ®Htš¡Ğ4whm¸¤(­Õ˜ÍÜ¾«<¯‹1}––ó¶ÏCvË’;9ÆMùßãxë“‚°Ûä˜ÁÛ.2šºÏ#F¢ZAŸQU*lKÌÊfÍH¹À¸—l’åßÖ"qı¼\ºm„ÙK“³i¼ÚÇÎÊÖ~Vuéul¨­¹zV+½F(jÁ&¸T}lµQÖ1)sÔ¶Ö…´m&Xzñ„W
+1ŠsI|"É²Ğ‚Õ@ºğ|zì¼exşìQjS¹õUi}ÇóË¬–í·0ìŒ9»cÌKÓL…`›å#æ“	©íâ*¯™XööK¨ ~’Jcà]K›a·¹ ,Hªeo¿Í÷?=
+íĞBgi¾Šy²²b¡ç.³LĞşCÚÆmE·J@2HÊãâ†!ÆÅ”N:÷fFec2Åığ–±-4v”`”Æü-jV/e ôàëÔÉv÷DOXíıÍL =} ğÔÌ‘ˆ ,µ-¾¥ïm÷ûlóäËaïJI7qñ¥­³PxöÛÂî¢Ôârxçk˜D¬ÄÊ¬Í¯Ã­µíè7GÊ6#ÕR9Ó—GNÒ¼®»˜×¥³éTßÄ3İi´fì*“Ñ;‡S·kíŸRow°0}
+‰¸Ê¤eØş×K÷=„˜–A&4úB²€9†ÿÉh\Ï0fã&Ğ–ˆ7”?º(H\uS$¯eøş:ê9€ëÙñ{ªX1¬¢ùyâeÁ9SøDŸ ÔT0[ÅÂÃ•ÒˆUeTÜÕn—¢ ³å|_<MX½8q ',‰_Ì›%Ş.Ânƒ_¨5+» su¹Q,ê É§JÔÎc%"À+¾§¤—Úı×Ü±–ºš‡¾É&qÚi¢AAL!è2­X¨Ùe“x¦ş½!È"’¸eW3üN
+5h«G…Î3¤õ`Nß£º/	§ûö¥çÙµ;¡û™nÒbh²hõmŒx·”h£†Òw¥@1Uì=‰F‰pËwQ“¨’5Õ70Ì¯ş#Xïä¸ûN1êy-;3ğµ‹{ÎâÊ^áóÅ&’QócÜâŠ-+FA­ÖM;Ñx1L°“¶ìP³¤]ÌŸDyĞ›Àqö¹ùflÚAtAmÆQ“â92ë¾ÿ©å>œ!ğÎ¬JÏZ9‚]ö¢Ğ˜K®ôæƒÙRW0ÊKSiòX¡ûæÏ«r/~Èq4Îëîœ‰¡ÁÀÁ¼T"í­˜±6ˆI¸;Ã÷e$Q—‡xÈÁJŸÛ–$r¶ô!ïÂaåJØË:1ã$i¤»­*;B fWš¾înæŠ­°œYc¡ôĞK‘Ë^d´šO=ıü”şhõ!y‹éäÎSnÑ8’e§	€3ßâ–?¯wÇS=_^{}fˆ¸Û, Eússz!ñVWïî¾º.+´÷FÙÍ¬:üQ4&/¨p¸FœÃ\Ì¨é¢}î‘Ü¢¿%µªğ »„l¢8 ù$fŸNM’´gïƒËNq¨j£FÒ•ªo4,wŠêNÍÄDÂ”bAßÑKºî¾CG=‚ÓA¤÷EŞc¦
+ÙÓ)¹÷@¢kË'§„áÍç6ÿH×î”å—U8ùG$LC´Û£È=$«	ûÏB €ôCû¶4F`u•A²<6¡}íÑŒ@±ãÈ.“š)í-[ÌïŒ»Á­€‘fÑBÙöÃò¶\sˆÄ%ÛXwe>œÿ-ßŸ÷Íçó?UÁÇT¾›úƒV¬S¹¥ëmœù4zâÇXÿGs‘™e–LÅN¡¯\š›,ÑØÑ3j…DS¬.Z×Å‘eNÈ²6m^_
+ëG¦pgâ	Èç`İâ0~}ÎnµÅ]Î…Ûï”ò™P˜:Œ>ã×Ÿÿä-#¡³çA;Bå­
+İ;ï8Á©ny
+S)Ej˜R^X®f÷QbJå“0Anüô)tŒYÇ¡K["É­Á½hÊ‹­v0¡ìşï8és´Ãâ!fÖa¯Zc†ææ·>%èÁgº†ÙWúİíÔ­u²z(1´	Å[¦ªÈe^{éWF1ŞÕ/-ÌuİC€^:3¹{–“m³€ˆÇ‰¤^¦4-„GbŸk´NJbúiz½'ÙÇàF`2âî‚ŠÃõ°ƒRå°‡Õ“böĞû4|C¶½­¹W*n¥;æUÙqN/¡¢«æŠ©\m‘ ú†ŸÎ—¦/ãÓÏBƒ4{Ûö‘^ï- q“ŒÆŸ.D›-`ôÆÄf¶]QV^!q­’³ZBº¨ı¯"6½PZQß¥‚ÔÜKaIáøhYUş;msÏ%‚jeó—”Y¾»?ûãŞ²
+S/SI+¾'ìÁgVtı®L"ï½İ¸=¡±,‰xÊY)Né˜mÌ$‰z¯Ç"&÷oŒ?+«šã	×K³fŠÔÖ¨¿°±œw¸ÔRJfª˜].[j@AZ“ÿØ'Îë¥8¶1_…±D|@LF7U_”ÛZİEj+Ğcîƒ{q!OeËWñ—?å+(TcøŠdÇH±à[ú±©`ÌÏí
+wÁçà®€OÌÛ*)	œ0ØVœK2{@¥Ôî¿ÎÅôÜFô)«Ç†T šÊîc‰.Úğ’\~£şaŠÈçÇ¦‹„ÑêG™®PM
+º³ ¡6Ğ|bj©rÉcO†¶Rå*‰_`+ù–Àß?€‹7w¾ú¯O…"x°Û²QÊşÀSDøoğ$ZguŸ¸ŠoĞ§ÙQcÅtHÕağõÒ•°jk²ù•Ë¸ì\½tANĞHgsÜ§Èy¸ÅÖ¢Ä})Kğü2ÏEêªé/&§êÍ£YPõ “¡p[¸ušEü?Şì^åMF&0ó"çä³7
+¸•š«3qI„èØ,4¢s%vàƒÛß¨£È¸kSXÑ“´_ KzhVâƒ'ÏœA±@{qúj«‚ºï-7g#‹/lÙò¸o×ßø®ß+jFÏ>4!ÊÃ¹„²Ç~'ƒä”çş÷İŠöú‘
+Ç“¨n%ê"8ª‹õq¡
+/wà.–±5ß­Ä!:ißÒÊîçË…wjC§¶B8cè¦™D÷RëO ÿ±ˆÎtÉ„æÿBë|	YÄH†ëZ‡6°¥¯ñ9ˆæ’ÇÖÔ ä+g¼[rbB´R«2‚—í`¤ŒÔUºhÍŞz2w¥ËÍ@l~uGâX[ÔE Õ/×µ¸Şt½îFÑ]RúlCW%7œ¤…ı‚,óJÈÄPÑétÈ»vL-n(®’ÌãÓoØû52Ré<¿ D)“vGğ‡¯ˆä	dÉ³Æö„”ß¨È}¡Òö¤TL8nûµÛ9Zú7“öygBm9Aäşµ4«_0ŒD¾¦y¹õîOVójXf[yJç´ZÚ…kÇ<†í²‡ $“xXünÓ;.Û8_ ²®ğ¬øìo
+´_<È{T¨ş…„4(H%vg-ÒÉ~÷J ÎXä9„”AüÌVà¯¦dx’­¥BIÆb"¾3m‡.mïvÔ9çrl<oáòşxkà@8V×¥7÷@Üª§2V2ã.T5`‘Ãˆ^Šé.R°eµ€ƒM®Ímñ¼¨©”Ã·€dàîdäş_d*Öı½É~ã‰S×caû£-ÀØÀüõå—G÷±p¯ÉZ hŞ×Šr›ÏúgT¦hÚw|­^—ß6Ú
+™åú‡=q›#E¾n®S‡VÇ3Ó…âŸ*—èW‡%Ø¢ƒ’ë%KÌ¼µ¯?óAwBú÷kÁÀ56à&oa<GòAú^Z>7[ÆÒ-ı‘Iœ|÷\–ÏxG÷»%xìûœÓô£T#ı>*Ÿo×wÉ¦ÇéP	ÓH.%úŒÚ$ÿÔ„Æİ¼“ÎVşS½47 Cìø„¿íÜ7ı]@Jbq¦L÷VÏØpaÍsJõ=Ş˜„zf™AñÂˆïù	6U/’O¶É®cêáèËÿ?ê*Ë4rò"&îñŞƒŠlì	/ªEõ£TÀõ¸šVRiAj-9>[%0G²JpÍ6•ŞXa 'Ì„ı@òÎd|x4ø>}¾	ñ¬:\ûÍ¤oQe§º×â½+<˜@sq9Ş%ÅtIÀWšÃ5y	éUå"¢àÊÑ>‡>Ö3h”lIâZ[TéSzôTuÅ¤SC¯/iHËFô©q›ù+£g^¦û4Vñ±7£hÁ¥b4€Œ Pd³‰=ê[¯ìñ7E‰IxÊBl”[‹( ›ºòîtlpyÂğYg?ºğëmµÖÿ<Öd;iuP·÷ FÅE°dşÒîiãDQBµãî"Å5š ¾¿@,@ :Å›¶á
+Ú8JZ¸fXÉ"-ähÿï¤#‡ïşĞ­±è˜ËÜkX´X1E:vøMlÓ¦³2ôcÏKê„Y"6şéßEBÏ— j;ğX_‘¶HöwÛ4İU ª±ànŞšmÓº-?®Õá£±z¯¨)Òo úbğ¾¼ñ¢Ÿ›ˆÜ›•pŞæ3cöÉXZ–µ¨¶Ä’¯r¤€ŞGß'øÜÆêoæP£®à¥ªDéÌ‘HoyÒGãÅ½R­È#kÂ•yğ1sqxí%úı3“ÌÍL/ß·GñŠ,FM”	õ¡=bryÆGÃjÉÒ»‘‚©ëÍ* šeSúï+.®çm>$<H™c‰ÂªÅ¤§¨Nbœ¿	yê|ıùo Ş”‹¼­íƒAŸ‹`éO–<ègÓAâ´'qõ´î½©§jÄ«dÀËg¹Bµo…PYpƒıbi{ñäÌß¨ÄÅÖwÄhóáD˜øôÍ¦Æ^çn+Aé¬ÿFèÙØßkE*.H6!E¡­ña£:kl&bá€>l¶®uPµ’¶c,8n˜)ø»Ó¾­ÃÆãw<"ö»Ó5õ†D#‡W£¾hch´iòuµ'ÎÁhævrïOX”ÊåàüL,¸²¬Æ‚©4æ8Ó¬<WS¡ŸÇ‡µŠ?” M‘ÆÇşM!Ñ„ˆ6i÷İı×œ¢'¾¿a\ÕéZì
+Î•Uu¥ÃoÆØÈBİÀÄ¿úçHE­—¡1—­6©>ï°mÕf9|Æëš˜†èhÍŸ»öVşŠ¡É^d°ÆG94b‘'Ã %Óåo%6ûÇÄGpê¢1¹f…R;-^¨	å°Æú_Vœq|''`¡² Æ„3Yª½tÆˆò9¨AZD´¥Ôèw7Nã¶øm„øğø@Êöz¼*(Oâ÷×òøÕõ/c¬¡‘ú¨ì4%1¤¥iÌ.o#Š`!Z/Æ“#Jq„‹ˆ Æ5…º¿qº]ˆóô=¡+¢l^ÓM~Sbş@íÀs0uÏ§„G}LiH­ Dá)ãziG¾p	¸Õ‹š.Óš:İH°•XŸ3ÎÎ”‰bNŸH-
+­Æ4vlZC•Š¨¨ÏÄiô ¦éfŠ±¾ÏØ·Av˜n`#'ß¤ß¶õD•’ÿ®¥üN<TV‘rÖK=	¹*ÚåÒ¬u²Ò¿ÛUüAA@ l.R°W½ \èr­¯‡u&»ªkfz‚8ÑY‚o‚±ûÓI]ô£…¨ù#«ı0ûD:í¡’f…O[}È©Ùúşi K=È#ĞwíÂï@*r^RW|ì½XšVGõS}Éaâı‡ö#^’O/P[NƒV*fëİ-¾\kĞè8ö[ŒqÃêá„ÈÇØ9p .{G®Ê€§ÚªçúE/e€ø1†°È€¥òJ™Äôµ¶ºüPåQO”¨ O…ŸÒi–ÿ'•œB;¸Õš‡ ¬øÍÓdDúÈWÊ±«/
+l;I³@õdôaT% MNZ‘ùP‡/‘%êr¿º4ée;[øƒÔ²q¹ô¡Ô7ãA¾,{ÓƒÎØÖ±,œÌË‚4ê´šÖ5¶ş ŠåajH	sºŠåV‹J áKÜ-Sàn©á½xçÏş’«…×ßİêcS>ô tÊ“P™Nì:SµzìÀo~vFÿOd“ÏÈ¬³xán²p±|›‡ö
+mBÛ5NIÕ@ök{º=‡¡êÌÜ‘ÓÿçL@TÁ˜
+èÍ5öá¿B%gÃ}¼]ß
+" —%òêdœdÕØÚj±ÖG›¥5I‚õ8yÂìÀ Ğtığ§@¦ˆ<oj?#ßâ&ØYáŸ& ¹ÓO¿Æ³ŸŠQè”aÅÑ£—v
+wh·’Ä)‹Û[µFü!‚³Öäâ)~]°äFv[véqB­ Ã½x`_t¤3¶ÀånAn9×üH¾tç¾¨|¦!•ØûW³m‡@Ğõ}7?dÂ">=ÑtÀÈ¡é–‘Cç/ÕY_â«ZLÔéF|µ‡|f^;P[ŠA*™íA•xK”Ïòp‡¸„•‘MÂ…[¨•õATW{¥j}„u"?XBÈ|„^;{ñK¯IQ-ä)£YL>`•s}2 ¦kLœ,o<Doú,©Ô%Ş4ÌäÓzEJÓä«DÎ;‹=¬úw´yZ]i>Ÿã¶\¥Û9q7S¿%»dîï'&© 9Tv­­ğß5Ò¿…$Â¤/0LŠcÊc(µXû
+gôÂÄÖ1¡yô=ë+ğq$°®.›XÛßZ(â#`—ô@µ³5v¨C8¤ø40ª©¬YüM> Cã-4=f»¼’ ò§w¨v7ÁVÊ–úÂïnŠQ÷<òP`áé·îíÕœ"wîy˜©ÉdGœïkš¿“¯€·ìÎG|ÀR©¶úÅm7†*EÂOˆÒ«çš±í®!´Ş{ìMûxTSwfğÂ¡@¿õƒâŒürçŞ(ÇŸÂRÅì	Ûí¢•ß~nï\ÂÙ| ¢´Å:QİãV—_²ëHgÄ†Js¦2B†déé]÷—`i@t,‘¸mA`:qR$¹† LôuÉ-U]Ç ˜R+!gˆÇ§_Üù“°„Éáïi¥C‰‡#»Ös1æŠà‡.&M°G²™<ïBáä3›ıÄ¶WxÿÑÌ¡s5[	§—!å#?ºëK“ƒ¤c¸| ³H‹Z<Ãì5ùCZ˜Ñú«r‹‹¸vËğê7È;låCòaäiAU‡”Ú“ÔiU(Ê¥Ê€ë1Õ„úÉz*ñIÇWHØkm1¶ª1‚,%ĞñC~Ñåö<fª¬€‰èŠ¿UI©9”‹½K§ƒæ¹¥…¨Ÿæ“Ì%ªAûEÁuw§˜<^Mì’AÏ-·;IR9J™§É§¤sŠ€ºˆô°÷Ø'ç¬Q¨¹¾'»»Ç]ÍVtH­¶áÕ0±`ZNjıúÑ¸8),uŞ×öı£Üı/’Søh8“/Õ}´`lêîÆù¦Ø‡LK¤¾¯¨2uĞ¥²*Ù‘1IÖcî<IÖ,è°ñº fëİi¸àÍõz}jpZsO¢vÔ„öŞ®7 ;¼¨“Z0ëÍİÁ•}dÍKäBbÓ ¿¼ÙÎSaØ€läYkpı# àN¢¹\Ãİ“Up;M¼~GªLL¾®‚M<k'Ã×aûØB7C{^olXU*ù]i»·íğFU]W,|(¯[÷ìsOzÒònÊÙ4ÎA('Úsº4ñdËÅÚqØ„%3µá’9ßÇ”RÏYÍtí¦µûMÚt(Mwk·ÁbŸ´Ú §»oHôf®AœÕAÙßãäøe‚"å3^'°¿'µ¾†Z¤úõ¨û=Iw’š·{H¥4¬2ñÅ‘;z+ªÉQÙÔ&kÄS,{5±HÌğÜ'0®ƒ±cÒkµ'5†÷'à{^;¬*MèJ}V¦L#cP_Œv­íÉ6	›¾ ë‹Â’È·Şú×ˆ²yşëáZ« >î{k7tÀB¤ãÉ=³aÔìû:X“"Btóå‚Ho”…"Uêæ/Ñb|mŠ ˜§Ø4ó•!
+?€Í2ÚMWjÅ!âx@…¨»@°&á4ŸÛÆ±‘7TÛq»otuÆ4ÆºBÂ>Û-½(x­ŸŠİ‘ğ„‚‡% 
+.ÅæáSTšÔuPA™Şf‚L}Î*pVÂ™8'éÖÑˆlCƒŠ<Ö¯!T¯uÈU1Œö+¤ñ˜©&ŠÛÁjãß®Ç°ÀI±ACjşŞŒ¾4I]?%õKO™Ûğ}ÍÙ“FÅãµº‘Ø¼z®x/,»x¹"| şlÍ¿Keœ®‘.]?C¸œöàÕAK!‡ÚdO<æËî±OW÷ş²ç¿Rrb¦—ã«ª¥TœFÇRµF±<›êé’Õ	*¦Ìû^àª?ªx:XİİŸÀ	¸Ä0d6aüqŠ6ùPË‡½·b»íğpzÆ®I–çæÖIªÑwœ}qTó¹I$Å°â=”Š¾§—–÷&œqì<>Nï"­%ËCWá	ÃC”…ÚË0·âçj›á±™E¥Âëƒ7|•´æ•S'İWÅÏq22mpreGØ@…*^zg°âu®­²nóšöó­FÅ°+hĞı‹¨ßs	˜YÛ+z'µŸm¦´w2·Çn±±+kÍ—±©~ƒ-˜1:Zù†=ëöİ…>>™z¢•CWšh(½ª0£$GHièµˆ×*Î¬ÿÓ›/ş©>_c_NÓù“2Ãbb%ô’3~®^ú@RÔĞÍY¼RÃSgùp@È}³`Y^²w©Û)šµ´Ò’5F›²p±­‡]ø8ÁIê¬vç5 #tØâH‡9¥Ui;–“á\àÄ›é>­–|~›*¼‡„´HôÉõí‰Ğx2ÅVÿC½Ÿ} À0O‡Ã'V|&åşÖ(¡~†[á6û1éÿ"2äğ`GäkßDĞ‚&´0x»V¶Ü|ƒG‰=z$óÜÅC/ß>K\uÅn];^a8)q9Pù#ÅäØÿäWbƒÎû´O}Ñ¿£¬xëŒrTÕ½HgqiSÂ¿˜SÍ¼Ş úú$d>SşÃ;«9½QE¤¨™æ[p´ûÕ‘äÊ²Ç\;—`òµÜkŸÊ¢yJˆh¡ûPÆş›×«´çÛåJ
+¾áÔå% ¦á—îwFË³-ã¤Œ‹«›ıœ	î_ ›¯ŠÃ¾ğww¶í(QÈQ™Ü«1?@.?7È]Í«q[E®}`¯.yNÊ.Á ÁP[ï¾{”en1“×A#&İ‰ªÅ§)Òj‡¶˜(>¥@Vw42ğà|!š0n¶2Ğ‹}Jµu&SÿUrd,Súhé¶­„;•açI>5½Ÿ®Äx*œƒi[6Z{~–“Û€pÊ¤q‘á¢ÜÖŸòº‰#š5lïˆ¿pîaPªØá¿wƒ$L¸ùÓ¿E2mÎâ;Õ,w[¬Eÿ$™ÕmşD„Ì†¤©ÌõòhıNG5"Ñ`BÜ1§¼œŸüØÔß¢À¦ÖpÄ¹TVà÷6DbÕ¤+€’f&DrÚIãŠ¾[5eöD¯)¯ÙF9Bo}şNSú`Æ<H‹;Šá©ö—‹-m‘Jv2  
+o¼u:ÚSynhŞèù.‡îw' ‚#T}=…†·È¸š2@§¼ªoYÅöMd¥ªùµ°@ƒ¤Úô=ófÒÏY¼O8¬”Fèåƒ"8`Mb‰iÀ€û¡k/¸×±ÉVÃôîfÃNµ*_®Säƒ[bŞ«~¨kaãy&ñ=Šá³Ü¨î¿¾,´’üşş³€'X÷D
+˜Z]y)›YvHœ`É ºêû¢×İ—U¯Z™ Â¹7œÿc#á{Êµ}œÅ;é—¸Ì 6«é>Ÿ*Shö¸şF»¡öYjÏŸ‰]$1vÎì¹.‡ñFÊWu†ëø›ü˜7Àõ*Áë9ıáòü›)Ìbúñ§%3ß˜éQÙø]ğ9Àä¤ıüeZH´Úä„G°Nø®ŞXÊk†ı‚e ŠÇ1’u9Ğü6ê%SJâÕNLkáé2ò)Fí¢góö“&™¢/u*¤,zUñE1AcT¡¦!ÃäŞr%‹™'óşG?=MÒe+7k¨&¥ÄXk?{P+e0åQ¸\˜‘ØeÃ¢ØUÉ>¿Û¬.›Å+QÃË¥úYdìàÎ^ÚÓk§?¦{ÜøÌC3‡şï™“HHŸSæw•UQütf¯ßV^ïGc$I
+t”ª\ Xó¾8Bÿş‹·ÿ9–`ÁaÔúFÆÎİ¾ÀÀk‘2†şNKòò¤áb{js¼‰ÌÿQ“™ôê¸](µÚiäNÏÅS³eÀTø:-a”p‚éî’ğÌƒQÛ—áÀUÇ…ìvÜ\•ş|gØŸˆ‘BpUlÒI¯@Î–¹:H«"I;]?.·ï]o¸»9,üÂıÖñÁôtô³rŒ^»ì#P¤«–c’}À7À=lİäQc¦ßÌ]œ}<aä:G"A,œ¤P¡U].gıÆA‡¬(k£%½Ï"Oã¢ÏKgõF¢·®˜R:·GàÀ“‰m-öæ³8Øß<Em°{sËÊ™€×£‡ YZo†AÃaüĞ2³€£ßİ‡pCãgB¼tÇpb
+Eü!TLœ%¯çÍ”h4:—µ7Zİè­A®}'Å®§ ş¸ƒœ¼W ßH"Æ´ñò= õŸ¨äÙrå°Í&ZÓÓ¶Qö£ûŠF¨-Tt%{jFºWOËşÑkÑ‡ÑÏÏàDÓ¡¼Z"ºj÷PUSdH!£9˜2Ë˜°¸ëØë3|0P@Š?*ŠlÇÈùPCğšuD–Ü”	‘3µ‰š—~—ùÎÛ„İ8 ‡ª §ğy»İ,L÷7ûø›ªt1®|±ésÈôCÜoJ0É„`5VŒGĞ(ÈÔãD[i¸Ûá³¦nàN@©wùìÇàà¯¥ƒiùX?9%r$';9òRQS7igÎ)psyuTşß §š:K€´Ğc*Pø–‡ú¨K!ô §İ&ú³¬Åøyº#`T«ïä©UéÙ¬=‡ğA|JZRøi•) `7óºrÛ&m‹Êl††i;ì‰šÍ ¼øt¾3)j~&Ä"“z‡¥Ğ4W‘¸@=¢áèúU»Ámê·Šp"a*=H!¥şø¢“—ÇQşøöcwoU#Mej,›y.„/üh¹5ÁÿÖ‡Ğe8£§ÉdW>mAf~¡¿r&îVíŒ@Ğ
+P”W§Ú}<‘€ ·Û¢>õ‰Õ‰yµKd(:¼.;Ç‚(”)x°˜0®]„,˜!ÓšÃÕ·V¢€ê)ØZ7 Áb€rVß6#õ'—Y•9zîãmfRá·–†$˜´1í9m¤%!]3d^:úË”íº½(ÈXRº,7èŸ`<Ãü-Ó‹ªşu~,OÆÀ\…ZÚZUàå©M	Æ]D20°¦+âÈºq/o#HÔ»\3`{—ùç5‡*÷Â›ÚŒ]„`ìÄŒGG1÷ğğ Å)~»æ’Š­`2ïÅ­«Üe¥¬ï‘öäpù£0AOf]r¡¬İíNï5†Ëä't(C˜‘T÷ñpØAË¼èjö	~R³dEuZ®°›ëô?>²ay%#a2ËBÙ»‚˜×3‰GcÇªø¸Ä ÄÁ¥²ğîÕµeG› -êN8"té=ãõ'¦™ÖëµcÃğ0ª­"ÛdçÔ‰`ãIåª'°óº¢¥ë&iWÂ÷¦dÍŒÍÇ:Õ¶6”¿ş(¹·]k7’Ôğñ‹^„í%Øc#ÈŸiOÀH_" h¿"‹
+Ù¹z^–rë$X#µï^şíûºKŠÕX~.†¯Ì*pù¤®¥jË -«Ç²YÜ9`@–/;çEyİÁ…õ3$²ì™§nvòô=ÈŞHsNõk×‹e}>(›Œk¸j
+ßXû/†Y‘{?:'íİ¤ê$p¿fİN%`˜	.­½Ìg…lh~ù?’C’x§õÙ:KD‚K+ÀãíÁ{ÄÔ&ZÇyÛz-d¹ë¶/Ÿ:Ÿ`¢Äk>\CÀçˆH†—Hq!’ß².‹VsŒ…j]_b·/Åk§êôµ<@‹=PµF‰O„­-}vğSZ´¬è| 3äåmµç4™‰|çí9óL´?Ì×`Ï²ueÔ¥†½H8gu±„{¤:D‘Øf—QXñ‹¾ö×!æwÁé&§÷W5îBşjğà¡Ò	¯P¬-–ï)\3kAÌÍŠ#€c§&›ì1WıC1½¿dN»¨BŸ‡Tîòÿ›Ç#†’é=p†Û½…1ëänœc¡ğ‹ÛSh>xºrA[-’2æû·È	(j‚ÿF&E0qÒŸ‹—UÒŒ7‡×?]I5Âwûšqx›Ñ:C‡iœ¦$³
+rĞbÌ3ØØçğ©¥jü €À¥·½èÃ<\iuÛ¤ ÚÕœÆ2ëó¨j'ôR½9÷Ó3˜'¾Gd(„mÃÏå®€×ÿe®ÆÚ9|°å}ŒéıOë35{<]ÃÂıº.À©ÇRÌù›ÿ#¬eÇîo'¢~ºÌ+L ÍŒâ• dÂ–üÄbş¿™‹óö@ó¡i©Â&©‚à !P‰¿ÀO•îa´°bËÊË*˜`ÍıYU+ıx7ˆ{W<<¯Í:Ñgù
+ÎæD–mÚìGªóq¾”0Éš6²	†–éêÕ	X"ÈVòbÅhlNmÒíiä«‚ÜA™[Èâ:· öeÂ!ğf½Ã›»}åc¿³J@VË` ”®jk”ËvîiºäU­ÔëLxõ¿¦Â±é­.{	Ñ½{¾):º‡¥œÍ8z º#ÊS7ãâ=ñzx>%wLH³ÉyâSÇ²¸  Şğt›:~Àn®íWTI²’´1”Ù0{9ûŒ ±B.È‡+*oV‰&u(ôÄÔúùr´FapÃ¥Ş*~ÕåélÀ*½‹‰çüÂÄNµpQ=qüH1&YüWbo…ØÅüR±ãÙä,-h€z-$z^´ÚjªÅS´¾eÂZ=oÒ“tª‹sWpFˆ0l¶LZÃfX"]Ïe´³åÚIY¾7áL „†5N~¹^´M±}­ª°°åïKûó
+¤Œ9ú&ü$ø=0BßvteÅirŠ'”İ`“=Şì€8ĞbÅÍíÎ[«g@­ÈØ8™¥<´pˆ4,£o²[¾ìQ1wÄğ¦éQİe§g)¨Ò&××rnŠ»íg›.1Oä¶<SÔ}hs²¬
+‰çÃ3lŞí°(‹`‰MO@X»úzç’‡áëèjôê~'Œ¥4»pVpFX?s†cš´+ñípxç0şşR61œÆª@§—30ë±¸p¯7Ù’å¤îÉx++Ò¯S=Jhó¡u4ú¶qh:Nï	qÃƒåK–C§:Ìöİ¢'z"- šìV®Ü2j·Õu0'-¢÷=á>¢ÔkÂÁ.6¢Lë1„Zõ´ÈHª]¨dç†³gùôçJÛ¢%k3Ê¸¶œ*¶>Ê`Û.yŠ®;í£’Wzl²ôj•0ãé	L"iÿ<¢£
+ıl©ªJ{)\Ô,
+öë^ ]z¡+G¯œ¸ÁïèfNñŠ¦tí1@ ±@^zÀ™yÉÕÍøûfFHx¼*â±$œ}ÑvØ¬#V]cŸM‘\*®¾ÌÔã¾Àr¿'Ñe"í„O#%ùtÍdy^|À¯çYy	2Bñ©ÈùÌ],H–&{şHƒ2›¸ËË(à™†ùK"œ«É|G·F›réÓĞQyQåãVÃÇ9Ö¯#®ÈWÑc"µNXö÷9‰õj…€óÆW9ïªI$Wà·k†÷ü¸ê
+… ¶P“BªÚ°C!–åŒéÔÜ3©Ğå¶è"2Ø‹z‚oQR'`É5DùÎZ—åá,ƒ±²1M,ñÀEt7^ÌŒ\ÂÍNÅ‡YK¿š¨«Ââ¦0‚Ò2u%^]z]=3-Ë_7`[Óv‹À9$JÊiÂ9øa}—øb;SV±Q¼]%l--YzyçøW!6®÷¥‹¢Óo±Õ( ºÔk¯|iìÖG[‡Ùl)T4A:Áh!ü™vÈÉÛ"eæ+ı:%| 4`şo`Æı¥­ê†Hç=cÌü±xUö9&’^ÓÌ!cÃ¨pÿ„µßò„Ï‹W«EÏFßo¹ä8@ìñgÿS%î¥òI|•¢€j¨„_Ò{ˆøvf¯ø{`÷²Ô–xK!©›²õ-ÁN±xV<K” ®úº’Éøa«ÖVüË[â‚
+…é\	è•¨¬İı<Tôïø'^ZøfİÑMÇÚxùË³§G‘ÜTÓ˜ŞC=‚ß±•}¸İ±ç)!şhT¦‚€ŞLŞBª­MTüW&äßubÇ¤˜¯[Ü4Z„jË’ıVùƒ)¦Té§@¸d¼¦¸ÔÊy§gÒ]ÔÇìÄsüP£TSì›¶ˆ§†.°«’/ì%áAzS*(Šº-¢%ÁföBåÒÁ'³ËL@Ø7WmºÃo ¬ñ*÷qLuX´‡ŠªPåÏ±ü!(À|© CÓøt{>ù‘©ñY’Í²Û&ûfø	A”„zÂÓ œî1+søë¼<æ¬>T`x¹(d“íjªX ESÒy‚—Gx¾å©¡¯ĞìªU™cúÙ—ÜS™å,^=‘·-%3şGd'¹¿æŠ*æ˜(¦
+‘Ë4ôÇÏé|T9Ó®\)–Cá[»x8ÃI?Ìa$StÆøP’?ìÉÌ=N|ß@?S´×5PÁ¾úïˆ»˜kÖ@Ñ¿ÒY±Âj»Ä†ä›¤ô×ğPFè‡w–ûvŞ¥¶ËóygŒÏRĞf"¡/ëÈ£½Œh,©¯ğrmîy†wÒGzÎØW¶ı†%ö†|É›Äì‰•S3ó£Û¹ŠŒ¾?óp¥âÌH´rúˆ¾ílˆÛ±•ü-¨lë»ŒÇC®97,%Š/à]ï¹íyÇöÙYtx”1FV%ŠLx¨½ipÕ)HU«\…*G»8Îé,ÕÆScµ}qNB·Ú&õ3ƒ$ıË¡l;îÖLñBŒ/¬¼Á6øI¶é
+fÛóÛÌwØğ-EO¥šGŒjº3»-Ÿ¨ès¿—£4i˜”´Ñš¬'ToÃåù¼
++¶ÒºÊ¦½(nÒ@»¦ÎÌ—âFëÈ§­4ªgÄ.À’€ØoHŸGãsŸ´«†"m«ÿˆ¼»Œ2Pl‡e÷Ÿ¬ãŠ·İÂXòYĞdÌÊĞç*ÖÔÊ.Æm´üÂBÈw_D?‰¢#ê‹ÿ¢å³7:[¯6Œ“*m½É¦Æd‘]»WıÓ~;üD;õÿëŒ¤1J>[GšÍyañ>1æTŠñRÛzGgÔå
+òagÄøwm)¯6ï†n®C§G—bL&ğÅ_}ÜuŸır{TŞiKe‡ºeÓ/gX}ÏMåO'˜Ø{.ÕŞÉÆxæ"+Ú°±„PapŸµIƒìª„CgÈxè ÈÈÃ˜ùm‹ÉÄÏA_iÌ“êlšÊğn?ª+¤üKxŞÎgÆéK§.[ƒ<
+õ®³Ÿ©W¤:B]‚(œt¶™o®@•ÓŠc=‡Ï›òvŞIÙ
+ òÚd”€^ívt	¦Ñp¾åû¯ò¼¨2‡ÆeüYô†–4ÂÏİóş-İ8qàQSnPï)o×ÇŠÑ"üo`oÚÌƒeù¢¬2Ğº¥¿›5y£Rd¾tM&×Fd)Ó„¦âû¡£·;?ÎaŒãßß‚ùÄ¡#hé?í%É—|m91Ü3å×Sù6³^ğ²q»TõS#İ&¦® *àËVÖ	„™Ş£ü¢{Åã½i§®ĞÔ€YÖ<4bºÈŸ¡´ô„»ÑLÉ6#¨­±¸\¼?Œ°'€q°8B‘¿ãÎV5ÔE7/DD¡ˆRùÚÙM^î¤™Å­f9„r”>˜â£¨€’<juW¦´›Ì§°„ŞO·nES)ÅäSLäOSEá)a)÷UÌ®Lc=®+q}ù•›‡¡ÎñÕ§³V‡~dt<>sd‚ÃdBe/DÅ	¨W±æJÄ8Œ„äù'è,êøPhè´(<š´êóò¯,²Bg»ãUUcc²PišŠp½Ã¦²êÌÿ:Ì8¿Ö}=à/9w£ïÒ ‡9lˆŠÙoÊVI¸œzGıÜR”ÅF’çõ.ı äi¡œêF	r/Õ•ZÁ¼x±”ëwAÏ6VI£‡`Ñg³ÎúŠ1&x“ñ°¼g®õ‚~¦4£öŠjÉÌdª­bÁÖ;Ş‘òxhGBõ-§Ş–ƒ½T®ÿl1¾3NƒÇÑî@Î£s4Qı‰ÛuLQ”Í(|8¡»Û9Ô”‘¶ålÜ¦MXñ³ÊÔ¸1D½y)¦j%riÍ?÷ÎÃ ‹Gn3öÌ6[·°â_…¦¶É|5İ‰ÆMÛ WòÕÆòbÓXO×¤<2kM	™®A|0®O}RÿzÓëSF±\àL4ïã|‹Z#mĞ¶‘êÊ³)=µÚ†€ÿ*ñ°ôÿ["‘iôäKm2¨‹N‰ÏË»ãƒrzWù—0é^×ØQoÛ{† Ş1Ù]¶‹‡®~ıà	Ú—úäe³gVÎ‹S¢ácèÙjl ú!mÑ¦7%¥hW@Û(şf`	†ıb0Ê:Š}!NènÂ7EÊ^ÎÌz~¯O±"ÖŠ©Oúb>çÚ‡x$¥mG®ü›
+rŞ×‚uV	‰Iª¹°í,À]£Óño†Ã³#M‘5”bdhí,—ÁT‘ÈhÎvĞç¿Ç  ÓMöaŒ›]„¨lëñ7n?qs*ÜI\“y{^íƒ€!;ş#{8äÔ¨³ªÑJW!µˆ1«+Vñ†ñKMÑÓ?İÏ1Ë÷
+‰#µ~B¤¯3aºBÈ‹kmôj/ÎµÊûw@ÃÊÇEÖ¤Æƒ˜sÀúØ¯‘³dZÀUŞBÉƒ+Ùi‚¿\¥yOPEÉáy™q`[<®«Ï‘Ÿ>nÔp5§©«yì«W³¤ÉŸ|z;Éƒ£h´iI ÅÂÕùÄ¾ĞRÂ¦†W`ï0—ˆ–­˜tX‹åÅõüÔşÙ~æ+,=5‹K¨œÛ:-òSœÄunò¬%êÿÌ¢–¼ñ1sßïÚâ<‡¸¹kGuç¯ù=‹Ó4——:‡ÌG˜9qå¹ä°BáãZ2TaØä™…ßª³È¹¤ê©”ãs¾Y
+5I+¯O 
+öÑU±5æğ<~˜¯fö.<}_N,(/´’u4\É4bè	¢
+®\Ø8|/éı8Î€¾LS>“ó[2;üåàŠ]‡ÉªpÊ™ Êã-Íê¬_MK‰[xiËS•@gÌHõßYKĞGğ/mA]ôOÒŞ~¡%œ²ŠÅÈ«{Dùò™„Ìˆd1ºÍMò	VÉ²î®‘€W±× XÎÌePÂ7AH<Y9Ş¥Éµš°­,ìiô’i£âPšû°R ÅàL%,>JÚl_h•zAO$s·ˆ#ƒQÀLtğ¯¼<@¦"0/—ïŒÜXª˜r!Æ>e7^6dbßÆÿ¨M—YTqrÓIw^”¿5.9ÿç—"ß kTŸµEÑØ³k‡¿Ñq} p¬À²ß{?Î.É<BWÏïÈù^+–ïà"‡™>³ˆ'×_ ½6Í‹t¡yÏ^îÑ–¸êù-Å³êUŒÀ©ª4ÚŞ=š/´7+N-~#É‹•IÕÉíÆRå”fW.–Îj¬F’'y² ˜Œj )“œÅÙÖMƒ©¢SSƒÿkR20án÷¼|8PÎ0ĞÙÅõSì/7ûvÔ/½¹l¥§xÊ1¹x‡Ñª[,Z™¼U®¡ÈT€Y-±Éh¦Ô­;ÁÁ€JÊÉ€¼UB9@
+ÁØ™U¦ßî	üåZÇŒ¾Xà|ê­Ê¯ÍÖ.óshQ²ˆs­]EÚ!Ø¶OÓWô}Q|‡v*&ú ¥…æ»ü	‡àM³)bŒ}×`úpHö4.øR*\.A¾‘Ÿ"Ş»[uã¸›yÿc…¸¡9-Lå}÷9ƒıhºÜÃÙéÅnÃıˆ¥¨Ç—Cû¯3Š™+6—àÏ<ø®¤š3Nc»g¢ˆ7Óş»‡âP[»ŠkD —¿G·Ê¼‹$¢\í5å[Ç÷ÑÔLŞP'Ó3Ù¬tº“vˆçob¡¸İ¿ %ªt™kM$ÍHRH+6¦âµ¿y‰²yd‰°N}V8äCThà/ë­×¿Òf…Ä”ˆ™C°ø|MÑT²˜øÇ°1„é3ªâÿ=ÍK’MÇÌÌji[—&*•]²ß4ˆ
+¾·P¦Iï	È @
+–3½ùqV¸«3,¸ÑúÌå.Ì‚£ÌûNd;ª}í<·íù÷¾ÕøCÇƒ<Ù >uN¨P—I½‘F¸R¦İyë†oìO ¢IİmwŞlÙ¼»l««ÙÃïxáUDâİx
+?dšöT]«0Ÿkçh7f£NˆĞ+8JñÚÿÁÅŒô˜’Ò¡ù»v¦±³éıS¼ŒA¬B¶²U?‹Ù‡P†5ï¬*K{·Îşû³ö¶4å¢ÌJŒ<×¶¬)Ğ°Aíó4N¸0â[gÄyB,ªœáé:–ĞõÃñ°øí”Kå¾f}W‘k§®QË;!ÀÏC6Fá*DÖXò)É7¥Ê:Û”^sœ¤)¦%£5¬gŞàüÉš^ƒ"¦¹pÀ»*ÖHÀ/üy.İîÚDöE,O6Ç<8T‹O«İª†‰ƒ#9İ!ôœ«ç~…åuÑV£ü^ğÊ¦;È°@ùÒ`ğúYÚ‚Iš6p›DL"¦du`=¦%ìÀ3Éz”q;ÖåGÍ’b¶ñá'ıÔ»ˆ®?‡¥©7Ù×+PC¥¢{5Ö~‚h•”	Í_L:¨˜õ×p×n1€l‹åıÎgó’Ñh1p:âı]+HÛò³*İ_Y¦¸	X·¦doñü¼D@ùJ%C©öÚæuFBPÅR$a_&½B‚ÒYíÌı®Ÿà(İÆ,)?;ßeØŞÎ^ ¶ˆÉ<Ş¨v²®0¸ªş^ƒAæ@[·Ù}=´œ~wË’›ÿS¯¬ÕbÙî¥îåQ%V”Ow`lø O:¼ÁëÒ¸+ò€~„Ë{U
+óv)ğòİš0cIŞ°Q‰©§ÏT1Ä»<+–cˆLérÆRÓ…»PWÊ	XWâç¤%rãÏflƒF„Ü¿ŠU.Eù(5ö™à—ï#>RK:hF&ÈÉO¸dã—?"N>2@»!©à'”RøáX}Ñ¹¿3˜b·oVÓ=W3Ø£<×ßÚí®»8›êÚßâ£ı²\M»cò¡æ½Ş³;î€ÜGaıéß‹ç!YÉ4Ø–Z7.U·2m";6iË_ŞàzXÑ—‚ùlô†
+|Ò@íf—Æ‚´ëhNÛl ÚD"î4±™²–öd:öî9¸éÛëô¼/Ó¸ò®´•Yº íşcßÏ;ÍïV1êY¯)fĞ2m±¶ _Â2÷}e¦…:xÍÂ/÷Íİâíº›…Ô|f‚(™Z‡ŠD‰PˆjÓ'1õQÀÎÄ
+ÜzTNÿ|S…Ô­H0»«€¥/ØÈU¹P~øĞ…~ƒëH;’?\Y{ÛÉFvÅÑ€Êôaq¬_äÃi—	z\şªşn1q–ÂÀ¡¼4¦6æ¯¿?fõ‚‚<?ÁTñ]2hÀD×‚“’vßÂ0C![u-àGÒMğa­ÂO’è¸µ¶¶îïljT>®FÈp`›ú8çÀàd}·¯›«0Å°ümœÑ×=•qk§À!Á’ãû|$&ÿ Lÿ#Aª’uë†zí[Ïäõ®€Õä9­Ù60[bí'Ry@Íé@h9v?ulª!%š'ç®QUÓ±ñ©ÔN™Ö£>ŠªM‡9õÛ>rª¶Í+Qzb§ƒbšãóeåsDV²°¨E¹å5rõÎhçŒàa’èêëMùS0êpÇÿlØ¼æïúçy4‰ÅÎãÄÜ8v”â¯ÏŞ)8=RŠ©î—Ôq)ïşr–uYÖ¾RÎ‚—¹8öÈ@F|äND´Ö}%mç¹l–@´]e„Q®løÏåÈ€	ï,ùâ1ƒÚÀÏ¬§€È(Ä]ã*=xÍ²œme±+E–¿ß`ÉãŞ`'JÕÚØ†ƒ[˜k ¡ØÊóe‚9É[âq]»¶O4Ñ­Åº< ¥­j~er–ıŠ· Iz`¬¦-ücÌAE“;£×GíŒóVî!Â"1-É@2
+eÏ¤n2ªßd±·È,è  4’Ô­»—«Jù“ç«Ç˜â+DºTKK±}WïíÖI¤Ñ1ÈÏ¤Æv$¬¤gÜjn™¾Î£¹=Ñ@ÏË{b;ËºàŒæJÆ¸õ#şƒÌ¢ª Âù ¡¦¦WßÛÇãaØèú¿â/Om6li*å†UI‘£ÿÀ;®:BF8,cîÙ †|P¸j§İğY±™ä¶¢¬’…A`²Ã­ìëYë6J=<÷å¥ßà³QpÈFA©¬ ²uÕˆÍrt ã¯Sma‡IÙZ%]:¼µó¼Ñ$¯ éñBX;ğn¶7Q€Dcuf:†GÆÇ…ªdÓ‹—Ğ<á l«ßfÌ+­³Ãââò¼Ôáfhİ	§‡Õ#Ó	^iõPÓ'÷ªö0gü§ÿù1tî‰šğ6¯B—[§¦ul€:Ëëvñä·›F8…V¶eåŒ§è¦uAiãHêŠ1Œ„Í>áàšòõ€†¥Dğ
+S€!¨ÁFn½QŒ‘FÜë(7Dâiêä©R8av
+Õ§BÜÒdà{éJ8ûƒ‚¨ÓoVÀ"YcË×²pğNVÖnİ"&¡¾íòÓY1T²»eö¿'—©MÎHC˜jg*‘ª`ÙİœŠ‚è“m”$r×KlÁ¯s#x”Ì¹Ñ[0½c9+h	¶ÛÅi:’C«§©¤éŒ‰ d?ø„õøzˆ'bQí\å¸ÿ¬ÇÛ\‰áµŒÖİ"-<ÿ4üª¬cuY8‚˜ÜÈ{„ÉU§:jÿê3mÚ8ä®¶¼]™ x&|ï2áOïÃÎòw(	åß;rgrŸ¯Ğ1£Â¨Á¦ÜÅÚDø}‚Â‰•|ñ¹7.|­Âşßøş‰rÏ˜â,­è[íP–Dû«³f¾efM¸¦.äºÔJ+I&0d‘)b_;İf*ğX[.šÛ¼‘PÖ4v´ÅE»•B¦B¥§O=·]+OÆíş)?ïí ùDĞ¸>3²¼÷
+-ü÷ÿ5‘jØÕôÏfbøHÊHlÔ(Ï`ñd¦–”Q®¢e0XÍìÓoÒô]föµ³•™m­ÖÃ{b{ƒ ¿X P‰v>lñ¸qš;@J¦eÛÁö°#6Ì•M—¾2ØMËy#‘¿8s@’yşü*wëöÈ¯d®«°²<"J«‰W*ÖzÌ–dÚ¬q@3JÀ0nwIcToĞ'foSÌo;õ=¡€ßM«Îƒı±³òvÃºê‡ÊË QáÇx>oxÕúLP§D.SñD|³ì©WØ¼°0éx€ßƒ^“Ğ©¿‡ÁõAº5Ñ‘îzôĞ”‰Ô»qŒÄšƒçh ü‘”Jæwv'g¦¥ôl,Di›ø”Aşœ¨¢XnÊÙéÂ6çõ`Ã6Õ{/4–vy=å"$£¹¶fôÊ:æWm@ÄÕ0
+Tf0¦*äömım¿@ŞÏøõrï¶ŸˆLÓÆ¬dØ%’`%ù¾pr«ç|‹^Ášnı†-)"İüÖ)«ÎòæÃiÏCï²XÊGX´a&ìdŞR>‚—LË–}Ë¸¦œ‡©Ä3Rº;~Šçam¢ÇÙó¢ Qc;¿2RS…[²ÿ¦´?Ğ÷™5ª×blÚ•<×V¤¡érô{¦X–5ßiÙ×WEÙ¦²“¬py˜ğñ¯I™úıWÛùïHÅOqxG@}‘N¾v06t,ìñø/Â´gbWTÅ”ÇÎ¦zò¼ôßÛìã¤˜ ˜6Xñ°Ä\\J>ËU°_[ôI‹Q?=ÜšÌè„‰n½ ]ıUÀÙ¤Trn3û…Ÿ3^6í65êÓ¬fŸ[eúªÊÁI½ª×PeÄ6‰uê†^·T–ÛÀAã+¦éJ¡`@HÖ,’ä/\'ûÔó,‰@+â“u¨åÆäiGåYãà>ß;¨Æ@ä'Ô*ƒ&¿)x¯wkQ(¨&SßÇEæü
+îÍóÓœœ²”°ëÑi«BÈŞL–äÓU¾§ÒÅ¬Vâ§/S(Æ?Ïï«#y”`L@ÀáÅE3§0ÿ£xï"¾é-Í©[Æ’^9‹A(êÖºX+Ê¹=‰‘Ù&ó^lClƒ[ıZg]—¿n*Qb
+”nàWé ç%Â–*håDµ*yi¬…BOö.òĞsÀŠ-Àºd˜ä	Ñ1Ç»µ1?zË1®\Ü³£åó%sYı$p×¿Õ“’‘ÏX,èş’ ¢/Üáëàl¾>FEÆ` ¯t_$»á…û~—¦ù•õí7AÒxäò/ÒÚ–®ËÄÄï`ƒÀYšƒj÷cgì„’GÃf4­fÉğTğ»g^ŞKYZÆãêÁ¶$7YÃA4ÉYD¦Ş_	[óÚáü‡VĞµu`ƒ{Ò‚s” …}ÓŞÌ›¡XŒû¿#u®É£×ÑÚ¡Z%Ñ$d2T*tõ,nW|ÂşQ!8KoY“å­h‰À\a×"InºÌ)™ú|.ÑÃ
+
+ƒŸk@D«²¬ÕN%u¾W&‚ğyğ¶ÃÁm‰›TYÒ÷¨ö¹‡_àÉÁVH¥£êSIK|Ë;ÓeøÔ&ãß¿ÚÎÁ®ºU1ÃLÉ³
+öw8íÌJrª±Fwõ±äË‡-•g¸ld×¨wv; ƒM‘h§¥ÄeWŠÓ’ÂÙZÃß†gTüØOc÷jŠ%|vš$o`‘#ÔjIû_õyü¿ıßëş‹ÊHåä?Şƒ¾f¨Wëë6æRŠábï÷ïıåx×>]øx¡Ãã˜ˆK“T½†î3‡ü±rè‰ÛFÿ$9†oº>`	`eEi2ãı“­šz¤ØH+—Wøû0d£—i©;<´ç&°ÂÅÛï›|UÛ$¹ïÙİã”<¯1îW[köú\Ón$¹n¯ÈHW‰«úÒ3ìqİ†i¾ï#uû{Ì¸¸ğ ë™±ŸV9—ˆ+²L°ÿD¡Ëõ\ìÆ:¸'0Å!ß‹+?¹}=Ynb[‡&ÇÚê–¦y6E»0‡†ÿÑTxkä`ó€,ø-N]‹À“H0·\æ@±
+—óÙŒïÅ£àÚ‹¹ğœ
+?‰”$fey}·fçi%ÆçÈææ«E§Ë+ß^×F…([–ØÕ‰Û[B“h?Ë_ÕŠß~Å~V®,òœ™É`d¿N$§ã(/0H¨ÕŒG5EÊdˆêWÇÅŸßdÄI+‘ šl½"ãº~Í2%uev	T1Q)¤‚„§.&ÒÿöU%;Ÿ¡¹[kïŠØÍù
+â‹oJ6ÕÁ]&½Æ®…B¯/˜ò	N£MğLi»ê±£øÁÕ*}[Ë`Ó$>=¶N®NYÀ_z
+-à%bºô®ï4‚ ½èÖl×³Ö—È­s	†FÕe›ïOboİÙ…U+Ìkëy˜4è»3;`]	Ñ¢Y¢C€ÈM³1Í;a²ğÛØH5è–‰ÍD½îJ]îûÃà^aÌ`®S%òÇî2”8:‚Ô*
+ƒóÅ®óRkm`Õù/DËV¸ÖväæÿfÃô{ıõ. T.ËÙÉ·³…„ü%Ì„ih8:<Ü•_*	òS2²!`Õã¿4îëªnÇ§@ı‘ör¸(Z”®ì‚Î1
+
+ó|éĞzÒy±6
+’˜ş¬SªQ¨hàŞ‘ ,ı¾qÊ®õ)Ï_¯\á¥´İØz|~vĞ }Å©ËH< Z(Ğl-ƒbLNo2X:œ‰ºÊÁUe¶é)aÔHx‡‡eEÙî`Ç÷˜Y…ô+öFNm§ÙI;¾µ…œ©È³sêÄ#öklË‰ê¤²™)¤Š^@îtx•êª8æ¯[¦p™ôG@¹NÎQyRåŒ>)DU»”.Ó×NŠ^}ÛV“ôÏïœH©4eşæ¨ÌÜ±˜_1à.òwmEw+áÅ —¤y\ÅÃ©Ãâ><9kËïl¶b5
+µè^Rv
+ÁñßÛ8Í	WûëÕašã\ÇyJ\Özf‹V 
+ˆ@ĞŒV•Cë¨“ö¬e	Sı@"¿ÂĞC|;èGnêEÂ›ë/%˜SÆ%uöå9YÃ2×kéÚ2N0uBÔjøK¤,¥vD(ÆX8¿ßÆØ$|OöşÅi±ï(o [Ã˜YÖ{úÕEd@¬…Û¢°"KA%e(q)‰íOllOdğàÔ9Ñ¿ô§Á"3¿+õG4¬£€·>NÎSs“qƒßZ84{ª 3jşÍP,i®Êi¿vÄnÓéTk‚‡³™×—åıVL--'·"D0µ™#9Ñƒ¤u%§«æStËhé:³¡éÜõto5^jŒ+7D'È,|Š=ŸÀx¿+•jµD”Íº<5Á<Ì†
+ÙäË¼«–q¹º\Ïkğ¼ZÆ÷¿ÊI0§è¡U‘É*Å±§gıÂZE)e6I0jXdbÎFÈ)®mş`„Eï¼Èv2½¼0:´Ã…ÍMPEü$mFùãªşıL:Ë—;ü|å¯é)ã¤æä±‰f+@@~€V»u5%hHZZàr¾C&Íİe×¶àPËòİD2ª"3Ÿøë5Ğ$õ<É\NXPñ÷›ù‹¸÷0-ãLŞl%T9QOÎ÷Ec*}ñQ)î‡R’”
+°lVSoÂHJB<İ_…sİ’¬VÓöÅ<ĞŞÃ!¥=kŠfúÌ¶òiõ§üÊ~RV ¡ŒL¼W/„ÙÙsİ¨«	W³7Ô¤Ò+x¿ø—QêÙ™»µ}øÌT¥Gc§È©Â¿ŒL[°ô£Sú~²S=¦Ü`ğ‡Îº…çßÏş6nkÛ“·Aˆn—RÂfù9Z6*wâT™/*¡à­¿”jß¸”ö¤¤âé5–¿Aİ*¨D›0oÄä›¯#İÓF„v¦rêùnÿ©İîşŒ;ôÕÆ–yw"ÔA“‹ØV¹KÁàv÷f¿$AÁçE-Å„Å¦ øgÏ
+ë¹<øú’®¿é/ü[uö¯_…ÀYJ/Ï¨Ê;CYØl*	NÙU»ox<>ƒh^cÎ‹Àã-‹8ÀåeLˆíéÇm)ˆ<”ğ„ÏÏá(ÖÌ%‘Ö‚§¶tléÜ­7ÓÀ’ˆÜqt^`Q¿è@úkmO“š…Ônµ zæİi2b‡‘',İUJ]’ø1;B34 6Vcÿå	ir{×şa~Z”RàÑ¿·i\NG©s‡SöúÕš,cU Ü»4™[¼¼Ø6'rXª%¿ñ[u’ë9Ú\½£¡Ù¬F8üĞu³áb‚x^à zÑÊ÷x
+qõR09_ıåj
+…0­vª_ÿBd9İY†§€ªøZtt\ú|ıoÉ2¡öô=+8`Å<&ÙòùğÏŞç;ûØŸTUgï°âÄêÇ![ÅTíƒ®Ùúcé›ê.§äzõƒ“» Å¼Jt§íÆ Z	T. (*ÉuÒ¸Yô`aì_SÕ{#uCj9ÔBVFÍ‡‹˜ü¾ÌÊáæ/L@fp¬,ş¬ÇÚpaW)Øl·p³^öÌãÑ ˜ P›!Ù»x(BU@È˜]÷¾|íVş${&ô×S¥{~Î²/À½‹ĞSÅEnz©Æ¨-HoSÈU×q£ë²±¸Ú“n¢şŠKHÌÍgF¡Q\^ îûmNMëz<’ÈáwPœ:­ ×~‚•ç^˜½Ö{ßœ’
+ïÂ™€tDÖïÍ÷Ù·Ğ2XáeÑ;©`#qo±AÒí± ¬·˜Şş<}<æˆÇV¢Kv¨>Û_3 À5öµ¨Bq¡Õ§v²îç"³B¯Ÿ³F ‘³¦¾®‚ë¾#«=õ®h¶¬iêå’(Ì ¯ƒy«tÉèjğw	Bñ/]G
+nÓ¥w1?[ºğÎ¼ğE4`zÎ[íâwô˜4àDAR9T$¥şïnÍ\Á—uôpÜQ0ÃcTèYİZH÷}Å9é°ÙŒM¢—S½Qù;.ƒvŞ‡²Ş¬—µëÿÏ¼{q‰ºp
+p[õSg^ÑènT:Z1Ûö•nG€…M³–öpøp@?!§áVKR!/Ü-‹ùJßr ½E–?Ä"z„z#’ì;\ä<.n`‚ãí¨#3üÿT¦wÜã8wÆ 3ì¹±)G´Ğ‰Œ“U“ê1ÈË¬Å³{Éı^§Kõ—¼ägÒó{mÃ½³…ªä)pSnßù‹W¦…RC›Ã¨ÿÒcÎ9³şAOâËÚ%ÔûD…%"6hˆ‘Ô­JjmOç@àÿ<HPÔ?Ï©]JóGıMP÷Ü•Â«8¸"¶™æŞj<‰8+ãŸ×Bô¨(5;æáaŸ~Â¼ûœi”Bâ9;<£ÓäLZ(<eht"&|²pÒìHÅí¡8‡â–¶X)ñfjWDä$¤şŸ!i¤]&.¯'8‹·QÊ[¶'/‰'2w6÷{<ßXô[Óä	üŸRtVË^‹»H´'‰éÀÚy°`ùêíl6VĞ(Ü`KF.+”ïs-”KïDjr¯Mæ~)K8ÿq(eTıŞâ¬\ì$5‘èo~}Uñ$Ûªû‘ı\Ü0üûˆ^/¬n{^fŠò"ç–º2p¢cjfläúÿÊ-}ÃŞI¤ïú‹ãŠ´®>ZrÇe$¿À“ä‘–ÈúÛ(f2ûø¸OK!º‹fP·Ö0ğyN" ‰KÔmŒ0>Y˜ØÕê”Ìç¶ƒZª]ÎNécî)—|)ƒâã¿3ì[Câ_	1É½¸QºÊ1¸5ôÈ¹N®F=¨€–Álô¤y˜gÀËm%ëñºg+%có]pŠ.ğu’äàw[ZklZ:°àÇª8·›ƒ¿÷¿A§nMàâÚşyus®¸›Šø‘»ecFieZ-dßá1u [±•î›,öËYµ7o8ò@r.Ëô=jªóÓŠ)¤¦DîAb¥ı5ù8¸ZYû×)Ç¯]<\ø›R¸òÇ&i²ô6»)šjQoÅ±µı+3O/GGˆğCWFğ[üxŠ—0»¶F:›€¬ñ‹ì•zŠ—Ğ6´wNf‰Ù©É×K-"4,1áàÁUÆÈ•,9kû’gìXT)àh¯?FìĞvÆM:½—ß+BÂ®}t‰[
+‹=ÊôhŞ¯2íµ9DnÑmÊ½Æ]ƒ“¥NfÔ\ìüÃõqXCßAmJ©ìnv0UùoÛŒ2Àé¢n[š ›$iĞ8³ãøjFbP½ôœïó¶‹JõÁ2Æ„nAÛ’®À3ŸvŒÉÀòRˆÙq/ˆö jæO{ç3û%Âs<0pÇO¶caUz¨<e¦‰‰ŸrşY^ ¨3À­LÕ «yu·ÌyÒ—èËÍ½ÚR2¬	&ş‹Gh¾‚±|*”—ãd†4íÄ¨›jŸ,à4˜äÈa÷ É©ƒª²Ò"Cµ|ùşÓ  I0ÄÏv~£Æ¾+XZ_ìVYë×‹ûM
+õÕ¿ö;¤›>€Œ»Ú_Ù,º‰zèê-f{å`£’|·5–}ùÆ4«ÃV@^G›.› ³u|2¡Î’bå#©¤[Â´é—Å›•RmwYF?
+w€“Åûª;Ú&j$UXrÈÌ)Œ fæçxô›á¡÷´'¬_g”ëÈYàÇ4BâbÂÛPêC.…Yà·;¦³DôAITÇî]¢+™vşğ”4Å‹2Õµ–Şè&rY5$€ nh²o¡M³JcĞ‡,şLE=¦ø1¨@^Ï‘8Eè…Õ¨ö1î©G3RmúÎ}[z¥µæ}X“@iı´Íô~ù›f˜
+„‘år -°+_&
+7ÄVİŠ±éüopPSóìêDºi,íòn/~G¢¥¶’Wÿ kĞ:¥íş&97#:ìeáúÇˆdHw¿oÙI6¦õ!j0ÆŸ	.Ÿ®í ÷—ƒ)=®Ú~|ñ•DÆ¦3Ó|^"‹µ~4ª’j†Ì¢ª­/¢¼9Û£«Z$ä§ßJgbUÂãØ.(?y^[×pUÏã›8á=¯¾Å…m£—¶CO2¹·âhüÉ'‡°„¤£Ö($¼[LÍÚ7à_,(Ó˜…Ğe´ìÛ&ßí‹Y³^!¶©¼ñoÕ0¯Å¸¼fdR5ÁY»´TNéªp1i¾¬¬n
+X\×OY<ÍÌCq1RìÌñlªQñw¸¼˜å§šöåˆàe¦†fu.Á(’Ëaçoª×JÂæÂõ4_wHÕykKZıiJ"/MÂÒ¶ÍüUœú˜/É 6•ƒÒ¦äÑœXP
+©ŠâFWÛ†™ú¥sı­pèRU™Â„ €Ÿ†pÓwx%%-(ûEÁºYHIñÀM:@†‚ZZNî îõ	Ï&Qÿ~¬Ó.,~Tú£ŠÚ7Ğ7(3½­”$'e×ğ–oï‚LÑ!ÕùJ'~Ğ0.0X%¶RfëÑ‡°”S’y¹ ˆL1púâ´Æ#<…‡;r„öV*Íˆ½H4ÙLğŒ:¼3	}t2á½ÜÃùÀT`>>Fô©PøÃ¸ïøKdì=>¼Yû_‡G™ÿì	yeVĞ´j6İoßJ|…^”‹ÊCp!¹‡P¾¸Ñ¡?ˆ›İ¼şZ<ÃlÑE,£×¿ÛÙ’Õˆ’›ìŸ`2ªß°YéXû¦sjªu.€dş™{¿HÕRU7˜!_ÆûÿÄÆ¥Å=Şû©ª#äê¶Êü>/Uzæ
+&ÏşXuÜ±I\ªÔÃ2‹ûá)¢«şœàh¨g,Æ/,ªÊÅô»9±Ù&o%×€OææôX$‰e õÔ
+2­ÊºEW/Eµ‚H«æV#š|>ï™µAã@µq)D¼j‡õ@Œ)èÍ­‹dH-cĞJØV¦°P|õNTº]¯¥ß‰Û?É ÈÎ—<‡åNÜTFm”Ç…Ö,H>»©æŠLj)h&öİ6N|¬±ª¶á–ÛŸG
+j#š‡¤ 4½Üç¨¼}ó÷P´Êÿ¾Í!`Öt/ºŠô ,7“¹:Fè2åmñRë3Qúìıbq¼¡lÑQôûƒZ^Üî½s‚xåöˆô,.„Dé¢èJxd¸ìÀƒ4‘bâÒ+¡qíIìm‘&w§$gÎC`ëòf2üğ!‹tí‰ëÇkØl<›Û/å¾Fe”DW¤ñ|(³üñĞ¯<Nñœ­œŠ”‘9ÖæeŒd#{i£×í5ZôiR÷È{(VğÎò6ª(ÿøíè~$’«éÏKÍ'GĞS)ıc]9%ÆäAu*ÓúQ?Û²Ï	6Å
+¹d)÷W.mt?#>=zÒ­öøä€Ñ]ı€>ásÜm!ê÷j±}‡Ëú} „Ğyÿ‚†0D”Lsb‹êÙ©í«ÔÄ+Ë½ËıLòÎ­Q,÷Ôá†2:ƒ%OÊ7jlfŒ>¯äíašmå.9¿¥(MìÈ\A¼;çS†oSÚÀ]¿G [İƒñu¨Xë×#ÅÉì’Y¶IÃrü­ ÉólLïH¥ÇnNÙàï*i.tÀ×*K\n©‹½ÅÏ-ˆ„DB¡Ömèæ)‘ØKa—sÇ"Hx¨,¯Wl½úDfs)H·ş”ıX`pç$JbùØÓ;á®÷x)ÛEROc™5LÅDL]/÷E´…¿¼f©Cë~­š4½¤‹ÌÔÅÇ‰E°Ä—û	‹ÒK†ãOŒ<ÆÒ…¯óÌŒ{¢Dw™+°ë$6¿å³„«—Jy¦ï_!§ÔÿÖ*<¯ëÙ—•hQ”ÀØl€¬®qVV;ş†Å‡‚SÎı(©Z©½&­ã–ŠådA¥—ıà6ÔèAÎK ÅG3ªg’9]í´ñD®âõµq«°ÂìL
+Wnê·Œ§*=©Ì%x‡¾N*®A±eA)ÑB¸°î-æqâë‘ºÓºd{˜~X‡ƒZZl‰Hv3ÏE%³fe¯¦ÒvíàÓ2Íu¤È¯õ¯Àx\Áçã–û`;}ó‚pñ.lsÛ$ÚƒNl÷9¹£U×çVG÷~‘ÇT)®¾XÅŠúZºMLODï=A ş¾J˜¤RÓWx˜Ñfç1‚æÆØÁš/ÕwrˆhF*ÆÕÙ„	£jôgüß¿AüÀ±iüøĞ¨ğ³ä¾„tb ¹¿#ŠñuÑÛÂ¯o|ªóğ¼”;©e2kY=J«ëözÀ˜"R¾†¥"ïYlÇ¨5}”E8~½Œ,¬KµHØâJùwJaA£D+oæ ;­Ïm¦˜qGH’bDR.%|@i!{âäl(É×½ÉBÿ;Ï% ÀßNÚˆšö«Ôú‡‡ 
+G¥’DçïÓÓJbˆîØNµ¼ßå®j>yÒ:F*ÈSî³er÷÷¹% ®O0ïôŒŠk­B[ÊAü’>	?pšÃSÂ&dˆ¹ü7ùIîÏ_,­MÑÄÏN8úJâÌç#â¤ÑmÅM~vOÊÂœ/>€…mú)…*¼]_Ê¼nl>ˆl´ËÚßŒÀ|—œ4J8½•QlYò»ÙPGáŒEíÊ±p#ùDĞO-”[×“¡u0‚£Ö=¡Éîo_’c™ÇÖ,IAJÎw7ø¼Ø
+
+§JEÚø?N&Q4Æ‹ØşïöIº{0?¥³8gzµ6Ô‹9³e‰–Bp½ÚÀOôXRIî)€õE—öRfo
+UQ¸©¾†
+)…@¨Ÿ9¼”k›ôe»Œ³WtÎI¢Io ş%á[Í‚FÉ÷Ùk°ûWCår1BÚäx<×¢ÿ§¤HiQ¨^$·9q´”Ò#Æ3‹eK÷ÌÂÌ¯„-–{Ş…Î+·e„£U[éj=Qmfœ…iÆ06°sl—³U:œ™Â(MÃÖëdï·PÜÉù\÷&ë0ù^GfVéˆ’Ä¥’ª2|1PI­TU±éc?ª„¢	dRhÈrú¬Èq¿¿Ñ†Ğ’!ãàÒ¼ND‘ù:3æ(×Eßµú-Â©{1t†î”J?)+¨JÔÚ<K¿-ïµ›ş¿(•ÕØò'â¦¦úXj"º
+WF=º7bœ{oğ‘°’ƒÉ±`eXJ†æ}>¡FùóÃ…kĞişB^h¡€±è:½Vâ	’€Û‰Åg:Bªİ§wÿc^õ»*j¶8Ö˜üTşAû,1N¯\¯i{
+»!JŠPÏ×É°_{,D"û«¤‡H‘¥RÊëØT+´Î€“GÛ¶0î?Àó†OU¹tG¢ß×¯85(P­ÒÌGRŸ?G2}yÿ·ö`Ú#Y£zæ¶„’'Ê‡DÀ b[™-Iàc2]üø®RÊª­`W-Pá4ï£o3ú„ˆW\ö†2´uB/šCää­¾mÏºß¬P$ºåéÔ®Öıßîâ¤¯g>(¾«¸öŸWPXæCÇ7âvîÇxİ„)Î&1Aà`êŸ©ù‘ÑÖÜÖp½›: “›vD®¨wì¡Áaåµ3ÈºÆH¨¼å?47³Oâ‰+@_Ìæ4QNÍ-qêÚùqÊ‚Ü.ĞÀcrÒ4åKì÷ÍÆ‰Ş_¿Ñ„{L¿²Jaóê¯ëH™%³Rµ`°“ÏrVöG^DÉNVHÁ'²ú<Â8ºÍÌ(f:Ês_„KÜEå bAp}¬§åÃc –©e’¢ËG_¹:xš°õB³ÑS]¾˜H>@
+	ïa¨(«Óïo ò#IB½üVˆæœí ÄJî…G´ÑêG‡8{«¡r\V Ë8O6c™Wÿ½ôåş|L«ı¨¨ôlÊû
+Û€¿(3t q"w×MÒ(ozşå^Ÿû¥ãÉÛ»İéhöI€åØZ£äq´İn§Sÿj?{JpRú·¼¹¶Zòì^	5ŒšbÔOÈë. ŸÏ/O€Ì>Cç´D™‰Sî"Â+X_GìäI—ãd:Yb,£‚äù`\àê®F³ÊÖ òTB<Å‘‹Ú›‡Š§-‹Uü¶Hb€§^Ş@5û¬útÅ8üûJ»MYàË‚wK.Pn83ŒïW—áZtğÌé(Nõ‘;qrpJ}²¸ö‚=&N4¼ûC¯VŞ¤§¥ùã‘>¢Kóª°ç.İˆ%:ÆÌeÑú#‹£AşŞàS,Ú¦ÊO4tüpƒÇ<©ò%ŠŒ0¡åø¸BVKEÖ´Ş~Œ
+œ¾F*`üã•K§POú\™Ú× Æ ØU{§-aZv=ÕÒ4@¯–8¬r p1(1@ĞW1,í‘^z¹;|e*ğ;#3Äú¢´ÎšÆo6ƒ!zoùSA­7ÇÇÏ@‘»ãËÆ:ì© äX]çãÎ|Av”¸ğâª‘p0Ú±Jr®iÒÜÊ«õy;Æ¾çŞpêA)Ù™î²˜DpËø,q«KÍ<e2ôîÆr/¨]:W]ß½.ˆc¤—û°¯¸\è†îÇÚø5ëŠô:e6pĞ{¶„Û¥ìmª+ëœõa	/Áú8²ÔP0Å>I@Œ.cŒ¥OÁ|˜{¿(Û#%§Dtç¶m4†xıLáóŸÓ¿^§£}òq^ß¥cŞiı­\Ù4û5?ğìàù®Î¥Ø‹×9w“‰ª7–>îòASÍ{†ÔÃ$Êø«Q~ïr±{‹\C´"Ôœ£‚Ù“dŠÿóŒGşD³d”a{C ªnC 5×†ÌwÓq¶ï©‘o¬#‘œWt·›ÓÊÜ|7	ŸÜ%ïÇÖ°ÊØÛ%ÈºÚËu)lHƒòj)ypŒecòAù[ä—&à×Dšˆ4O«˜~\~ÎÙ³•Ï®ö{E©‰L*«¼&>¿­¢‘ÕNÊ‹‡9,É(yc…²#êf:p¤ÕÈF“P„ØÀ§=œBê¿[|ÑúÊó©+3PÔÌ·>æ‘t7ø2ü¤fPWˆaRÇÂã§ öµ @kŒø\†gZ}ñÄ8õG8‹²/2÷·dšr	-¥Ñª"ñ1†¢úäœİò3«ÅÔóÙO‰'àcì=ÑCÜÀıŞ=v‰aƒYÍ^Òéß30«,íÂÊH>Æ¡yo‘±ó±Ìü)ËïRàÌ·óÕLW»‹I›f?ÏKãIï´Oı+Û§&Š«Û	¿/”2Jp­F_óÙÃÃ;N4µ‰;¾ì`­$ã¹Æü®Y‡†ße]u*2âB^’çK"”RF¿Óƒï»¿z!•’1Ùœó¦ÉçyÂÇ%ïÊU~C8¯	eø³ÿä-U§aq$ÿ7ºû¤îïğˆÃ‡šši‹›<üÚÊ›çİY#‘M<Å$¨3Ù>Ùã^zPL»ˆPşbĞş†æ„f€8‰m{ØwZµQVŞé7]…sğAb?ıozxõUiiº[Á§ÇÌ³£™f'†]l˜LâN+Ã¨Òkòiß³Då–ŞŞO2iaQ,,$ò–±,¹*Ûş2Ó'á„-½#X5/¯f`"e‹‚Ò5“®Ûñ½Ô¼êR)Ótu™ËGÕKß„³*¡aÙäÍ?ÀãDÍçùÚ“Ã|tOöj şüï™NbÊœ!Ä6æ!Ë¹lÎºñ»²Ö‘›ÇV£Tû¦G6LG¬úÀ·ÕÃ»Ğ‘åÖ*ißŞÒèÊ¾aƒ0 «‡ó2üÇyºR¬Ø6;´Ïş‡®ôJˆÒÔĞĞÃÎoÿÁĞ¬*İÔÃa†7Û~lM÷ñÏ	»£:¦“BÑêF¢±mU}h%Fşİ‹j51v—±ÊñÀwZÉáû °ë#ip§ì0y©€¶…+"aReqÊÙÊ+†¯õáJ¥İŒcH³¸:AYŸâ%ÀSÛ(!|,¬Œmµ¢Ã…ø´½-Ìäƒ^a²HıÊ2™­òä?Ğ{ ¹ÂBa”ö¤t:ÊÿšÜpóiú„a­QàğHz9& tlo’ãñgt?ué¨ÛTÂ¥ú_i˜]u
+ÅÌ®Á­h^b¥3]’ê®Ö£~İSd2)Ô´y)RÃ_Érän*7O6{r§&ÀàK[pd1“u%=^ázn»³Ô'×u¼€Ü‹í ,Êÿ¯#@éP—¸1ZZ´D{Ñà,Ü¥"qÜº”ëG«WˆØĞ1†ãggÍ•`ù~i•ÉeØºÉÎÀ±•sØjp¹«3Ğ@¬AIÃğ8ÎùUˆ½Q$C³C^UŠ¯g÷•FaeƒlPVÿÈ€Pëì–¦¡4ÖvTş/¿Â`Ş®Tõ–Ø;(¦½ó	Ê¸±·œşÍ‚ø†
+0¸K…ß«Xd›úN†öFğ$f¹‚	6Ç,ßC`"àR2Å­- ‡š‰Ùê,®S›è¥~¤–"°söîMÌ4•®¸$‘êÆwÇùÑCŸßñ³1´¥E{S«€•lO¢$KÂ©èÎ6ë&û˜œcÄ€à\<BYèß&Ì¥ºèh1-²ã*­d×gä–?wyt+(EôCˆõ¬`\uZşëDo‚V=ïÆ1óRyâ¤<ŞD|.ÔŞègG°Ïªû]Hÿöe¯8÷ğA³HƒMN’U™‰„pO°Ë±r åØºèÅmv÷é*ó?(”#'©<•RÛGÈS/*¦UÑ/Èr®àû.¹ m?lpÚ¨´ys‰ş…Gé•JØu½ GĞ¸ï¬(H.³
+‰ª‚:*¦[ú7ŸJ™ğ=œŞHV­ÔY¥mÉ½Úö!±¯ñÎ¬¾ òr7ğÊ<–¼À]Ù«}ä—¶v+””¸YÒMŒ™"ïÓ÷5 <ÉX!B±+ÂÒ³ˆ`•pr£İ¯‡;›4š¡­uU.ÑWïŒl‰æA`!¨ó„ÇµÅjväĞ#B`Z¬æiÏ&‘(^üä¬:JPÎ}¶¤Ê6Ì¬ŒÂÒ;ÿ¥oåicad– Î¬$iynŸ]4ÊŸq_‰'Õ:ÃÎí´Î_÷¡Eş`ê!W‚Ÿ™yÙJ¨zùĞmBE ÂÄ¼øEÁ‚¬­58ñc¶ IÎæòÁæQfÏaò‘ÀûÀoº¨èıß½©îRµHîÎİ
+ÏF4yrD¾i2¿JEÃHäšv_wÇzÚôº².æ+¤=õN®ZçêéÏ.~[TQEúÖ¤ß€eN—Vô…2æıvÂ)vt¶á¿ÄOºƒj£¢ç”"ÔöÜNåÀrx¢S+ŸQ'}d»'I]@7+ö„Ë£`®ï¸²ŠÚ™æÍÒîKµK¸té/ëµu1çrúe‡RˆEo²Zk[E?sƒà§Z>p®ˆÁ30j(Í9*cÔù:+ïJÁ&ç²¨á,Åˆs—¢¿’/Jë%›_n;$ü};Âœ9=©ëç7¶HgÌkù8Ád=Pm~%S\»”;ó£èE›LE¬÷8™°ºyÿaó`“8QgJO1Cë½Y=g²ÀÆ±-F Ft5	|/‚9ådæZoªãÕŸÕZı6VTH®ˆÀ9áVÜg£*Ì:÷¨Qı\¯Q,ŒlÌH†;é
+*%df$cvçYÚèùB Oé5“AXö0Y’µyœØªû˜yi˜?]Ç_ˆã÷®Jî™È™à˜µ¢SÎ&hš£wfÖDHä`ºEQiÙ,›zç¦hí¹$À™²á5İeEë„¶æ@Î½LŠ
+Ö^€Gò!Râ‡'jkãíPñÙ$¡(òp…N~jz;à©Vo’»M¯ó½BJpe§(…‹8ˆT~ı˜jÍO¤*Û­3$w9™{?·ª.êÕ«ö²%:AOÍÄô²~×÷oø§³QŞác$Ûc§‘»Tgk½ËÚriî@ïHÈ”&/T­Ã”ëfÖ©áıÁR÷‰* â²ÄÜ-t¯ÆªºlTîB*F'élĞt‘H äéÏ]Ng¡>3ã•æq¦›äè“Ñ@ÇÁw€Ï‘2òX€âçìnñ$RºŒñ€,–ï’ó•“e>XËÉş‰Ãá;È–|O¬òÂá©[ñ]ˆdCWcÆŞW¦Mîe22@{WÏÑĞG íh9òi
+KÛy'Ñ’9¯·\ú1	J¹~u†ˆ~#o._g…F¤ndvÑÎQKªõDÿª¶‹‘!E«°pc¿À;•™y]“ı¸ #ú»İí]ÄZ"¹±Ë¥j±¿ıù¡2Ç@œáÈu¡®dĞ]€Dç‘Ãİõƒ‘€$ LYD æ=¬È%ı8,XÛƒµòND®­tUL´X9r+Œ’“o<[:vŠÅ‚D.ÖQ°5«¹^³?­úAFµËÂÕá£¡3üÃEñ¾Q¯´ö³:]C¿ì×R>j/k6Â­Ó°è®¢’‰>ãò;0Ú¦¤C‡KŸ¨C²ev5©Ğ´tCY÷LmxfHo’¡.tX6uNŞ¨…Ÿ_î¢QçÎKD¼Ÿ3Ãö2™4ãººİb
+¨†=Ÿç%W¥KÍ$y©ºZÎÀ¡³¸®sğ)˜À×÷Ä9ÓÛm{¢¡ç²(7Øë¡àåé?TÊ‚YH	Enu.äuÇÑóYŒÚ|ºÛÿOÁÛ{ä—2lNÂ
+K#@Š=_O!E‹1*×;edš°±µ9á"o‡ëIgV´¯ìëè‚ÆQìÉU@åÃù€o£ß¡!Ÿk³ËıƒOh<ê±gdºx¼šÓ»¹Dq:¥o’sNö|=bE%|TŒÆµwWã8‘õuæê_¯¿LıáÑ†«²:ãW³îEEø!n—U‡jœ_4:¼Ø-f%ºîGŒ„ Í+¹µÃ'(ï´wäF!ÆYH}+ö”Kî?$øĞ“RÎ¦
+×ÜÜFú=ƒ"uĞr0Äc±+©ËUÛ’y¬üZáxŸL^8NŠ ¹1ıäûË‚!9}¨¯A$
+q ×6O–¯X•»İF÷¼ac—Üà36I½t¾+Øî=r±•(Ë¶‰ë9Ù@mÓÒğuà‘È d=mšòñwL Ø Êy–*:Ğ5ìtÙj¬œ¤_|ŒÌÏÁ$wRZ‹QA6#:Ø±)|Ã½Îñô!.UËEÁ¡Ê†‚jÍÔ'’ìHÕx°8zê‹¥å‹ß“JÌiŒ¡ÀÁ}˜Mk‘ÛZ	+.ÙÑ>c:oO•ÎŠª]F¡I?ª·½SÿåâS1qh“T^,÷
+ĞßJ9ûìó—çÀMCæ G/˜½ªb0+ØŒİÆ¶»öL]2»éív¶ñ½uºüË‚T„~‡–f‚¦– ÈÈû-jZ°ºŒƒ6b…
+D¸g`z†.kƒö*,T]+]©Í¡È”ä×Ê/NjŠtP>=S˜)pÔ!4äÔ‡ŠÕªµ$Yşºêë«í´‹f›½_ñßáªâ¢Æğie4K¨Ë5ÅªÌÍvx|â¡\Ñl”¯z›?Š›µ¤®>cUì}Cş²O9Ã/¯ùµŞšÄ‰MB{rá
+½ì>~f7õà³³¨KÚ,¯9 ö”®„?WÎî¼JÚ·æ0ôD¹\·	àø¹¸.õ+a+<‘¥&„h1	uÎ›şÊ@zEb…ôrGı¯+ç¤áøUws½´.B6½`æP°BØwkŠr6‹Å}‰?°×lë¦"$èì“ßÌ¸ëwi—fï@Óû¿‰“Ş0«~¯§‡œCdø¡E#TH7m²ıŠ[ïİ}~í#ßıvcæc¦‚“
+×¢­å¡ßÃ ô ş"4 ìIM›…T]§ö#æmFÒìÁF9çx)øi‚C¦
+_ÛùÂDöE½yªi²ê7½6Y=h*Æ×–ø&É—øÁI®²nàeşç4ãÙ¼¶îÁv›zÆrß™±2µ©·b`+fÄğ%x}1º¨õCe#€B£”üîÙ§ƒ1,4F÷}­š'tPIO\˜üí«¾\ïêLÖY™ŸXb˜èíH]G®@ÏNºlë"Í¡×ÇÏÅÀŸ5ïãdïÓ!®<†&=Y^uØ¾&d¤s‰ûû½ÂµìÙÄtÓßİš:ü©DÙËMf&`k"x©"ët,ßy¸IVş[1ä—Şƒ]>ğl!U8-Î%N¸O¦?Ü½&à<gLÉÄÏhŞèÈô¬| ˜Û_]„M@…Âz¹mP#Â8úV¸ÓïÎ&©uvtB¥™¦-7zà*i¶i/sb¥9³Ncv£¢P; Ü”å[hçÍˆ]¨×‡p¡&Îdõ~MA#3Ê^…Šğ’sL÷ =Í‡lMG,ı¥œQàè˜zå,o;ê“¬i½)S0Ì51¸n)¬,_Š	fÚÃÙê¸İï$Ü©MÎo!©êK
+¡XÉ–÷-ıŞ®K6K—Ÿû3{ª`i(ù«%å†°w+§6—¬œÀT”Ñ]NIû¨ 0êDPÍ„/éğv7ääE7¨üQ©,NàoXlı"”²*‚G”Ì1’ãBšH4ÒrÒÔ n§|!Kùæ	u#Ğé-ú~%Z˜eµ¨ëv()‹Ÿ0J€ˆÑä^ÜOú“ı–·›«á–n¾Âñ"=HÇÌò"o‰Rçkò>Ëp;P„~7²+áˆ‰¨şéçrËúFô*šGlrÙ¹ÎJöÌWÆ–¬ë?¿ú7˜Tƒ«t6ÿÎxò—åÌ@NCœ—)tüğæ«Üä¦”)&™CüÄ€vl‰ãµm‰”èX…°ãÀwaøÄ
+“ÊsÊ	#«ßØ¥YŠÑÖ5\i…Cr|xÁf‡ñ¨&‚iWŞº5›T-ú/Ğd! ÷e}_ÿ°(dùçŸ™ÃçQ¾š’!i2ê5]—ù‡Ñ•+ÂÙAæÚV&Y«²ñhÙªã¥†W^Ëáé‹Oå®x(µèNyñÙ¬´@O2U‘¨‰Eö˜Ñ¥ÆÌ¦.ı³zt¢»ğ*Ï%{RpG+bB¹šš!B]«å_“SVİ
+’ºøàõ¬ŞÖõ«pÎÜ¸|~]›TëFÛ+‚×^JÊa5„Ş…ÆÛ„ôo®~‰ |™—7]ïNá¡JÄ«åÀ‰†DÁÅ3pZîëg3Hš~ıEÂÆÌ‹ı­q‰‹‡„ ­Ée»J-ö%>h³ èíh¶¾%ƒ»9`2¶Î*†¶sDUu>5mÛ˜‡øúÌ”Dhƒ“<4ŒÌˆ`‚Z2ÊâTÂ@ø³íI;¦#º[K.¾òZPgd,Šÿæ‹2xEõm5ìËÊ›€¸<Ú)ş¾ˆj‹¡ÀÑ=E7û¬–oıôäÄ[ßDúá˜Ö"ğ(Fç©ÒúRÊQ)‡5D£2+{n2{¼2…¹¿tÙH¯
+QXÆKúİq-Y'r)Ş nèØİì™\—ŸT¹A éwSêµpÒí*ñˆ—ôÈ“ÅPtß*xV¼sœÃÒÙƒş{‚a)¥¨™rò~úb¦°02Æ4¼A¥/«Á„‚§­B¢¾ıÜa½a¸%³8ÖÚ¤Tb>?Ãğ×İŒ|0£[0¢æSÒÔ¡À­ÛïÆ$ä‚2¶›,(x 
+¬· !hÁKHéÓIµˆ‡•7>€Şv(Ã51¯/OSÒO„ğ]d²†nÜL£ù
+)*©è&¦N/×ë‘ønß|™xâíJU:4¿òe <Árw»/ C˜á¢ô‡«Á©‚¨‹yR9¢UŠ^^rÎøõh1¬‹Èz)€ç˜Û"€MlÛPg
+q§‡F[¡]²r&¥Š¦Ü"ç-¶®³„oX>:oÚ®+”³™ ¶Û\TjŸ$¼°‹èS}ŞÜx27»Ï,"Œ‰q”qE/ª'ÿ‹Ê-ŒlC	2Z3±—2ôõIRşY«NØi½Ã"ÿ¦3Œº“ö®ÀÑjöCÛ¼ø)“ws,Z;Ä$¶ÎT°ë»ÊÆ$PC¢Êœ `®¦†ÓQÓçhN®ŠeõKL†ôôö³ª NXw”4‰fáa´e~©wä”J;a3©Êa»~#Ç÷®»dë›â…¶úb'AQVü¼Èş-ĞbûãÛØwf/WBLk~o·*D«&W}¦H’Hßë	èĞ¯$E?s·&(õá
+‚”OøÀ“ü]j‘Rı½¶ÿiWÄËŞ×¼Tó…èßÔ“0£ë_šl°+w»°Åó £WPŠ¥úc—÷ËŸ˜©Şµ÷^âÕ‰Z’¨Ş`ºÊtËªÓ"À¡ êrÓoÙ½ÁÁÇŞo‚,Šñ­5LòÿÆZ˜Qs46P¿jå6Fµà:¦	éY©äfß7=¿™¤fEÌUˆî—|Ş{“=Á"¶/²ı`ÅÜc„«¸IK‡ÆÏ¢Dp›¢1 ˜®áW¼øÁ»2+E‰Ô‚'2ÊldK¤^å1³º‹
+¸=û³Êx™ìËÜ¸w#„QÌZ ÁAXXÁ²ç¾ ï£¬
+îé¨ä…=Õè(ÚåƒOà&°û:Æ¬,1c0ïÉRqK¼O”„àš;)î'L(FËl£7†lÂ©#èªwSı+Úä3L(|s{•$©oKò¶ÁLÌ5Ã!Uknë5ˆ–ZØC÷Í˜×+ä²ËÄ¯W!=Ç«ãy©mğn,D¸¤M˜5)M¨)ñ&–ìæzÂPÌz…!«ŞÜ·’"I°T*W>‚QOØ«¬”•v¶’T7¬¸Ö…`¹ÔÎg…0œÿSA‹†ÁHØKÒĞwŞ[ÚÌ¦(qˆœ—‰È$´vĞÜÇ¦lÃäË™8¸½HV‰ 0£AW–]%²¼CÑÏİã˜”!;	À'¦îÀh•x¬j"Õ)ìƒú2ÇYÈ%Wİ‹w´]>‡xx¡;Å›Ø˜G‰¯#ÔöÂ4Ê¾Kñ éò¦Ju’ÆI?pÔüöî3cb9{P£¿¥‚(péhª«Fˆ<È ·¾‰äü"”‡Úüm°AWæ}ê=SB!ëñçÛ•Èó­;Erât¶òªé pÜÛ9Ä~ı¬X5PNÅ tòT¨»fq­Ûg „ÌñkÕt«0.˜óÉœ±şfí™ŠüN-„¢ŸG¼P?tt½këóŠ&^iOxüÎ‘²Œìá]¨âx|â§»UÆ¢Zvwá<—‡ù4°‹ô¡¥½)î‚XzoYœÆGQ«kêrsz»èş8«{•2Ëš±ß\ÂzO„Á­?$­Ì/P‰yÆ{I2ˆ…ôwKŒlø‹Ö¸ÓaÖ¯/ne_É½u&IC×p;nÎ1F]ı~t³øx¤ëJ(ïzƒ]„RyÉwã)(|À'ªûW/<6Q}‡ğ&fiï3@òÁºÀ™sNÑ^ª1ûDS=QêS“É¨n}-Ä6’:Š­CÃ‡9N×Õİ–^ŒuHÆº{H¶ÔZ Áñ…"!B/|E€ ¡†ÓòŸåB_ºùx’ª“b÷Ş–2¸!h\	h+aëënŞâe‡"6ÚÑ‹XÉàXOáæ[^øİz£›Mø%Wò#«@X´§ŸÖvâ–ú_­~ıâ9lú:âM_¹ÌUÄÄöãyÖzºß/f“–k?\‹“ &q¦Zx2bD˜ïÙãlåİ^›Øu6¤Æ­Ãö[¯ò]v|_“~¼Ş)º.i)ÜÔ×sNÛ~—ÿÌ÷/2?MüŸ£«#>¦½{&ÇâøõîÔ!h‹ß³.±Ç6‡ÄíneÓ«‡³Uê+€€Á.ZT•`êˆÖX’”8ø,jÖoŞ¾­?ËbØ¿™1½hŒ±¨øÅ‹Ôğ#ÎÀÉZN3k­¼ì-|ÅÉ„[Ä{(SïX“+3 ÿ4¦*uê¸üôkzÅ««\‰Ÿ²–ÙÍ¸Ñ ›¬!@ÁŠ]È'h:âŸÃhf“Â<P…ÎÒ¼?âYPó•Ş49%Ü[ï¥©e<dÔàjó©Á¢¼½eB®DÔ¾V¬Ë;+ÆûÕ´&’‰™XáD¦\oáv$BAŞ7ö¸+:‚8úıBñÂì·p
+Ä£¾†"ï>ì’¼ş4Cg³èì–³&z\k¬ |¢–«VlEì¸}µv"@+ûÿ­~CôusU 3F,¸Âéò “=èii#ä°¨@òÂqHõ¢w°€Mj¿ûIWi£ıÉ]ä-¥"ÑsD¼¿”>¿-äÕÜ¼t$*=•Š³ôUO$ÕœE"ıT[ÈÏÆ)µ¢‰È ¤1ÊBÆ ÄJºxHÈKÆ á'êA …¿nƒ‰÷åH²Úq¼ kk2ÕeÙ²#`©Ì¾vÈ³~Iô§S#¡Ñj 2ÎËm›²Oê³âA?72¼US´¯M½ÉßRk`
+ı<Şñü÷|²F7ü)úó1©›­O®bşXOp ª4¨H©ÃŸŞòˆkrV-o õí2$Œ#ƒ<í"«Ï~YC\ŸÎŞéa6ÉíW nÿçôI…n£Ğ‡ËX¿ğ.Á‡«]v”,:èûÀIN×îŒ”¹}‹5io†AÄlrÉRT–³Rç§Ç<ä©‚ c®;|æXÂ™àğ³VÌŞÍ0XÆñÂÔ‚˜õÚŞäûßc09(¤8èšËŞ»¸À‘å—¬ÿ—°ısZÃşt^Ğ:	#Ÿ«¥åğò‘Ü0^¢ÃnÓÖ4dX¬X›\ÊÇcBòÏK®w¬¯9@.”}”Öl“?*Ê0¤QB—K®æ Ã]œ”#>T5Iİü¬ºo8ahëBªV—¹Lî…»5ÊÎ †Ãn‡*¶æÈ{ôàÌyÊgj·-Ø%——­#e5aÔ1Át,•u=?ìVŒôïÏ­µâGi;;0Iäô?Ñ<6ÁûOÏk%à‚¥rOf6½¿®hqéV¤ç£´ƒhĞp$¬æĞ	 v+µ~î;§¥¯ç›S`ÖKZùèÕŸ~Õ	ò®ƒµˆÖ°å'l¦^ËºÙ6íï+ª)$´j)Í…I	Û¥¨bğZèS‡©¢„¬l ÉšÛø AÍƒû„ZD ?â{r•ıN•(  á)¶¢Î±xë–Á/ŞFq¬ÑÏ§x[äLôùÃ>Õ^â¡ kíúÕU,3&k)x×‚Æ®Œ»Ê]e#+ßo>… [iÃÎòwyMlzVMÕo ÒNxĞİ	ºé?µıh…òòs8{ËqáçMv˜ª9r¶æ_D-‚N6tˆh…ofégGD'èI„~H>ıewI+r($~Ñê<çµçÂ†Gbè{¾ù|ª˜&:D½¯£}EE×ª­p—"BOÜÉµ Š#ŒC§üÔtî"âHR³ÓEÃq“ğhüù[™¢”îb#½²õLª6m&ß l‚Eğºw'}ú¢ØØ))W!^=Æ©gr®véå œô¯]€D‡Ô:˜™T•y^ÃpHÀ¹ÈJq<“ÙîÈD«öw…<ºÖàÃúW5±¶Ú›‘{WÍZÃ©•“PÉx´&)|óá’¢Éo³ØÑâ!óCq3w›f¡<)lHõZA—£àÙ0şîŠB©­©#d—İŸ6ÛmöNŞ©³5í‹ŞıBı/Ç-ÿër†I±OÂ
+G”‰3Ë07ª’Nñ<|Ô‡_YoîÏP‚?6>X6TDæ§Û”¨ÆOÏĞ	ëcd=vKå;¨'Ö_+Ò“²î?`óHĞLZguÄüY[•=…¿x«—« ”ãiïPÇÄëÆı°u/ĞOò?˜‡S—
+*.OØ-k½íÄ*lã/óYçãÍ°Ò‡ššØ&§<ªå:uªôİ.2ú}çˆ0¬À`	È,œ³¾!Ôÿî¾`?ù´æõaøÅ/sUŒËæ‹  èê1j~Ä ,êŒpåº±®¥›æcòÔÓ1r“Ë‘vtK%kœ©j&ÒÄIñ%®ƒä,ï#y?Ók7Iä&Ş'ºa«PºQèì–§¿€t¼/Ùİ“å]Æ@æyMEğÜ]ÛKb9¶(e…ÃñµÎ“,Õõ#Àòë!ÔEØ‚çÇ_Å´•dàÛ"Fé•Û{TUä8¨³lR§ZÍ.ŠZ9Yf¦•c¿gÕĞrãÏVqmn$ğÚkRÙËæ'ÌlôeÖ¹fLËò&ª¥Æ}Ê¡6·d‡.‚izÙ	ŸøXëI¬ËÆ®wYM)-úÍüÏÔÆZswÙŠ;{¡œ†´.ğ·ãş¹` ıeûZ„!C¬‡ô:¡çO/©`’;¶»+_ 3/f|TFRWÛ‡Å©McŸ}óÌÈ’Şn•ğ‚ºPÊ`©mF	ùœÀÉ#ßúıcîà|ß˜Û¥›ıõ6œçf·[9¶÷¾
+GäûäÖ“ê™Y»Ø‡‚Ø.{ô`^ãÜ…d@eU¬Or5]ìçË²Ğ£ÅÈ‰HíGaôê&N¹£rÑZv¹Õå÷ü]Rè¤´dó—PÕ&5ÖuKj¾;…Ÿ‹ı.‰J*=YâUúšÒÜªTÅŒ© Ó(râÕĞJµf`{œ˜š°¢)í%¡³ƒ>w¶ş 1BÉ¹'ªWİG§+ÊwRz¾|äDqW"³§Tg‹I`iùÌ& º¯T¥¡bßÛâ×dû! Ñ¹=kJ‹ ¥¹UÕXİ·s™Om±É$Å™0CNEúÓI¦QÙü}œ\ª:
+¸CRI¤ŸWğ/»16/‹¼ƒ	Xœ!Ì?
+/5>Ôd¤Å)lú5ÖPögß7—‘2¬Du pº4¾`¤¹å?›ıD×ß#jÇ5.[g¡ïp«;Â²vAÅâfd ¥fğÔˆ4ÏC§z¹TŸ±kRiLóÅ}œ#ƒé¿¨FH82ô±™ÈÕ)I±Õ/§Ëı)¼O“º»EfÖ1lU°_>â.[³şe½ğ äGÎW
+3¿J¦ÿN¯s~BèÓ2b,[‹‡*ßÁ7Š¶¹ŸvçUÂ±%¥gëÍ·Gy¢9º]ûüV?qÈy&ÀÕÔ>+õnlTªiĞœ¬tlÿ¹õ4Q>ŞŠŒ%]Â°LÄQ ØÄÄõdB½,ÁÅ}£a[ÁX	LÍ zJŞ‰«BÙƒ“OèUË¸ì0òtüšt–vº¥éæ–=²
+ê©ØöF¬†«:şçÒé´TºÏ ĞíÃ™ñ'‹›YÍPÉ)‹…5iIÚEˆ!ºDd"€µA.?æ§a‚ı1¿B4œkéTÙ+ V`„FIîÎû\œŒ±=ÂŠß&m•šy„Â”\AğËjF^ÈSóJùV¯ÔÀ,tèÒßŒ¥`lE½©'‚®~2­ĞxüU¥}w±ÖQi:dûÆÂè;(LenovàW¹Ô%Öœ]¸8øk
+#8ÛÕõ[™mÚZOkh³”÷B¦€´9F ƒM©ÜÜ¬§b’OåÓ«RÌøÕÇåòƒtiò $!•Ô#·kq{Z¥‚'ïv$¨ñv¶Ãôæwƒ6yÃV/¯‚ ÎÕrxFß"B04õçEyÂ;ÕßwoœMÎ1øğ8¾— ‹E’+¼~mÀŒ©)¾Q;Ó/ˆGÇ˜`±n†´*_•DõXnSØÒ­µƒ?1dT?òğ4¬/GMû OæÜ	L›s™İÜà,êÛ\M¯ba†;˜¿H¸¥š8Ó|{|PÏôŸáå°j-ã²øÎ˜û ¤ÎµŠ]5úï…bŞµ¥½ğ³İØÇˆg(€$ó!" ¯ak
+ÈÖKè*$¤}ÜC|K–lLk\ væYÀ²Ù¡rüèÑ~¤¤e8ÀOÖóÏt®ÄğÚmß°°ppû6à	eº’¦>$’°Ü•ƒ_z«tª<ø5k4Æ“¼#û€(³Og5[z¢ë*ùå¯#-Ukéú–KïÛ°eÃO#Ëªı˜ ü.}fv°î0ŸQ,]íR9éXr¿M1î#æ¾©KÒœ^¼Â†dæìWyÆ˜šGÍ¡ş![z³ûr‰µâbaH×cå0ŒôÃá®5D¾şá(ë‡mG@3]üm¦§†RŒ=„,H[¶²t¹Ë–‹?¼:ª²ö-{4ÙV£ˆ¬Å&£ÓÓâÛÀVŒUAÔ‰è`)D²® U%K„RúeH‰vh/&H¦›ú8(–ƒIJbH~’ôV™¢•@VH(D––E'àxœC«vR9¿„0z˜Ó/y`¼™hz¹@|Ñ¡õ¬ë1ĞY2ØÑĞÄëÏ\´ûC¼ävpªŠ¯prUÇû<]fÒV´ËG›à£+uy8AÂ~yƒ–D²P=É…+ùYp´ñİNxºßÆ…+HJ†nûıô]Ä¶r%5Ô@<ö÷$½÷îd}=‘J|a‹á6DÜÏ_M¶+™üsâvjÜIÆ,ÏC€çYt‚ß¤›D/Ş–Ê>ÿv¼éB5ÊˆPC.2,±™šû²d|+C¹p¦î@à²?fZ„‹.D;vZ5“ßøëukJ•¤¹°Ğm£ÛŠ0nöDf£şWvïVtß?½-hà$¥ÌyçX†ˆÎ±<"ä`Ù6"ow=vùC}ó¥L7µ1@9A&V•»y>6d†FºBİÙg$1îDÉ7
+38‘9ÑauW¡FAæşcø@`‡y½y;’C@„?ãğf£&±ÂV]ğ·¶'Üëƒ0™‹{â­c6º8lòÀ˜u¸’¹ ëYwTÓ1æ‚¤1¤¦LõÙĞ’µw Üm±õ}4Í{GøJcJ{¼7àîf÷º#KÛ ‹S?#Ñ½Üw…
+f¿<×êÕŸO®UBd7@İ¾bízÖŒ$óëÓ’JæÈ*€¨Æe‡zF¥uCáLõlé–Û×Á{«åXneÀ„9ñ:µ=Ë½°|ÒÈQÒGöI¸koj€œic9l¿³˜¥:¾dñê|o»¿$êbwèÅº SX©¤…PpÊú›Å¦©ö“ú´ÏyÂˆ.j›Dç²èQ©üáù-°ü@¾òÃÀ×X!!.ŸIR#!Š3³t$_¿YÒPpˆNœWDªŸcf–şÎ;iôç¥ú@İÈ1B£"Ç³­–¿Öz·{ø=MšIqİ»2ÖAlÖÒr™®÷³[Ä$œ­lñlûÉéÖYd…~z°á9qí+Iùvå«€ãb¡FT²ŞäÛ%Ê’&#G«Îí{o´ı#1™ÖjÜõ©‰×v7r¿ç^OüEà­tQ•ûåÑH9UZ:«jÌ+6pØÚ–Ì6¬³á„YA{ÑŸl•ğˆøƒP;E]jNƒÅXgí-èÍ¤Ô¶i{>6$dcx%0qyË°Ÿ+ŞÙ¹öuoînm	üÔJj¸d€Q²øÔ}ÓT–x00vR¼JœÑï!,e×ÆX¯È(OİßªË¬’ğ!z…—zTAM‡¬ùº’çu=-‡dú®†]c$tü‡p|h½A·Ú‘•ğÓ;¬>NjşW”ùµê‡	 -u\Ğ
+ÿ$±£@ŞÙÉ½ùxo_'é	r¬[N:Ÿ[‰ÉZªîº7ŸÜ+µndd£%Ş€âZ·GjHÕ"Nå›ËÄÎ\J[ WW†£!¥‹0ÊÑÖ#}Sr„¯J7šÖæĞ—bÅ¶À“³X69-hÀ69·3ì<Ç8ı•‚»‹q3ËÀœ'OTÕ–à]1Ø$^êOšänõŸ2ª=-‰0)U‹Áb’|cŒĞÿí³ã@î-zXÖx¼£Ôi››°v«ök÷§®?°­ JKBb"ıÕÎ¹.ä`«Æ¡i[Äo[?‡2£İÔ;ò¾`_\†ŒC24–3¾qd•€\Ú¬ÚËâ/Æ­»_óìÜío¨”ã~t¥W•ƒKm¦ÙÎ_µÊæ´X5•¼îŸÜLëx ‚ß½D7pËÿ©ñ;èÈ‰±Ô}1—1HMØºÆªuÔºôVµÄùæmÈèÒÚ–¼\™†¦xbì¨Ø‡Ï«5kÊ#¯;crŸ?]ÁïÚÃ— Ò™û v‘õ(£¡"Q– óÏÃA­Ç—^CD¸]eºç-3×Gf9uúbF p¿ğÂ
+şb!ëGo3MtMip„÷Ü%kÊûK%ß4¦‚„.B·>ıÙEçã‚²§çøË`Mg›Ê:cr…$ö_à62[åÌ¶9¯i#©¾†–ìIÕº[…!HÚå…øÑeK¨g¿GªcéåÎ–éùYSo`šÿ2R¢ÍÉ‡¹_â‚*‡iÎm+¹¢ç8¨¬äqAwŞg¶8=×)ÕkT:=%ôU¤‡ÉğïÂ÷ˆîuR¶%<Î­¦ãÂ}3²çĞìGn”x …¤*üRm^®‹nÑZíü„o|ÍŠÖ]ˆùjwP F@^‹şJUr‚W:ÆQ^
+K¤>˜é‹Gù…/#³5íù)¯`	~zºl2ÛĞÛ×ÅU‚scy_8¼9l¬âs=ˆğ%\>Ô½˜®î¬uêa­¢‹Ë¶[‘Nú*=—„ô(÷¡fKlÆT=HŸ€ÓÄ1ËÍ
+Ê—)ì³Ğ¸iÚäæÓßClÉ/†ÛGî«®ÆY›Å«Ú­àV,ø—9ï|xûĞÓXBP–Û%† fnØøƒ”Şµ÷Á¦ÏBe1-_¯ä»ævÃuÏ‚Ô¸ÕiÌ9(GvèÆP/€Â=3ÆÜöÀ§Œ ö©W†Gb#teAöDyÊ%hAô_âµòãŸh > ;T”B.İ¬,ŒnpVLÛÚ
+ËÏò‚Ÿ9SÔ9ºMaFå%’—rE_ÎĞ·¾Oò¶}£&çµdFÁŸ'‹ür5Ö~Ö/ú2G~Œì0G§î?gØx6pÂ'$©Ÿ¦±C¬tg`Ù5dÕOÂ/ZS‚Àÿ#(²íB]Z7{£ÎÉ³O_tŒûÍ,ÏÑ:†¶º4Ë‘6OşğNH©ÃZô
+	xh,¦/&Š¯_€ìâíúƒ+Ù(u%¡€®)ŸaâéŞRArÙs!F›Nj{z_ßùèKÇÔ‹€Ï«oˆ4“zÇl46jÒug†¨F¨º_¾^G”t±§õäÏ5T%‚P¸èíè±ëÒ!)¦èÏî9fWpT“ÚÏa¾ÚÜ•>NsÒë[œŠ^}¤Ì|OôkJWÉ“OëN$Øá‰So+2³¤ˆÓ‚rÙ+|!ÒEUâÒ¾Z¯gÊœ³J‰J#’·*à}¶»ìCÿØ°°C Dæ%<ıÛ´€U½3ïã\,-5–Ş—<)£2L…ÔãV]*pw_Å¦ÜV~’îpâ™ùµÎøgÛ;GL7¹åxWŞ[ô1qndÈƒç A$rRLfY§Bˆ]Ğw;¿E‡(şPÃ¬ùAW—v½B4ùÓŠÁ%.«ê^ •ÄDJ[ÿ‘´-{»òej>åì>Ê¶&)Œ<Œ]÷êL07[Jb“êZî|Øc!E–(úr4×cèE[ÂGŒ½çıœopüRU‘ş¬¡ÓÅ“±‡$Ø=ï;ß$pt£ğÕæ’qÓIÀØ‘ó—mh´\(IUÿ ¢ŒzTäÚÅºæ—–g›|è/«ø4éˆ<®§‹LÏ¥ûïà<*w_uÊçÂÍ;É{°2L¢şxî/•@önX,¸t,Sê¬E9ı µ“¦„¹`ùK#»ù… æáB˜-Ä@[s°-0ÕìÇı6)—;işùjéêbº‰2BŞ…-
+Øˆø@Ú'àÖO9h­Ğí‰\n!œõìAn¾2ß+¢JC3
+G¼½Ô<×	ªp”Ã_âÒ’pLš”óBF"îõù+ü¡‰®¾®;CíBÀOĞëOŸ…§ŠdëòÓuğ3:£ QAc9¬>Ì¿|JqX‚erNã„Wa±ò¬U¶³UíŸ˜ñÔ©Æ*ùéûoàâC×ïq	ÃÛ	/ìÆS.ÅqgÑÉŸáÿG)Ûh!ázfb—¥I¸;>•ÏÖ#Y—8‚©£Kã~U¯CÙ_ÃN¾Õ"”Ğ\¾ºâÓ6å,/¾ö.Â&)ü6-bƒn 5H¯÷„ùñ"k¨AıîgI%vÀà¢¨]-•[ö‡¾@Bæ§o,©OìYˆ4`^Ó—&Ñä~g·ûmï^èô]`„÷KJÈ¯.Œn¹í³Û"eEo ’„'C6\Ï??š¨o5 £æ—Èü)÷¾Å³ìQPİUH™™¸7”½^'+÷,=ô	ä²5MJ‡ÚD99z—,=ÄËXŠßÜ›¤áKÈpu÷zãü‚Ø,­2ZÔY–zÄº*¥‘œi¸(ÔµtKëhå¸;ÏÍ¬6SåKÄzğ{Dµ`×Kô•‡g’O¤3öyú­ãÅ¥^SÒ
+›PÅ‰Ô…S.=¨nÔÇĞu&ØÉğ2+ø"}ÃğSÁ¥êáˆàµ]/ë‹ =ıoêxî[”j4na)ÁLä#À†¹²`JD‡)~á«º¸;|<†*XÜu²g†è´ñ¨îlÄ…QÈğgbÙ_o»bä›|ï¨û´¯š¨­‘(Z’D‹u]V	|ˆÿxâ€Et’;éÚÓOz8/ñM{;®"¶NŞ—Óğ÷¥&ØĞ¶Ç~ã}æäŞpññˆ2ÜäNE3œjé-¿¬@(‹R6ô|2U-$wª×ÓÓÿ.˜´ì‰adˆòE³£Uóš¤0ÇîTæ*1ceÎ3GÏİèõïiv8ı©o~õ7•8jdIitJ1}Âß·6tGŸÜĞNƒÛJÁ:4^ßÁ(|	rÕ¿Q¥zrĞyùƒìÔOõ8U¥[¢™£.ş¿OÂ$l‚M¦çB
+–¯Í6gUÂ€J”¼!dş}¨YMˆŸM‹ŸzYAÔ)í	­ Ö;Ò(yTeí¸µÒSìMdöxvŒ¦=ÏTÉİ€–²³Då›œĞ¥µCše¼™†0	œ„­¤BX^	õëX,|æÌ[FM©r¶ËÆ˜G¤Ù†Â(bóTw—şÆÍv!^óz—ˆDÄˆàáC•ğË¶¨.®ãk
+î£¬!Q¹2oO¶“måø|kñ—Ï‡­Ÿ3w`Qƒ¸Ò3å«ÒL¡	ÒÊ»IG4,Í dOÑ ½å¶w¢Œú…ìÒÚĞ¤Ïµ‘oŠ6Õ(œzw³8Kó),ÕOØºd#&ô_Ô{Ú0³²Ó“îDé#ôôƒÿµózKş”w¶ÂÅKç±@W}“1B£Aì€VqwC…ÁeØÜÒG¡$0‘?í(BE_ÇFğ-gàÃj$Å¤‰ãÏP¢Õğ¡¿c§glŸzá¬r-£±ßr‘3E[Îxg¸>¦JXÓí¿”]Ïß­KzîcÌ‚N€@¨z
+ô€oOÎ6Nâ£X=Ô®í”À†66o««“ğ}ê°üB×.<ØNN+¶w¼óÜÄùPD Íœª\ÎërS™t[¦ç”UÙ¡…â¸ät ¦ƒjÊÖÒÕDwÉFGÇ¯ZÍA™„Y¥²¬  Ë>®ĞÉÃ½¬Y‹À´x¡ñÛ%»#å†‚¨‘8*¯ºÌç¶§Â¼3†ÿ Ê Ñ
+ß¥‰=.^´dü¿äÄ—ñáÛ1òötÒ†”é[¸;QÃësj—Øé)…tKd»£o•1
+Í‹H°©Ù—‰Ha{nKÄÙ`RG.­2µïZ 	L0+YUà8¨:Í_Cêªgİ\Nè«7N@ŠBtğ´Q´öPW²´0Ûò`8HK%)®[ü 6Ş ßíÀ6Bh¼«3q.’Ç‚um¤8&pÇ)íUv'ÆÈŞÅîh	&a3i]ºÅ‡Ò(Yj+×ºoMğxt4ÒslãQ7Ë˜”T]M•j7«4cğU>ıÕ…æíè{™Ä{š65xMª%vC†J¾Õo•lÕ…Iãc»[F ò†0qæ¦€aîƒ5‰¹WI «”RÈô(Ç‚PÃØ“R>—òì{Z€œëğ¢öÃàj–#ÀÙNÀ}ĞĞÕ],ÃZ„Us[‚K»¾ÃÈ6ÁÍz4ÊÍ1š“bZéšÎŞ\ùAGÉ?Ïnœ–y¯gğ²šV³¸~QeÕb½áTz-8í•M\lÀvÂÁ¦Û£²¬»CF(…ğ ¨YøÜÿÁ\«g¸øt`‡÷Ü1åƒı=:³Œó¶¾HÅã€2¨D¶eÉØÄrMğ-šşTÊ>»6×ª|à0zKY6›Ê!f‡Fâ{ºfh1é\íãmdyß}B*©;ıP‰ŒÊ¾¹=Ákèef¨	Ëú.*åUån—	wZµ>éÆmùE1”û-RÖHüUÊïP•Eşôš^˜‡‚æiˆ»yµİ…Ë8Õ³e‹=Şğİxë—¿m>ÉÖ'Î|s}€k{†+¯ÅÅV<¥ğG% 1Ÿvü‚7W‰áïıÜØJ4Qû¸²\‘™8|iìã‚j»cE4Ÿüƒ@fŒ¡=ØF}zªáÀŞ§6ÌÉb›İÑş/AzdøMEÁ0½¨476ËŞ½×Ğí‡‰–•jAg~P;%]Ùc8ÂÊ¬¼Ì‹r…IM2İÊÕ²Òü8
+ƒY¿ÌÓ”õ’sf'î¦¤=ÑÕ7ì*J‡É,”Ş xšÕ€ui	şİŒõ{AÁW²,—6?OÆúd³ùiŠTÁîØ>»šVª>•3Ê¢¬Êq–0·ÅaMÚ$IèC¼Ë—z«…0Çøt¬CÑ4şËÆOã¸%
+Òş¬Êº©—q<UÚ­v·ŠäUU$jQ­
+Ã1Ët«R}±ø&ğùKFL—f'2îØh†EÅânm²öuí ¾1»º©¼QÇ`ò-ÜôŸ½-ÆÉÊwÑ®¢ï—àC¬Õ¼<y¡)Êv;vx.¿Ô‡CÖ‚d@†úWÅ×¶­UYÔA†Lb?t“î¬‡oŒåÁ,â\)_-}Ü…ü¾f„¤Ï§a=)ú”/òûšñfJy€p¡M»5ùèCZ"ñ•¢¢xZjE°;Ş}ìCKµ/²(ïôÚõû1÷Ç7®óãßÂf"ü]öb¹H¡jc¤qô†iV¤3Cš×€ğ^Ê‚˜£-ºª¤¬ÊK¨-kê%ƒì’eªÿ%µ‰^J»‹Ä„o4®d±³E?wÃ´¸M†-IÜmtÍ	Mx°q™Û£Š÷)\)ôì÷`àöñ“Sàl3ø%á9$¿@ˆ¯Ní ìê1.ÉİĞtb&qŸåRº:’yçù$]óªcÔÚ¤Ï|g’Í…Ä£Ë‘­Ñ¤ŞjÀ%ƒ~ B4bò,B+OF&º"äÙA»¯[ÓšcÂìh×áñÓŸ18Ù)P.ÀïŒx˜	’^gùó—<æ„[†ó¼ñ²¥Pe§dOÒ@
+ÈÁÙ‡¾kœ¤´ ğJ°ğş™{ÜÉÌÇbß§3\ŒJ(ùDô·ÔŞk×]G#:·œ!x»·ìÎ¢Âˆô/¨_"+ƒKzh,ÎÎ¬'ÈáªÉ:„‚Ë—QœÛ($ğûü>cÚ5x¾û:òK«9Ş	@e¸p°ûĞ½ö +øfí`X~’ĞŒ××Éğ—"¾¼M3»¹û2åã¹¢§j¦ÒıèŸ2©Îİ!y1èÄØ§i<Ì˜J;ì& êıü®Òğ([gè8ÇX`¨Ó:¥Aû”'3îã±#vP§2¦G$ú•	×e«'?ˆˆóòåóÒı¬U¬êïiIº1é]–¾krÚªt¾b/=¶N½¢l?_ø¢òÀ“^”xbJıÙGF8¦(ì	Gß¬&Œ@R*ªùÒ1—#/7)UZŞF ‚ú”îvŞ a$7E›],Ã•#’şBÖ7Ã[«pD…`YEùZŒİä©,ÀŒ™{±oÒÆ‘8@bÊãq÷qŒ@$L×ÍÆÓn‰‘$ä¦»È'ïÕÈ[ŸEfµ2×wˆÇbK¹ê(_(±ÆQ	ÇŒsØ¾aÈ!÷àç´wª úvo˜‘;8¥tŞİkv:.3øG½VúU÷ˆSÿ‚äõ›w Êabït€|MRQ™œrAdfær6'£$’ËCµOÓT0(ıxî7s|í­NåßÔ-œ‹oáˆCıÈ*>ĞÕŒ`ùÈhÑËÌR¬ÒVâwköŸÌBCĞ«Úi#uö¬¢æ…é¹r|ğ+4†A2Š´&¿§íÑóP<tPÅÄŸ–ßß%#ÿ ‰”nÕ•—Q÷{.3§è.›n™şó3ß/mI;ÿe'—ğ;Àa¢w“êğÑšùK¹ñ>“µÄ$kl¢¡¤¼Å$ß÷ †qÖMÎ³¹ÕA”Î BªpJœkpÂY‰!ÑShskÍå\‰"€Ÿ²B7Ôk
+5%¨|¹·è–ÁŒÓ©Ôôfğ•¬õjÆm =4Ÿ²C¯{@õü´EBsm<ÆK¹E#BÙ—6cè©ÔÈ)»lÍÿ~G+Tü\Sµ>nüY™©ÂÓ`“ªÊ;¨ĞM
+wæFëYßT­0òÀ–*æŸ€šAçÍ³êQr½g
+Ú¬Ÿ¢g2´#ZÅ%›¶T3†ª ÄŠüF°õ¨ÆËe¸Z²ËïÌ0'tçB!ÉÏÂÆSÚf±V§»d¤aœU¶·ì¸İ5¹#D%¸17°P¤’2Œ ó,Êg¸oÕó{@¼á¾ê-ƒ<,v‚ƒÆŠC.°½Şt¬€(ÑÙğ=€ÖÒ…óAÜÓ¹u‰íy£zy‘ ‹Úã¡óäÜÃîŠB«¿ôª­‹ü»P§vzêâërÇ×Li0cº·Ÿˆ$Ğ\Jö´#g )]>wo!ÏØ¦ÓäŸ¨<ª­È4»¨ÖÒO®ğ]2ş½š
+˜ó=S[=¿‹‰*ÿò(tj0ºÅnÂdŞeÒÅVâSÓdK)qÆ‡L]Í;Ş>'ºj0ÉÍÁI@qL@†Ü©àEw–oÇ²"x«+Ù¹¿ÌJäîPT¶‚¥QùmS3$àë{`¡˜y±áœğ >ĞIÿ(ZZF”ü¡&`SrÊ_gİßÚqÍ”u_Ï?¯œ°™í‡¹K·Ùœ*
+ÈBÃû<îûÙ.[EòQ/G¨h<‰^dMû½³Ğ8\ãĞ¹	İF	¡(s¦J(¥9ùÀå3ƒ¢Ÿè.é^àü^¶:‰Qi(çSÔg,gôbó›sÒ’‰nhÛ¯7QĞD\äæÎu+ŞN´†Amÿÿ02¡5p¸0ü&áeXÃ!œBİÖ§ÇÛÅ6¨móâèu}‘FØ¡awkM„» &êfæv¶í6uêÓGá2”4¹(˜ôô‚R«äœVÂ2™½òè#…7ÖÎöÔµ"hE”o3\H|—×oCª·Wû8í-·²¶İX:Ì¨õl?^¡İx#”Ä[
+yÇ¿G€1×F©Ätù–¹=w¡AœRY$“¯ä·¹#Ÿ½ld|~ğï— 	Ğo‚Oßúc»R®™ì,JDXCHã•ÁWGøŞ"÷®”êäóûº©f–÷dŒ£d‰8™¯ÊŸ|VÃQaëœ1+qhBÃÈ´ØÅ^MgzÈÑÎ#»	ˆšXÍeò#û› ÜÈŞšı[%ìuôô©ĞÒAíRı÷¿]N…¡Ëwæ3üAG‡YoÌ8”›”¡Ï†»šuoî„ì =¼¹M¨?¶J-€ÓØTÂĞÉ!ßoÇ§e&s<LVçöÖúB\•º}İÉp‹S`TÅyUd¤I×È°ês¥‡eq	mb
+‹õfä¾J‘q¹Â{PQkI—xØ®ˆşRö©!½ÚŒøUvVæx*>V~'Èàş‚rÿlª1ª}GT
+<	\®Üu}[éH&ï}€ÅVÄ…ãmIkSÉèò3|ÂAˆ›]r­kÂgìŞ)²´‡à³+v]İy¤¹B¹³¥úüeölÕòXNÿ{ãˆî›9½#kõ6–Š¡úÓ9ìı“h
+éş˜ı!üÀ.<±M”Z;¦dõP¢…G¤İì2Ø%gì%QöGßb\n$sKqë¼ò<Øà(ˆ8ªÄµÔ‘ æ7ÿ]Fc¯Q7Wİ)İô¦cºş' ,÷Jû]ï-±=ĞÉsŒaƒœ.çc?ÛU|—5U¡JéiõÊ¨™í7~ÊŸ¤)şœâè"f;-0R|â>WÉx]ë 2ùãÒ=¸0ªŒw3™¸j4¸Wû¢LÑ^MÆæ•ÛØ&pØy{íhTKèÅt÷Ò3šW×ÃÄ§uÌ‘%½SÓç?ƒ¾‘ÎƒÔ–Ç€–æ J[=øÀ5r{ú©gõš˜äŠ´7¿^vƒĞ_İ¬4ÚOµäeÈ— * Rf«ìAşÂ¬È„1
+`ã€sV5¢²°ïò}w%¡T
+j¦b¼ÍºÖbgÏ©«{?Lİ¡0ã–oå’İâÚvûğÄÚ;HMJª4µÂcx\<LÛ®ÿ¿QÁxpei}Ìº!Õ>¢æ„-÷µü
+“ãk ']—RİUüûaDŞŞû(´g^¡a]€7ß s´+ SkCüà7÷0A¦¾?¨inARÇ/®¦¤­^GÌ¿v
+a©‰ÎØ€@–Ğ÷mLÆĞ(­I[J=”¬jÂğÁÏífîÔ¢<fE
+VÖ·6±l¢9w»C9ö„ï
+Ÿ¯ú„/›¢IÊôß>h#>úu¡}¬¤£í(ÛwÛB±¤L›–ûbm‰cVˆ£42Àkx ˆZf¿œ²ÈªŞ8ñ%À”‹!fÊseŸwÕÁáÔ}ßzdÒÆÓÙdÚ½àD’ÓeoF:ëRjLk ,¾®ªëÆoı9×ßKãg×´Ø[-ãd¶¾K<í9ÖÏ}¢¢>‡ó{t¸nn¯õ§=?Ü0Í­ÎÓ§Ê`8¬Ú"eä-¤ÊË·¨Œ~nN´eAÅ³GİåÑ¦œµ”äMÂh|"’X[tw"vd7î2Fzyİí‹Xİ|ˆZêëŸ|</úXó°â-ÀÅŸÓhba?Éi0³ByÔä—f>8^"’ìn^ íV¢sJ"«hÃ?éçU«7ƒ0Ò¡ÊÊñ%z$SbÑ×BbêˆiÛ@­ëÛqå+»:µ³õˆ~÷©Cû¾é™Ñê²ñ\”Q5”XÈjB€†d[V˜‘w&Íy9ÒT|VŠ_¹ä:`fŠİÆÙæ`¸F'wlÅÚï°ˆ?A3« ïŒ¤3±î‡H5€Ú¬vıÁ^Å`!¾ó0&ƒ7àı´¢q±a}°eöû-F­)ÄuaŸëy¾'z”D”G:»³pH¾o&Y“2„sMI°ÿ¯sˆ(ƒó¯»‹TS2„Ôm¼îÍ#HÎ†¿Å` Yª“"|(Aê^I#j†Y¼?£ÛÊúµÿàä5úÓŞAS¦±É1S.1[¢ÙVÔ¯š„\.{º8“¦µÛ3ÀäÁå
+W<vÀ–®x	÷äşWdÙ˜Šã[H/øÕIr!Õ2M0iz­¡ÄéR@@½â¿CÁ¸gÊ'„×¬›¿kFÚ®ÜCƒråÙYïHP#f[†L³¿”ÄYhf"È®	Ä‘›ùLCu? ¿&U~v˜»¼|ëF€ø1Ÿ¦iÅYNÉiíUJ]aó#"tVÃ³Q1}Üõƒˆ‰}Gw¼˜¹JØ’I^ƒŒµ%Şh¦ä¬ğˆ'RELc3ô:;/Ò|1»\èğ6øŸÆü¸n•Îc¥Şt @:aÕèÙ¹Á†?ŸÍs\œ…ÇXÖ§zË¾GÍ³äÑî:"ÎÑ‡m¿„§ÍŒÔ×€3ığ!%¿ÿ¹ñÊL§‡8ÿc—F¸“—¢mµ2Å©…xKZ‹=€,S}l¡rñ¶³÷Òæ¾yü„7¾Ê?†²~Ñ]ƒz ;xËg,W‰%Vy¶õ
+wwÔ&Äãi:‡H×X¦ˆ"Û,KûF\ô ÿ”U9Öêíz+ÀFw|“¸èà.Y¯ÜÜšÒseSXÌk·¼ÎzÃ×öP/óˆ¶cA™n,Y—\éáóÍÊŞksíz¶Ém,–qÕr/o#‚4ÿXø×ÔÛÁ¥½£`ö á*¨’Í˜~[/nS2ê®d{‹«ÚLöCg×4»øÔ>Şûhİ,íÛÌúmW§d)…ÙÇé#K° ÇÈ!@;2ˆ¶Î¥*©wÜ×BTÚ§${eƒÃÇnß{ò²:¨>ÁÂZ¿="CsÆëæ+ìŸE·˜¾o¥åZÓ§ìâ¤-,{ş«xÀ•eÚYãÌÖªr¬½£ûªü•€ZTè&×dÁ7nÀ±O<y¾G'ÍØŞ‹Ê~ªXuj…SpBÔuÓ%!ÉEyXÍÕä‰Ôj‹ ˆqK<“_òÎ°dÿOubJÖ&+çÜ
+Şw!ówH!|ë¦%èÍæÜïIM@^åRåİİÍtõõi*vUpzK}•àyŞ–@ëh^şwqÀU—c6›]¢[,Ç$Ö×dEÉ‘).¢Í
+1£|eMéáÑ«[¦lfĞ‘%â¯ñï
+§
+;DNáÉt)3	 Ïª¢‚ûTIï ß‡òÕ4ÁÇ¼+}]í_mr¿-¤tdNy¡ ­#ûŸ»&=£ª² ğÿÏ¿Š	ŸüléĞÛéÖçI(*Ó>û"gaWöYËÿnwæ;HŸN6ïI€?‹|_2C°-qŒØ«Á1šâvÃ©Ëş@[î};÷é²(ìOã€0„zaãQÈ˜I»£<¼ÕÕõñÕÆIğ‚3V%™ŠjbgY!èc")Q%M<	v]
+§¡¬Ğ…k“ŸH(XiGÃ€äÿ/U¯‘,®Él|Ì±ZÆ[¨?àGYI|Ír»/"µKÅ£9ud&L/Šùb5@Š‹e!Mù¢ğ•ĞpøeÙ=êA”Û³ÒP6d¹ê¼•ì^lïTU9­Âø¡Ó³ˆîõ~¼bª‘,õ^çí€ÍwÂzGÍY)\j±DÍ ÜİŒc72òî,_¬Ò´â{½ÑVíKöÿU–½t±H^ü¨­½{Û2‹*ÈÛ´[½h°*-ˆ_Ì°l¿•_Z“’«ªårTœ¦Î¶¨ ıFaŸŸÿyoPÂBkŸÍâäTQ—½Ë{NÈ“ÖØ_>RJÀÄoˆ´@Haª8ënÒ”WLÎôúñpdÜ”#n³sP°ÖAsX éàMJ3¶¹¥’Ş@pé&1£H,«	ç‚”DcWú¯ëÈA®«Bğä=Û4÷àAÀĞËæ€ÆÏÑ²qwwe\däkt½FVëİ=B8Ò»Çh`HH=¿«uZ[L|º=§ÎìOİ tû	Ô©³Ñå™Ôa1´’‚*áËÖê›Ò®¨zĞJî+³"ë²>UÏ¸ñ¹9,ä§À}V½Ã[GÙ…Ÿuk¾M³ÎGãSÿÈlY>
+Eåm†G¸²g*à¿if]@dÃT3	ûcÕr{ÃN‰8ßë="{™m	Ræö
+V€w1òi3ƒ ø¯ÅáG¨ £°P†`I7øKuº
+‹sÕF Ñ¹¤ôÌ¨¾úw]Ø‰µˆI#ŒaÁ0jP$8ÂNÙQ‹Ó°Ï)«íç˜»±h]n#( šM…Ì€{½½]]$€œœsDEŠyo§qDIÒ×á®³khiJñºëíğÙŞËî›úÀßS÷æoŞŠ€áE$g¥6®blªzã…Ê­¿|/ì@ZóÍ[è#ì€B1«{_Œµ ä+îùf0ËÇÊº»|ŸH[ÆÔ‡õE÷óª6vİ—5U]^êWWÆ¯më«mQÓÙ•d«[vìl^c¾·(/ô™gug¢ÑycvX^!Kó6§yµ@¤Şø~†}i%™¡ƒ‡?KôŞÊ!­-w­“€Ã6~Ú}Å{Å$*têÅHw’}5¶ÏŠ±iS‘}#‚ÜÎŠ9*D<Á&(Ôíş¤ÔDªoûq‰‘F'TfİßĞ€#d}Ú7¦Z™¨ì>‚|uÀ¡x{Š‘²‰ğÜù4°_kd¤pÆ®¤¢–Íwd½Ú¸ÂŠ„$Ää½0Ğ@°ï©àER©'y!Z:ò(İûÙ:3 CYXÇªEí˜&{@¤[%é€Iıhc5‡Ù´Æı]_Y£ÊëçV’^6r•å+şÁ„J‡KœÒ¯û'¯Ã4ôAÚÖ…à…RBmÅ£yÌ‹n£[=`:gµ²:…ä˜;èÎ¶t)şÚÕ‚\½ÿNâeıíÏ2haH õ/j)¹-Ö²åÜC¨×…$YZÏ@ŒJN†y[‡g`Êåúkø!™ÍìMşL¼|ÂX†ÙÆ¬PÚZK¦–õZ±ZMíïÄlÜ¥¡`ôôgOÄ^Êk¢$:=§QÄ'Ş!¦lÛ-ÆÔXAİ`q±çò®yw½.ú$»Š•š+òüÚÉ·W%¿o<bH3‘H;àİÄ²ãge—ÇøT{ÒUÎ	%¹õ·fáÂ‘c°(0¹îÖçr±:QšÁôçv·İñÎÒSÉÒ}&•úÍ¥n§…°°ñËOwˆ°Ã²R"¾ŸóÒS½7`tÁ¾ÅÆ;Ût•üó¹öElúòªDÏ€2¨t‚c]#jÁªZbDfıhşqV!’q?¨RèèqÃ½"õûşTÀKx[Áğ¥ê
+ÇïökÜN#˜_à"³Uï= G•	¢šSW©Ğxgµ^gå
+â`î­RÁòĞ[È‰YKYŒqŞ³Ø%6B7Ñ8ÂêQâ |.AÄÒÀîaY,B›ÏïÙÒã½Ô!İí³ƒ4\¯aÈp»‰Èøæ…Ä:!-{Ÿã¤ á±`Ñ”¾„®Dï]
+Ù„U³4P-âœC0ÁËkÖ_KF¾éÈ¢ÉdŠahïhìbœ3Ùã)hÍG¬ÄOÈ²ÖAb®‰Kd¹˜Ÿôk)½Ğ4ÍÓíP¢kÍãD]…¯RKéíøğ	ÏDøºÌ?~Gûü{„§e*£’Š……‚}o`ñ[UEÅáVIkä1¦;L¡0šIcf£¬Sñd	b%˜¯.²Ì¢F-qÄp·“ñë~º]º…< fæGÛ
+E¸³/]šE‘böf'™;-¬Ñ¾Hï±ñ‰•d©Z$‚Øş``mÔ†hê­€(™¥è¸=¥ _'ù&èWÖ»¶ùøòXSÈønAsĞ|13eşğ¸·(YZm‰˜¶I&dêÊ½b:9*ƒ×ô—"¸Æ}¹4éÉ£R‡à›éŞù×‚µ\ŠÉ®¦ì’*^3ØéÌRßKOéÊªóÅ÷W‘9n¦í*ã•O
+ù¼œµÁÚ%Ô•Ãƒxjgæ¼ê¬ß\×”¦£~Ö…»Â*Î¡ÌæÅu8J<şé˜ÜIPÑÙ$Î‰åÖ?«ŒŠ8¹Sq¾©ÉJåxÅÏKÈEÍ1$¿Şİˆ{,¦Ì¬iA“ÜA¤Y6ˆBù‹ı4îş)\²¡ò,Nt§ß8¶˜ß‹Ó $í3ü£ kƒC_µõ¬˜’¼#EvÌo3IÛbZ†[¤&¹¨{º¾	|ZLm'i—İˆÛœêÈhíxIÙ†²@ñùêÈŒ`9wÂ¬v›ıJÁçÜ„NgŒ8Hd~Ğ¾‰R$ú [Bô};çÂGHìõÈÕt]ş¥Ä•/“Hëi°l”ÄcgŸv;–˜tıˆ£;ö¢öÒŒÍÒJéİtí/ó0êô«˜HÚ«Õ¨#üËú»\Ğ £E†^/õ¹+¦Õ^€n…ö´l(RÃ±à$Ê],Tb
+¢‹¡>3µuã¢2Úò»=ÆÍ¡PF¡ê¤m¬Ÿ/§Ş{<Äş`á›`º²sA2\Öˆ9Ú­àÖµÇEn’ï%Úğv^	é}ƒlX[X¡àû<Õ‡6bÅÆt_ó•hZ2úª¦”ú2BHÑx8ÓçFÕñ™³¨;£ß·ùéûX4ä¼º;LİÀ²=›Ñ­< 8Xîsp¦ây›‡ß
+½İpUú_¶#EB˜›1l	ôù„‡’GiÁSÕ¼¡±·“yéúZ©¥œ¿ûYÙõa$…È$ï8Á™úBï7°Ï\Jnò1.áõâıBÄCòB½QöIœJúÛéj¼ûQ¶yğKÿ6´œbkW‘”¢eHLbHGm6¢q‚Iøã©v5Ë¿c$ŒFnï{Ÿ¨šÅi¤SKµdàk?íÂÁÿ<[È„ˆ’
+Òyn?KpìF#‚3k„/§¥‰œä0dâƒ:ìU×:ï4wx­ˆ/èL>’´»iĞ®÷¥0 ¡HúÈÊÍôR§¬B©¹ö"Ã\]©—èYG<õ{Ò³µbUBYtÇè¢†Ï¸Á§C:t†óvQ$ zƒl…£óF¤jõL­²Ñ9¨ÆÚWj¸wÄÃ !	¶7`¬4‚ŒéŞª÷Ş4
+pédÇø’#…µ3^“fï/Iu›§^Çq¶jÉ±Ğµ×g6,y~	ë$Â¶>ĞÌˆ³äSÙ¡†vOÆÎ¼Ÿ”((SUDÛ“Ú‰_›?¯5U²Ï8qïP°øRïAs®}Àü>TS¨À½ÀwAn§™²ì2ñW[êêş7’5¡8 j‰íDÛ
+–Q¦¾{Í8¹”hAÊh:}	lÁÁ€ sĞTó®$CÁ[œ…Ç‰ R©q²ş¡5?ónQÑZJ¬²ÙÁÄ’î‚›úd™Ÿ5æCÅvï4Ëü#¶Ãú?yûˆ3–‰ùã÷5$è|cÄ´Í%Íòë+èš×«Â¯•ìÄ­‘Á/…SaÇñfeá9²ß±pñyÏeñKÖ…ı_ô|ü“2 ­],Ï^tKteKô¸

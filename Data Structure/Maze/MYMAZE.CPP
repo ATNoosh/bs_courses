@@ -1,0 +1,401 @@
+#include <iostream.h>
+#include <conio.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+#define   maxsize   100
+
+enum directions {N,NE,E,SE,S,SW,W,NW};
+
+int move [8][2]={	{-1,0},
+                  {-1,1},
+                  {0,1},
+						{1,1},
+						{1,0},
+						{1,-1},
+						{0,-1},
+						{-1,-1}};
+
+class items
+{
+   public:
+           items(){ x=0;y=0;dir=E;}
+           int getx(){return x;}
+           int gety(){return y;}
+           int getdir(){return dir;}
+           void setx(int xx){x=xx;}
+           void sety(int yy){y=yy;}
+           void setdir(int dirdir){dir=dirdir;}
+
+	private:
+		int x;
+   	int y;
+   	int dir;
+};
+
+//********************
+//********************
+
+class stack {
+
+   public:
+      stack(){ top = 0; }
+      int  is_empty(){ return (top == 0); }
+      void push(items& );
+      items*  pop(items&);
+      void show_path();
+      void empty_stack();
+
+   private:
+      int top;
+      items mystack[maxsize];
+     // items t1;
+};
+
+//********************
+//********************
+
+void stack::push(items& t1)
+{
+    if( top != maxsize )
+       mystack[top++] = t1;
+}
+
+//********************
+//********************
+
+items* stack::pop(items& t1)
+{
+
+
+   if(top != 0)
+   {
+      t1 = mystack[--top];
+      return &t1;
+   }
+
+   items false_point;
+   false_point.setx(-1);
+   false_point.sety(-1);
+   false_point.setdir(-1);
+
+   cout << "The stack is empty.";
+   getch();
+   return &false_point;
+}
+
+//********************
+//********************
+
+void stack :: show_path()
+{
+	for(int counter = 0;counter < top;counter ++)
+   {
+   	cout << mystack[counter].getx()
+      	  << '\t' << mystack[counter].gety()
+           << '\t' << mystack[counter].getdir();
+      cout << endl;
+   }
+}
+
+//********************
+//********************
+
+void stack :: empty_stack()
+{
+	top = 0;
+}
+
+//********************
+//********************
+
+//*********************************
+class file
+{
+	public :
+   	file();
+      void open_file();
+      int get_num_of_matrix(){return num_of_matrix;}
+      int get_num_of_row(){return num_of_row;}
+      int get_num_of_column(){return num_of_column;}
+      int **get_matrix(){return matrix;}
+      void get_memory();
+      void read_file(int);
+      void close_file();
+
+   private:
+   	FILE *file_pointer;
+      int num_of_matrix;
+      int num_of_row;
+      int num_of_column;
+      int **matrix;
+};
+
+//*********************************
+
+file :: file()
+{
+   char buffer[10];
+
+   open_file();
+   fgets(buffer,11,file_pointer);
+   num_of_matrix = atoi(buffer);
+}
+
+//*********************************
+
+void file :: open_file()
+{
+	if((file_pointer = fopen("c:\\input.txt","r")) == NULL)
+   {
+   	cout << endl << "can not open file ." ;
+      getch();
+      exit(0);
+   }
+}
+
+//*********************************
+
+void file :: read_file(int counter)
+{
+   char buffer[1000];
+   char digit[2];
+
+   if(counter != 0)
+	   fgets(buffer,1000,file_pointer);
+
+   fgets(buffer,1000,file_pointer);
+   num_of_row = atoi(buffer);
+
+   fgets(buffer,1000,file_pointer);
+   num_of_column = atoi(buffer);
+
+   get_memory();
+
+   for(int iCounter = 0;iCounter < num_of_row;iCounter ++)
+   {
+
+   	if(iCounter != 0)	//if iCounter != 0 \n is in file seek
+      	fgets(buffer,1000,file_pointer);
+
+   	fgets(buffer,num_of_column+1,file_pointer);
+
+      if(strlen(buffer) != (unsigned) num_of_column)
+      {
+      	cout << "In row "<<iCounter<<" from example number "<<counter<<" is not "<<num_of_column<<" number.";
+         getch();
+         exit(0);
+      }
+
+      for(int jCounter = 0;jCounter < num_of_column;jCounter ++)
+      {
+      	digit[0] = buffer[jCounter];
+         matrix[iCounter][jCounter] = atoi(digit);
+      }
+   }
+
+}
+
+//*********************************
+
+void file :: get_memory()
+{
+	matrix = new int *[num_of_row];
+
+   for(int counter = 0;counter < num_of_row;counter ++)
+   {
+    	matrix[counter] = new int[num_of_column];
+   }
+}
+
+//*********************************
+
+void file :: close_file()
+{
+	fclose(file_pointer);
+}
+
+//..............................................
+//..............................................
+
+class maze
+{
+	public :
+   	maze();
+      void get_memory(int,int);
+      void file_to_matrix();
+      void read_matrix(int);
+      void ShowMatrix();
+      int get_matrix_number(){return matrix_number;}
+      void path ();
+
+   private:
+   	file my_file;
+      items temp;
+      stack sk;
+   	int **maze_matrix;
+      int row_number;
+      int column_number;
+      int matrix_number;
+      int **mark_matrix;
+};
+void maze :: ShowMatrix()
+{
+	for(int i = 0;i < row_number+2; i++)
+   {
+   cout << endl;
+   	for(int j = 0;j < column_number+2;j++)
+      	cout << maze_matrix[i][j];}cout << endl<< endl<< endl<< endl;
+}
+//..............................................
+//..............................................
+
+maze :: maze()
+{
+	matrix_number = my_file.get_num_of_matrix();
+   //ReadMatrix();
+}
+
+//..............................................
+//..............................................
+
+void maze :: read_matrix(int counter)
+{
+	my_file.read_file(counter);
+   file_to_matrix();
+}
+
+//..............................................
+//..............................................
+
+void maze :: file_to_matrix()
+{
+   matrix_number = my_file.get_num_of_matrix();
+	row_number = my_file.get_num_of_row();
+   column_number = my_file.get_num_of_column();
+
+   get_memory(row_number,column_number);
+
+	for(int i = 1;i <= row_number;i++)
+   {
+   	for(int j = 1;j <= column_number;j++)
+      {
+      	maze_matrix[i][j] = my_file.get_matrix()[i-1][j-1];
+      }
+   }
+}
+
+//..............................................
+//..............................................
+
+void maze :: get_memory(int rows,int columns)
+{
+	maze_matrix = new int *[rows + 2];
+
+   for(int counter = 0;counter < rows + 2;counter ++)
+   {
+    	maze_matrix[counter] = new int[columns + 2];
+   }
+
+	mark_matrix = new int *[rows + 2];
+
+   for(int counter = 0;counter < rows + 2;counter ++)
+   {
+    	mark_matrix[counter] = new int[columns + 2];
+   }
+
+   for(int i = 0;i <= rows;i ++)
+   	for(int j = 0;j <= columns;j ++)
+      	mark_matrix[i][j] = 0;
+
+	for(int counter = 0 ;counter <= columns + 1 ;counter ++)
+   {
+   	mark_matrix[0][counter] = 1;
+   	mark_matrix[rows + 1][counter] = 1;
+
+		maze_matrix[0][counter] = 1;
+   	maze_matrix[rows + 1][counter] = 1;
+   }
+
+   for(int counter = 0 ;counter <= rows + 1 ;counter ++)
+   {
+   	mark_matrix[counter][0] = 1;
+   	mark_matrix[counter][columns + 1] = 1;
+
+   	maze_matrix[counter][0] = 1;
+   	maze_matrix[counter][columns + 1] = 1;
+   }
+
+}
+
+//..............................................
+//..............................................
+
+void maze::path()
+{
+    mark_matrix[1][1]=1;
+    temp.setx(1);
+    temp.sety(1);
+    temp.setdir(E);
+    sk.push(temp);
+
+    while(!sk.is_empty())
+    {
+        temp=*sk.pop(temp);
+        int i=temp.getx();
+        int j=temp.gety();
+        int d=temp.getdir();
+
+        while(d<8)
+        {
+            int g=i+move[d][0];
+            int h=j+move[d][1];
+
+            if((g==row_number)&&(h==column_number))
+            {
+         		sk.show_path();
+            	cout << i << '\t' << j << endl;
+            	cout << row_number << '\t' << column_number << endl;
+               sk.empty_stack(); // empty for next example//now be : top=0;
+           	   return;
+            }
+
+            if((!maze_matrix[g][h])&&(!mark_matrix[g][h]))
+            {
+                mark_matrix[g][h]=1;
+                temp.setx(i);
+                temp.sety(j);
+                temp.setdir(d+1);
+                sk.push(temp);
+                i=g;
+                j=h;
+                d=N;
+             }
+
+           else d++;
+         }
+     }
+     cout<<"no path in maze";
+}
+
+//..............................................
+//..............................................
+//..............................................
+
+
+void main()
+{
+	maze m1;
+   for(int counter = 0;counter < m1.get_matrix_number();counter ++)
+   {
+   	m1.read_matrix(counter);
+      m1.ShowMatrix();
+      m1.path();
+      getch();
+   }
+
+   getch();
+}
+
+//...........
+//...........

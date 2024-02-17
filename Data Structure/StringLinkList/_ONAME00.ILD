@@ -1,0 +1,1189 @@
+#include <iostream.h>
+#include <conio.h>
+#include <stdio.h>
+
+#define CTRLDEL 83
+#define END 79
+#define HOME 71
+#define UPARROW 72
+#define DOWNARROW 80
+#define LEFTARROW 75
+#define RIGHTARROW 77
+
+int backGround = 0,foreGround = 15;
+
+void Brush()
+{
+	for(long counter = 0;counter < 4000;counter ++)
+   {
+   	textbackground(backGround);
+      textcolor(foreGround);
+   	cprintf("%c",' ');
+   }
+     /*	textbackground(backGround);
+      textcolor(foreGround);
+   window(1,1,80,50);*/
+}
+//..............................................................................
+//******************************************************************************
+class cFile
+{
+	public :
+   	cFile(){}
+   private:
+   	FILE *filePointer;
+};
+//..............................................................................
+//******************************************************************************
+//..............................................................................
+class cCharNode
+{
+   friend ostream &operator << (ostream & , const cCharNode &);
+   friend class cString;
+
+	public :
+      cCharNode(char = 0,int = 0,int = 0,bool = 0);
+      void SetLocAndSel(int,int,bool);
+
+   private:
+   	char character;
+      int row;
+      int col;
+      bool select;
+
+      cCharNode *next;
+      cCharNode *pre ;
+};
+//..............................................................................
+cCharNode :: cCharNode(char ch,int r,int c,bool isSel)
+{
+	next = pre = NULL;
+
+	character = ch;
+   row = r;
+   col = c;
+   select = isSel;
+}
+//..............................................................................
+void cCharNode :: SetLocAndSel(int r,int c,bool isSel)
+{
+   row = r;
+   col = c;
+   select = isSel;
+}
+//..............................................................................
+//******************************************************************************
+ostream &operator << (ostream &output , const cCharNode &ch)
+{
+	gotoxy(ch.col,ch.row);
+   if(ch.select == false)
+   {
+   	textbackground(backGround);
+      textcolor(foreGround);
+   	cprintf("%c",ch.character);
+   }
+   else
+	{
+   	textbackground(foreGround);
+      textcolor(backGround);
+   	cprintf("%c",ch.character);
+   }
+   return output;
+}
+//******************************************************************************
+//..............................................................................
+//******************************************************************************
+class cString
+{
+	public :
+      cString();
+      void Manager();
+      void ExtendedCodeFunc(int,int);
+      void SetLocations(cCharNode*);
+
+      cCharNode* Search(int , int);
+      int SearchWord(char*);
+      void SearchSelect();
+
+      void Copy();
+      void CopyPaste(int);
+      void CutPaste();
+
+      void PrintAll();
+      void PrintPart(cCharNode* , cCharNode*);
+      void PrintLine(cCharNode*);
+      void DelPrint(cCharNode*);
+
+      void AddLast(cCharNode *);
+      void AddFirst(cCharNode*);
+      void AddAfter(cCharNode*,cCharNode*);
+      void AddTab(int,int);
+
+      void Delete(cCharNode*);
+      void Select(cCharNode*,int);
+      void Select(cCharNode*,cCharNode*);
+      void SetSelects();
+
+   private:
+   	cCharNode *first;
+   	cCharNode *last ;
+      cCharNode *currentPos;
+      cCharNode *startCopy;
+
+      void EnterKey(int,int);
+      void BackSpaceKey();
+      void DelKey();
+      void TabKey(int,int);
+      void UsualKey(int,int,int);
+      void EndKey();
+      void HomeKey();
+
+      void GoRight(int,int);
+      void GoLeft(int,int);
+      void GoUp(int,int);
+      void GoDown(int,int);
+};
+//..............................................................................
+cString :: cString()
+{
+	first = last = currentPos = startCopy = NULL;
+}
+//..............................................................................
+void cString :: Select(cCharNode *start,cCharNode *end)
+{
+	if(!first)
+   	return;
+
+   cCharNode *temp = start;
+   if(temp -> next)
+   {
+   	while(temp != end -> next)
+      {
+      	temp -> select = !(temp -> select);
+      	temp = temp -> next;
+      }
+   }
+}
+//..............................................................................
+void cString :: SetSelects()
+{
+	if(!first)
+   	return;
+   cCharNode *temp = first;
+
+   while(temp != last -> next)
+   {
+   	temp -> select = false;
+   	temp = temp -> next;
+   }
+}
+//..............................................................................
+void cString :: SearchSelect()
+{
+	if(!first)
+   	return;
+
+   cCharNode *temp = first;
+
+   if(temp -> next)
+   {
+   	while(temp != last -> next)
+      {
+      	if(temp -> select == true)
+         	break;
+      	temp = temp -> next;
+      }
+
+      startCopy = temp;
+   }
+}
+//..............................................................................
+void cString :: Copy()
+{
+	SearchSelect();
+   //SetSelects();
+}
+//..............................................................................
+void cString :: CopyPaste(int cutCopy)
+{
+	if(cutCopy == 0)
+   {
+   	CutPaste();
+      return;
+   }
+	if(!first || !startCopy)
+   	return;
+
+   cCharNode *temp = startCopy;
+
+   while(temp != last -> next && temp -> select != false)
+   {
+   	cCharNode *newNode;
+      newNode = new cCharNode(temp -> character);
+
+      AddAfter(currentPos , newNode);
+      currentPos = newNode;
+   	temp = temp -> next;
+   }
+
+   SetLocations(first);
+   //SetSelects();
+   clrscr();
+
+  	textbackground(0);
+   textcolor(15);
+   PrintAll();
+
+}
+//..............................................................................
+void cString :: CutPaste()
+{
+
+	if(!first || !startCopy)
+   	return;
+
+   cCharNode *temp = startCopy;
+
+   while(temp -> select != false && temp != last -> next)
+   {
+   	cCharNode *newNode;
+      newNode = new cCharNode(temp -> character);
+
+      AddAfter(currentPos , newNode);
+      currentPos = newNode;
+   	temp = temp -> next;
+      Delete(temp -> pre);
+   }
+
+   SetLocations(first);
+   //SetSelects();
+   clrscr();
+   	textbackground(0);
+      textcolor(15);
+   PrintAll();
+
+}
+//..............................................................................
+cCharNode* cString :: Search(int r,int c)
+{
+	if(!first)
+   	return NULL;
+
+   if(((first -> row) == r) && ((first -> col) == c))
+   	return first;
+
+   if(((last -> row) == r) && ((last -> col) == c))
+   	return last;
+
+   if(((currentPos -> row) == r) && ((currentPos -> col) == c))
+   	return currentPos;
+
+   cCharNode *temp = first -> next;
+
+   while(temp != last)
+   {
+   	if(temp)
+      {
+   		if(temp -> row == r && temp -> col == c)
+      		return temp;
+   		temp = temp -> next;
+      }
+      else
+      	return NULL;
+   }
+
+   return NULL;
+}
+//..............................................................................
+void cString :: Select(cCharNode *start,int size)
+{
+	cCharNode *temp = start;
+
+   if(temp -> next)
+   {
+   	for(int counter = 0;counter < size;counter ++)
+      {
+      	temp -> select = true;
+         if(temp == last)
+         {
+         	textcolor(0);
+            textbackground(15);
+         }
+      	temp = temp -> next;
+      }
+   }
+}
+//..............................................................................
+int cString :: SearchWord(char *word)
+{
+
+	clrscr();
+   cout << "Enter a word:";
+   cin >> word;
+
+
+	cCharNode *temp1 , *temp2;
+   temp1 = first;
+
+   while(temp1 != last -> next)
+   {
+   	temp2 = temp1 ;
+   	for(unsigned counter = 0;counter < strlen(word);counter ++)
+      {
+      	if(temp2 -> character != word[counter])
+         	break;
+         if(counter == strlen(word) - 1)
+         {
+   			Select(temp1,strlen(word));
+            currentPos = temp1;
+   			clrscr();
+   			PrintAll();
+            cout << *currentPos;
+            SetSelects();
+            return 1;
+         }
+         temp2 = temp2 -> next;
+      }
+
+   	temp1 = temp1 -> next;
+   }
+
+   return 0;
+}
+//..............................................................................
+void cString :: Manager()
+{
+	int r , c , ch , cutCopy;
+
+   for(;;)
+   {
+   	r = wherey();
+   	c = wherex();
+      ch = getch();
+
+      switch(ch)
+      {
+      	case 0 :
+         	ExtendedCodeFunc(r , c);
+         	break;
+
+         case 24:
+         	Copy();
+            cutCopy = 0;
+            break;
+
+         case 3 :
+         	Copy();
+            break;
+
+         case 22:
+         	CopyPaste(cutCopy);
+            break;
+
+         case 6: //ctrl + f
+           SearchWord("ali");
+           break;
+
+         case 13:
+         	EnterKey(r,c);
+            break;
+
+         case 8:
+         	BackSpaceKey();
+         	break;
+
+         case 9:
+         	TabKey(r,c);
+            break;
+
+         default:
+         	UsualKey(ch , r , c);
+         	break;
+      }
+   }
+}
+//..............................................................................
+void cString :: EnterKey(int r,int c)
+{
+   cCharNode *newNode;
+	newNode = new cCharNode('\n' , r , c , false);
+
+   AddAfter(currentPos , newNode);
+   SetLocations(currentPos);
+   currentPos = newNode;
+
+  	if(currentPos -> pre)
+  		DelPrint(currentPos -> pre);
+   else
+   {
+   	clrscr();
+      PrintAll();
+      gotoxy(1 , 1);
+   }
+
+   if(currentPos -> next)
+   	gotoxy(currentPos -> next -> col,currentPos -> next -> row);
+   else
+   	gotoxy(1 , r + 1);
+}
+//..............................................................................
+void cString :: TabKey(int r,int c)
+{
+	AddTab(r , c);
+   SetLocations(currentPos);
+   PrintLine(currentPos);
+   cout << *currentPos;
+}
+//..............................................................................
+void cString :: BackSpaceKey()
+{
+	if(!currentPos)
+   {
+   	delline();
+      PrintLine(currentPos);
+   	gotoxy(1,1);
+      return;
+   }
+
+   currentPos = currentPos -> pre;
+
+   if(currentPos)
+   {
+   	Delete(currentPos -> next);
+      int c = wherex();
+
+      if(c != 2)
+      {
+      	//delline();
+         clreol();
+      }
+   }
+   else
+   	Delete(first);
+
+   SetLocations(currentPos);
+   PrintLine(currentPos);
+
+   if(currentPos)
+   	if(currentPos -> next)
+      	gotoxy(currentPos -> next -> col,currentPos -> next -> row);
+}
+//..............................................................................
+void cString :: DelKey()
+{
+	if(!currentPos)
+   {
+   	gotoxy(1,1);
+      return;
+   }
+
+   if(currentPos -> next)
+   	currentPos = currentPos -> next;
+   else
+   {
+   	cout << *currentPos;
+   	return;
+   }
+
+   if(currentPos)
+   {
+   	Delete(currentPos -> pre);
+      delline();
+   }
+
+   SetLocations(currentPos);
+   PrintLine(currentPos);
+
+   if(currentPos)
+     	gotoxy(currentPos -> col,currentPos -> row);
+}
+//..............................................................................
+void cString :: UsualKey(int ch,int r,int c)
+{
+	cCharNode *newNode;
+	newNode = new cCharNode(ch , r , c , false);	//new character
+
+   if(r == 1 && c == 1)		//first point of page
+   {
+      AddFirst(newNode);   //Add before first and update first
+	   SetLocations(currentPos);
+      currentPos = newNode;
+
+   	if(currentPos != last)
+   		PrintLine(currentPos);
+   	else
+   		cout << *currentPos;
+
+      gotoxy(2,1);
+      return;
+   }
+
+   AddAfter(currentPos , newNode);
+   SetLocations(currentPos);
+   currentPos = newNode;
+   if(currentPos != last)
+   	PrintLine(currentPos);
+   else
+   	cout << *currentPos;
+
+   if(currentPos -> next)
+   	gotoxy(currentPos -> next -> col,currentPos -> next -> row);
+   if(c == 79)
+   {
+   	cCharNode *newLineNode = new cCharNode('\n' , r , c , false);
+      AddAfter(currentPos,newLineNode);
+      SetLocations(currentPos);
+      currentPos = newLineNode;
+      PrintPart(currentPos,currentPos -> next);
+   }
+
+}
+//..............................................................................
+void cString :: EndKey()
+{
+	cCharNode *temp = currentPos;
+
+   if(!currentPos || !(currentPos -> next))	//any character or currentPos == first
+   	return;
+
+   if(temp -> character == '\n' && temp -> next)	//first of line
+   	temp = temp -> next;
+
+   while(temp -> next)	//search for next new line character.
+   {
+   	if(temp -> character == '\n')
+      	break;
+   	temp = temp -> next;
+   }
+   if(temp != last)
+   	currentPos = temp -> pre;
+   else
+   	currentPos = temp;
+   cout << *currentPos;
+}
+//..............................................................................
+void cString :: HomeKey()
+{
+	cCharNode *temp = currentPos;
+
+   if(!currentPos || !(currentPos -> pre))	//any character or currentPos == first
+   	return;
+
+   while(temp -> pre)	//search for previous new line character
+   {
+   	if(temp -> character == '\n')
+      	break;
+   	temp = temp -> pre;
+   }
+
+   if(temp == first)
+   {
+   	currentPos = first;
+   	gotoxy(1 , 1);
+      return;
+   }
+
+   currentPos = temp;
+   gotoxy(currentPos -> next -> col, currentPos -> next -> row);
+}
+//..............................................................................
+void cString :: PrintAll()
+{
+	if(!first)
+   	return;
+
+   cCharNode *temp = first ;
+
+   while(temp != last -> next)
+   {
+		cout << *temp;
+   	temp = temp -> next;
+   }
+
+}
+//..............................................................................
+void cString :: PrintPart(cCharNode *start, cCharNode *end)
+{
+	if(start == first && end == last)
+   {
+   	PrintAll();
+      return;
+   }
+
+   cCharNode *temp = start;
+
+   while(temp != end )
+   {
+   	cout << *temp;
+   	temp = temp -> next;
+   }
+   if(end)
+   	cout << *end;
+}
+//..............................................................................
+void cString :: PrintLine(cCharNode *currentNode)
+{
+	cCharNode *toBack = currentNode;
+	cCharNode *toForward = currentNode;
+
+   if(toBack)
+   	while(toBack -> pre)
+   	{
+   		if(toBack -> character == '\n')
+      		break;
+   		toBack = toBack -> pre;
+   	}
+
+   if(toForward)
+   	while(toForward -> next)
+   	{
+   		if(toForward -> character == '\n')
+      		break;
+      	toForward = toForward -> next;
+   	}
+
+   PrintPart(toBack , toForward);
+}
+//..............................................................................
+void cString :: DelPrint(cCharNode *currentNode)
+{
+	int count = last -> row - currentNode -> row + 1;
+
+   for(int counter = 0;counter < count;counter ++)
+   	delline();
+
+   cCharNode *temp = currentNode;
+
+   while(temp -> pre)
+   {
+   	if(temp -> character == '\n')
+      	break;
+   	temp = temp -> pre;
+   }
+
+   PrintPart(temp , last);
+}
+//..............................................................................
+void cString :: SetLocations(cCharNode *currentNode)
+{
+   if(!first)
+   	return;
+
+	cCharNode *temp = currentNode;
+
+   if(!temp)
+   	return;
+
+   if(temp == first)
+   {
+   	first -> SetLocAndSel(1,1,false);
+      temp = temp -> next;
+   }
+
+   while(temp != last -> next)
+   {
+   	int r = temp -> pre -> row;
+   	int c = temp -> pre -> col;
+      char preCh = temp -> pre -> character;
+
+      if(c > 80 || preCh == '\n')
+      	temp -> SetLocAndSel(r + 1, 1, 0);
+      else
+      {
+         temp -> SetLocAndSel(r , c + 1,0);
+      }
+
+   	temp = temp -> next;
+   }
+}
+//..............................................................................
+void cString :: AddLast(cCharNode  *newNode)
+{
+   if(first)
+   {
+		last -> next = newNode;
+   	newNode -> next = NULL;
+   	newNode -> pre = last ;
+   	last = newNode;
+   }
+
+   else
+   {
+		first = last = currentPos = newNode;
+   	newNode -> pre =  NULL ;
+   	newNode -> next = NULL ;
+   }
+}
+//..............................................................................
+void cString :: AddFirst(cCharNode *newNode)
+{
+	if(first)
+   {
+   	first -> pre = newNode;
+   	newNode -> pre = NULL ;
+      newNode -> next = first;
+      first = newNode;
+   }
+
+   else
+   {
+   	first = last = currentPos = newNode;
+   	first -> pre =  NULL ;
+   	first -> next = NULL ;
+   }
+}
+//..............................................................................
+void cString :: AddAfter(cCharNode *preNode,cCharNode *newNode)
+{
+   if(preNode == NULL)
+   {
+   	AddFirst(newNode);
+      return;
+   }
+
+	if(preNode == last)
+   	AddLast(newNode);
+
+   else
+   {
+		newNode -> next = preNode -> next;
+		newNode -> pre = preNode ;
+		( preNode -> next ) -> pre = newNode;
+   	preNode -> next = newNode;
+	}
+}
+//..............................................................................
+void cString :: AddTab(int r,int c)
+{
+	cCharNode *newNode;
+	for(int counter = c ; counter < (c + 8) ; counter ++)
+   {
+   	newNode = new cCharNode(' ' , r , counter , false);
+      AddAfter(currentPos,newNode);
+      currentPos = newNode;
+      PrintPart(currentPos,currentPos -> next);
+   }
+}
+//..............................................................................
+void cString :: Delete(cCharNode *delNode)
+{
+
+	if(first == delNode)
+   {
+      first = first -> next;
+      if(first)
+      	first -> pre = NULL;
+      delete delNode;
+      return;
+   }
+
+   if(last == delNode)
+   {
+		last = last -> pre;
+      last -> next = NULL;
+      delete delNode;
+      return;
+   }
+
+   else
+   {
+   	( delNode -> next ) -> pre = delNode -> pre ;
+   	( delNode -> pre ) -> next = delNode -> next;
+      delete delNode;
+   }
+}
+//..............................................................................
+void cString :: ExtendedCodeFunc(int r,int c)
+{
+	int counter = 0;
+	int ch = getch();
+
+	switch(ch)
+   {
+   	case CTRLDEL:
+      	DelKey();
+         break;
+
+   	case END:
+      	EndKey();
+      	break;
+
+   	case HOME:
+      	HomeKey();
+      	break;
+
+   	case UPARROW:
+      	GoUp(r , c);
+      	break;
+
+      case DOWNARROW:
+      	GoDown(r , c);
+      	break;
+
+   	case LEFTARROW:
+      	GoLeft(r , c);
+      	break;
+
+      case RIGHTARROW:
+         GoRight(r , c);
+        	break;
+
+      case 116:	//ctrl + rightarrow
+      	if(currentPos)
+      		if(currentPos -> next)
+         		currentPos -> next -> select = !(currentPos -> next -> select);
+         cout << *currentPos;
+         currentPos = currentPos -> next;
+      	break;
+
+      case 115:
+      	if(currentPos)
+         	currentPos -> select = !(currentPos -> select);
+         cout << *currentPos;
+         currentPos = currentPos -> pre;
+         break;
+
+      case 145:	//ctrl + downarrow
+      	cCharNode *temp = currentPos;
+         GoDown(r , c);
+         Select(temp , currentPos -> pre);
+         PrintPart(temp , last);
+         cout << *currentPos;
+         break;
+
+   }
+	if(ch == 141)
+   {
+   	cCharNode *temp = currentPos;
+      GoUp(r,c);
+      Select(currentPos -> next,temp);
+      PrintPart(currentPos,last);
+      cout << *currentPos;
+   }
+}
+//..............................................................................
+void cString :: GoRight(int r,int c)
+{
+	if(!currentPos)
+   	return;
+	if(currentPos -> next)
+   {
+   	if(currentPos -> next -> character != '\n')
+      {
+      	if(c < 80)
+         {
+         	gotoxy(c + 1,r);
+         }
+      }
+      else
+      	return;
+   }
+
+   if(currentPos && currentPos -> next)
+   	currentPos = currentPos -> next;
+}
+//..............................................................................
+void cString :: GoLeft(int r,int c)
+{            
+	if(!currentPos)
+   	return;
+	if(currentPos -> pre)
+   {
+   	if(currentPos -> character != '\n')
+      {
+         	gotoxy(c - 1,r);
+      }
+      else
+      	return;
+   }
+   else
+   {
+   	currentPos = first;
+      gotoxy(1,1);
+   }
+
+   if(currentPos && currentPos -> pre)
+   	currentPos = currentPos -> pre;
+}
+//..............................................................................
+void cString :: GoUp(int r,int c)
+{
+   if( r == 1) //first row
+   	return;
+
+   cCharNode *temp;
+
+   if(c != 1) 	//usual point
+		temp = Search(r - 1 , c - 1);
+
+   else   		//first column
+   {
+   	temp = Search(r - 1, c);
+      if(temp == first)
+      {
+      	currentPos = first;
+         gotoxy(1,1);
+      }
+    	if(temp)
+      {
+      	if(temp -> pre)
+      		currentPos = temp -> pre;
+         gotoxy(temp -> col,temp -> row);
+         return;
+      }
+   }
+
+   if(temp)		//if above of this char was char
+   {
+   	currentPos = temp;
+      cout << *currentPos;
+   }
+
+   else			//if above of this char was not char this statements move curser to end of pre line
+   {
+   	temp = currentPos;
+
+      if(temp -> pre)
+      while(temp != first)               //search for find previous new line character '\n'
+      {
+      	if(temp -> character == '\n')
+         	break;
+      	temp = temp -> pre;
+      }
+      temp = temp -> pre;
+      cout << *temp;
+      currentPos = temp;
+   }
+
+}
+//..............................................................................
+void cString :: GoDown(int r,int c)
+{
+	bool lastSwitch = false;	//next place is last or no
+	cCharNode *temp ;
+
+   if(c == 1)		//if the curser was first of line
+   {
+   	temp = Search(r + 1, c);
+
+      if(!temp)	//this mean that currentPos is last line
+      	return;
+
+      currentPos = temp -> pre;
+      gotoxy(temp -> col,temp -> row);
+      return;
+   }
+
+   temp = Search(r + 1 , c - 1);
+
+   if(temp)		//usual point and char
+   {
+   	currentPos = temp;
+      cout << *currentPos;		//this statement realy move the curser to down point
+   }
+
+   else		//if down of this char wasent other char
+   {
+   	temp = currentPos;
+
+      while(temp -> character != '\n')	//search for first new line character
+      {
+      	if(!temp -> next)
+         	return;
+      	temp = temp -> next;
+      }
+
+      if(temp -> next)
+      {
+      	temp = temp -> next;
+
+         while(temp -> character != '\n')	//search for second new line character
+         {
+      		if(temp == last)
+            {
+            	lastSwitch = true;	//down of this char was last pointer
+            	break;
+            }
+            if(temp -> next)
+            	temp = temp -> next;
+         }
+      }
+
+      currentPos = temp -> pre;		//search ended and we locate curser and currentPos
+
+      if(!lastSwitch)
+      	gotoxy(temp -> col,temp -> row);
+      else
+      	cout << *temp;
+   }
+}
+//..............................................................................
+//******************************************************************************
+int main()
+{
+	cString s;
+//   Brush();
+   gotoxy(1,1);
+   s.Manager();
+   getch();
+	return 0;
+}
+//******************************************************************************                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    ş        !       &ş(        0       0ş   2        0ş2        8ş:        C       CşE        FşP        EşH        [       [ş]        bşd        ]ş_        _ş_        n       nşs        sşu        ‚ş„        ş„        €ş…               ş“        ¡       ¡ş¥        ³       ³şµ        ³ş·        Ç       ÇşÌ        ÇşÊ        ÉşÌ        ÊşÊ        Ó       ÓşÖ        ï       ïş
+        ïş
+        òşô6        ñ       "ş$        ,ş.        4       4ş<        4ş:        G       GşJ        GşI        P       PşR        PşW        UşX        |       |ş~        |ş~        ~ş€        ˆş        ¦ş¦         ş1         ş0şÎş	
+8         3         3         3şİ ,;ìw ğÑöì®²êZä·=Ğ4é°%¦Z°†½¶˜qu¥îÑIyRß×•«ùÔ¯¨~éÖŞFJ“Øzh;>wRIjsÎWëçîñKªV-H'Ë]¿/"¦”¬‘wÊ&[$Ğ>ÖK-¹×7‡ç W½¿T˜·ÌÑFÔŸ0ŞşÒ½©âÇ'L°ëK|Z<‹fî\KYRêz§¸Ş2ıEØÔ®1í™KôìVzbÖLƒÎŒº{Ií°Ï$ÏXMœ„/Ğoî–ˆ£¡É+.»·—4¥s+:ÚP×­Ñ½Ùº©§¶4:ød†ï(4ÕuäûV?Ö‰,×É‡|QıuÎ}_=Èğÿ½¸ïù|	ÓzÍ‡}ºûeö!#¶7™­ud¨}>Í–eÄjĞlêM{.*§£e/×XPd'üb¥†”½qO‰6ªŠ%’¬;±^T™-ĞAœÃQ0»Ø$Gi™»¸© ¥™ÅØâc†?õ2‡oô3‚ËOõåH£¨ë’T3M$÷„üc7H÷æ*æ\g+t;ã?¼ş~5.Ú$sşiK¿±±M&–[ç9„èÜÌÙåQ^§¡âÔ7ˆ½£ˆfÃƒÒKÊù³íÏKA¬§hşDåÛØÉ3Ã2ùo”ĞMB,}c¹8!ö1÷orë¼u‰˜¿ãºåûéfä½U6†Ğ&ìú!'¢êêWGK%BI“ßEQZŠ—ÔÑ•ÅP¡‹g¡“ùß6ÊÔ¶ŞÑÄÌñgsó¬ÔË³›C@IwÙÔdNNŞO‹¯çÒÔÈ¥Ùì[{†cØ«?¶”Múi&´Ü4º|¶^!Ï^@Î²?¤ûóSØË³ìÇ‰uñ8ÏH”²—püÆäì+;{Ü/x"—8èÔ;wÑ²³1»1™8ÕĞ›½Ëß{õ«¨¾j×äòdŒ¯ÿáeŞÒøÚîm0s*Ãïf=Æ³ï­½‰ë|ÔÙ,:7}Ê|.AûP¤üí’…ÔQ‹S;\<û¡éÆ)™â:kË‘Šf \r³vöf½U‰A“A­¾/*@`e«<­±cwo?6ƒ;í,Äìòáúuwm‹ÇWxú åbÇùâ»Ş6{³×ìv#ÎUQNÿ[gAÿd’«H…fu‡¾±ufŒ*$òcÒSäOtĞş/§Ÿ²yŞæ»}vê?î}Üõxó£îºÌØŸ£âmìĞ¿%ÖşØ1Ä‚©ßéÜx6ßMmFKlI{¤»Ëk¦:7’ÎAáìwQb2wÔ [6Å¥0ø—,ÎŠİÔp×àóÀ9gk)tõe½.­Ù¨’=ã·ÃaÿQ^3ô0¬ì7zÑ’îM,kúñßLÔó>¨íÜ%/dŞKbr›R€wL2\RÇwŒzS’şGÕJ«¿}¶Òò\ú´9ÀÇ®’‹Ï@F÷mê2Oâ¬Õ™?}"˜´‹ÔÀ¥±FAï$™RœÒu¨Ï5j#„r.¸jŒÈtÀ_§&õ5õôD\*ÇŠ1Ôêã™º¨šFWPWçÏŞÔ;R%ÜJßubÅ
+¶‰(MóV#±ìüÉ		Û±î>â¬_cƒÿì$³Ú/®³â'¦+BÎ”‘ßá&e>–íã ^dDdr Âi÷÷L¿L®8¸i=ƒµ¹¼w…"×˜¢ĞQ‡àO¢>!—A8#€DÜPx¨±2¡XB_Mò!ş˜ônğKröDˆD¶‰[³ƒ‡æ&ÒIänIŞ“¾&}—PS9æVñÊ‚¢é 0$7ù]¢v	É%š‡6Ù-Ğ	õ5(ôDm1¾C!'pm 
+/©h,ŞP¥üÊ„ˆsP6á¡bó/R²òHº<)Œ	W‡àüÉîxD›—CÇ+ˆHi8‡t<Ÿ²4¾Ã “ÓMÅ•›Ÿ å8”|7„/Y ¹¿Ñ“¯‹ç2fB ŠÈÑfsÎa‡Ğ·"â	Q¿Ïáä’ÅM„ØQˆ²wI_ãv	r6›0XÙe¡%ã›°şºËô‡JR·€s/"xE}Ì‹çD[ö9<„¨@ä¨Á[ƒmÓ2KëkB@$K<Ñ¿`“ˆL¯ˆHìDM')L C]È7W‹ŸNëã{xNE›Âh5Ÿ¹1á1=
+p~0C_É ˆNÀôQ(ØB¶Pá*ˆU†
+£y;TÛ—c_»š›8vä{P1•ê„¹T$ ÎBú½BuÂ1Î"Qºa—ùİùÈ3ÿş…?îMo;÷Ò=cèşã¯¼è’Æ³'ÙSWT	p©xVÆNÜiãÒÄà „]Äp9ûÈê‘—D¿¯[†ºdø³A†-D
+’ş?Ñ;}h”ØBPEÉ`C<„ ËŞWÙ8£&Dà+äñ!1ä?Ê’kAlƒÄårZ¨ÄÄcˆ·äB!s„"7!ÂicÛ,dX™/Ëö0™‚ÈÌ"ÂîñÜÎ—È,DQv\Êk!aÆ¦—ŠáÃn¶Hä¿%q2ñ!…¢‘;D»OwÍYf<¯^òÌ# ÃÈÍBpAÀÁ&k£¿8Ñ›Äèyô0^šLã$mb]Ç‹íëA²7!Œ(uPÙBq]¼g¿di3Á>ˆtãhc“TÒ)–üÕ§³¤?ˆJùƒH,“<iQBüh²„Àh²xò#¥¬JK˜"n!iˆ`£‚©bc),JÄ&g!b#ºí÷Rá8B¤ÎÑÒhj0‡FM†Mi‚š"Ú ¨!·{<V8ÒB8E\\ô‚ OzµÓÄQİ€ˆNÈZ :şÁÁƒP¶P’¶HzQc”8¡¶Éˆ.j¹DTÆ-,TDœhŠİ%ŠšL×ƒ°ÃŒ’`—¡«¶_Gq@
+y4$•A)&KN˜ğÅ=×à”§¨ĞPBT.ç%op+ÒŸ¡ NkÊôÒ"9¸èÊ ®9‰`V…µâìrÊzô}K+àWaM‚¡ÑÜÀsAøf£iÕëóÚÎGèd\"Åà7 Ìîò‚ UÂ øòë>m5×Ú~á¬qTŞÁ§ è¹Šôˆ4R‡Á¬r3èË°§d5ÀúvÁ@ÁW­äèåÌÙa!^N|A¾9‘’Í	À`'„!ÂNCˆbƒds‰1ÈØ	¡Dè	2Ùe‡²p!y| `b`Æd Pögîçs€œP‚\‹ğ è²ğ'ú÷¶ÆâÀô*Ù>«œÎu„¼Hõı†zrVÒ
+y£LL'î¬/‚ÈĞw³¶ÏŒ¯HBùãF'€ÙbAlçÈúµí§‡tQpoø‰†u„ô¦İö¼n8çÃZ‰GŞíái2F}±D]‰½-.À´Œs¨iãŠÂ…ğzéæFh˜ğEÔƒH1;eCá˜+w¦>P‰¡Ö>ÿ’Q¯MòÁ:÷‚óÁÄ%ucÍ1kÂâx V]áVRl ÆCä«oÜp¥şœ)¤Y[¬´‰>¢‰ÁmNB_Üe°t÷´1\¤öÂóÈ²Ä·×è6­¢BáÊ«‹Â¸`Íê Yây’/ja)cÁt…úÒ¼7†}XQJÍr4àô Áb~¯Ì.¹sn3Æ`e%6¥¡P‰Ï2]W·“Ã°Ğ¿œƒaÅÊRc]C¡1`K„^ˆˆ]!6y¹_æÕEBŒCî(ÆÆwdR×ÜÂüI1(Èxíù@˜Jë")Šd„¼Èî })pIù¡Q6Ñ¢¦D¦*í²¹ÓËyÅ,&š‹p¥W[¥áÍ‹_Õ'wóüö-¨4ˆ×ôÕ‚ÅbÊëá’NÅ*ÏvöËˆgÚ¢×¢hÚ…(â#ØKÉóÛáX¨ÜÊ‚Scwsó0ëÀò•%]%:ù¸tGiã:?†¦—+œÉs¡Û:‡Ù(Ú@göuÒ9P(~÷N&åË{•¥|=ˆÜFœ;E“/Ş‹¡I—GMë,°ÓµäáHdøÑr)åM‰44ˆM‘¿úM!:HCêÈ œ]Ö@8$ë¯íñ´ÂSçt Ú2ÌXç Hd©5aª0TA¸¬ÂÇâ~`¶>ø T#ÁV­ÄšœmàèÔµI;Q;.@ôĞ ÛYQáX î…j×ÉÎ^wXï80¬KzI	À½`æ ¢3°ÙCÔ‚0’¾rÒØ8›‚[è¥¹ /Îf¡—:MDŸú…àÙ's´
+Ì…À/jĞ=ZB2Ö¿PÒ`ÚÀpl"'EçŠÔÅ|OÙ(ÅFœÑZ8|xÄWãÉ+9?Í‚áÚo3J,!òªë}3n~ø$oš¡•‚E€Š³OŸc<°4pà¦	¶f"yI–ÍQ˜‚C#gå6KŠëò&XmGÅaÈy‹¥¨üiÚ(‹P²äÕxøä,ã›K—üî:1}Ââ $İÆFà‘Ù¹Ê9­/°Ë ¯Û:’æ¢‘-_KÓ+î/î#ºò"Ÿ¦.Ş¡ŠÍÒó=‡š³Ç´òq èË<]É‹B²Ã¥HXƒ¦wòà¹Š³àZ[N`kŸŞRèÏ÷!¡³„¡M*G%'‚òMG˜æmN°äÒ,‘.º»4ôŠBNDfW†¨èvµÉêcøÖµŒ§°Ö±c¤sI‰Mm)|İvË ‡>ËîÈÜ¸…iõE{
+’;+HK¢_¨$ø©§€®X!‹}?XZì+ğ@i–±
+d>ËøX.œ§€·Í\ìó(|‹×ksÀPtŸÕ_§!@¹Ä6 6Ì[ºa¸rˆ¹ ÀißÊz‚ Î†ZHƒ¤á.ô!ôÁõá*Í"y¾¸`ä3Ş-;Õ"3^ [6á–³³²(ò-Œ´1`æ…‘ñ$ıºbxi{j![$Ç1‰«¬S>x9©bJ£ÁÊïJªº‡aıdÅé…š¹~ë#ûÉ<ˆ}Ë>İRr¸L_>àgYåsØëÃÑ+*˜ê$Äª¨_:àzSÛ-D•N{D'Rt&n5iEÈ‰ò\åÌ(Ğ¬&#kÁ¦@&â7®$È“®´Ùµ†çD×Ë–ù9%”Á8{²0[C(?¥³–­dA[Š¾B•«¡+²Î¤	
+…’O¢ùïÈb£™Í6ö)¿J•ƒâì¸×ü±è#¨”¼´¥ÒšSVµ#5şi§	•íä'…j¡ë¯%èŠ>©ÅUcÉ_øçÒ86AòÔõË7%•U/Ğæ5_Ğ–#^ÀÀ½#, €a˜•U-Ñ}ƒÂ@“Ç¢Y"ÁJQèÚ¡jR0¼à*Y‹EY¸±y±F¼„Y©ª0°úAñõHTÉ@¨iå…?äKÈ^±äã</ĞH`X1:Û˜È¤¹,¤Á±ÀE:çhÁîäi›«J–üFğQ.û¦nÀ´T	[¨½ãˆšK‚OÀY˜	²BÔ©IùÒM=”
+ï9YD*\7•iF<«6ñ(Ñ½î—ˆœhÖU<rH¾²Ğ±~Ë8ˆ!–ïˆ5ÙBE£d.$]Ô¬ğF˜fÅvÃ^"vÊ“}¬ç±®ˆO£:Ù‰º(İÉd\ØUgv{(+Uû¬Å'ğÚø"p!Ê!tg-ï¥çŠ}‚®“ihN^F×SÿWˆ3YÎÃıÂ¥æ•€’7âé›ä1<+v;,à)Y9TB Hg:[ºÅ:ü2=if®YM¡D‘*bv’¯–S#šZò4dÅ´Ûƒ+qVÌ$fÊ2 Ğ ‘AbV”ÓmÈB>²M(ë¯H…i\`±:1#Øı2–S!!*×_×;F!ÂtˆåCAlƒ´=dØ‰KÖŒQ‘‡½ÀAŠ"Avä2' e!q†”¼€pT1T"a(òÌ¯iÑÉ¢ÈÁk3: Ì şirs@“›"Pr¢hØ¢ô]ˆßÉ•‡…ä2ğ€ˆAƒPB†f@E^ú:¹ûBÖïWºº·½f·†J«½ts-·\…ı‚¨í¾f¤UH.ÕÌ¥€/lØAçıĞ ½zœ¶êi¡ù	ÁYóP< Ó 9	œ^×Çhg:ñš×òË$KÌÄGù´‰VÒ§GàA®iÂğùO“ÌF¢A’mI3Æõÿæ—LÑ"$|Óôè]š:%A>²>M¡K\g`":ìxÇ¡pÚ¢ÈK!”ó'ñå•„Sú[¡•S†§Ü9•‚-\Óv‚(IŞLåÅYbtïæTb6!P5i^Ãpttò$D¦åÈT	!d¨€zM4&ë4²è‘ö€¡ë§Ëä*eæ×°GAÒéw—¥?`SurP"×”8Ç€s±ùhØ¼²k!MÁ0ÀŠÑÑcÓL,†ÈÌEÄv)  ¾—tcÈû2Ò…›'âô²LÄóÆ¾™œÜ,¿[ÆeQ³K_K—+A
+Ş²]‘Yrh"œÀÙ“ÏòOCü~O¹J„®jœê×f%ë
+’°lÛ|NPÑÔ°¯3PõZ6M¾iaYh”EãD<÷ª<p‘ş2Ê’
+hf¨#ÒL/İ’Q–½_ÁH[	K°ÒCQ¥ù(‘X²‹"[YÏõ _7kFz Å¤¨Ü40™S!Oe^˜Ÿƒ‰c47&sğP=vé/æ‚x©òz‡6¹m‹Ò–Q¥Ö4”Ï-"†N•xyÜ ¸§R8ÔÊj#P†g¼,ŠA­•eÅ'ĞŒBuQÓ#ıOªô©“á£uø§õa)SÅÉ.a¡›NÖŠ®¡å}ßZ£cøUPc@ğçy@_bm(Ñ+>0§¼™öİY<4°',CcØÖ;™"@ƒ#Ûˆ†Vh¼ÁÀ0åAáM‘›U-n±ŞëlëƒH¸B_Èôİ¤€{v'lL—IÌ"í‘EÓ” ˜?(†_d¢0-Ñ´Ä]Â¯*F,B!õÂ¢NDOLº¿bIÑ-Kå·„)ÃØ÷µ™éìDIpX-™>Îw¸Á0é™uPd¡e•ñ¢ğ8ısL¥qM,©-
+XÑ1øœèƒßQ##0¬e#\ª0˜ı¬œÍÛ^£§n4)í•¸Ò 1l:]ì‘ÌõkßAŒ"Û{¦#1Jƒ™IGá[¯´FaÔ6S0•l„.6•„Äé+PZµDF£rÚ`Uí¶DŸ¤z]¥²lšfÉ¥Âlù³¨`ZD5KKt\ÚË)ì`m¡¹+ëIU¶üKe…¤La ˆ%d““±%B–¡PÛ‚…­›ë](–´¬ºR4ì…1?áù¯>A ö¾¡GÈÔD€PgÒU4S!é27#1g~éŞ9^ßÔÚ›¥=¦ ¹YÀzv†LŒ/œz7DLj©RtŠâÇT
+ªª*uœ”Ân9µrjØ‡zè˜ö2v9Nu!¦gİCeş¿­İuıQÌ^N®$ÉÖe¬Kr€È²{`2Ğ,¹ãÓ¢wº9Ñ/*Ëˆßg©JX¤bw³Ş%üÕ>y©ŞÀ`<¬pdØ Î·6f¨ƒu>­›ÜHÍøË\îOm“4hZ6¼ÂŒñĞ·3™”¤¢İ|b¨	|0å$)*alr$ÔúY={Yb¤ïK}*¦æÿ®ó“ol©4ÌØ’çW¢á¿„¶GÙğ2w|´7æ*|2$ü…÷&Mr/Ÿ7Õr„M3©¤·ö#²Mhšœ¥kˆ°“_6ßÌXÓˆ-A-–áx4CÙ 6Kç&5iK:²ÑàÇÕ6„.m!+	cd¼¦ˆä¨ğÁM˜RÚ 6s6¬ÛÀĞAà6 ù0ù2p†µ½…YFÆö€·h³`Ø…âi!œW¡©í™*^Å³LÓ£Ç^%}ê’j8TÏø†ÀMHÂZ­É.ësâßÔ‰Oªz>(HÂ¡ÎÕtÜa¶ÓÂ4*/™U„0âk‘kyl„	]m!×„³0}…tU@Ğ…iv§Ö"Uï¤GQáV+ÄÖ0/»)Ã(”òOÎŠ#ô=İ]3”)9"£7ÕÉKM¦ßÑÒTaš1ÙI­ú ‘¥h-Œqï¯Ş;$|úx‚;bŞkÕ u½tèPà¬V#4Ô43[=lùÛX¹	qhû¼‹¥2ş[ö™-jõ¡éâ”rÕ·Ñ±²PÔJõÁğàÜ¿c|¤- Ì> î¥’wd¨2®m—møñAdñ8ì±ékËfu®RÀ!‚‚¤%ıI“ôZF¥~ä^;Ñ^GŒQBTÃ·KcÕX;Y~Ì2µ5U
+)¶$tªg§Xú€Í’©9â•-İ,·uNQúÛÌXz
+ÑÀ0c“#w£>Pç&í!‚D(‹‹²²((‹‹²°/·Oß6~+±%º—Ü:Â‚»í]üÔ~8¨ ×÷ŒÈâèš¦¯Ç²¹VÔÍl®Ñ	;øû¸
+·x£öÑ×òF(Öîì[ıFõxjKPg©’k{…ÓFM‰„íé“Ë^Zş€ªTÙ°ÁWP,J§²_ººù0l¡BÕôy2?Y(ŞŒŞÑBØò9Éˆ½®FŸQqr•`Qø|vGªï7äÜsƒ …°!ˆµ[ù(t¦ök»òŠ -¡dØB=Æ¥®ÂóÛÄÜAs&PI˜K^¬±cİ±ß©·øc´Oï{›ğì¿†§›Û*Umíp[±0kPkóÑómh‹kµì] ©/PÓjM¦’šz5×ãŠÅg«¾}ªçW4ÏF›­ÈÀÜÅÒ@í©!4ü'Fıu—Ä«öyc,("ò¶HÕäFı›KEßÔLÙ@ç.K€îôtzY˜³Dr{9¿,Ú¹«÷\¦©ßşH? –Êş0} [ Pì1¼Å·ËÔ„sJ|]x±ƒ'»=ØÏvØó«õy“Vç ¸İ=QÄUÑàÌ	ÚèòØÅqË’“·<ı?•Á ÅÉŞâqEÚLµè"Š;†òrqÏToØt¼)¢M:r<¶	\ÊÏò Ü¦v×iZ™¤şğté- üúĞûĞÆZ9KI%Ræ:˜Óg–MXåVóæyƒe“4Èº
+A<m,"„ĞªÃ+\‘C¬é;¶—@`w:²,İS‡b‘nOg’$×`Š?À£€B\äÌÌ+-‹bY•òÉxMšå@òf¾®0Ã3Ğty +œ¿AkîÁpö5áF°RíŒ§[³ !ºgâ»Ÿf“¡$çF ¾/ÃEËwp=>Ìí 6Ri¶©•Cnâ“+ [''l;ª­êuETà®àWp+8œ“\äñE½aQfä*Š/˜`êzÉ, ê—ÈÏÄĞˆæ	¢Øf°NpEÄNŠl0ŠŒ8C„8Š@Š”HE†O(!DN EÌN,Šp`FŠ'Ä£'Ò‘£M‘³NÒ‰§ø·¢³QzA;BYz0=±†Ä>ÆFi'd#Ó©Hé	6Äé	TäçÄªHê	UíD6Dê‰7$Ú	oÈìUdû„!õ„*"vâ+Âz™=‘‡P=TN”FÚ'Ì#n	¼$ğçåï
+†"j¸¡ĞÊ'¶!^MÄ„‰³‘Ì’\®ˆmÃ‚‡Ü×G"íDsRm&œáÇÛ¤\¤cØ6/(m.:Sõ%€QàŒBp
+gR@”B
+Kl`Ò@ŠöOP¡ ƒ¨lX²aH¦ª@hƒ7Uxğ€ÂU°p”`6xüâÔÈ»‚V¶³!p…€6
+rmèµ!˜am¶Ú$¸„;Z äB€„>Y¶æha0½º»e-ƒ:AàÄ@/0kSü?¨¤…Â ô}ë> aPzwÑÒö‚- yÁrÏ×`…¶/ÔpÀúz ¹ì™÷”fîáà…º;ğF´àşÀ€…·!ÔK+V½¤¡ÿ’r…~k™ëeÀ ´Èú÷×eƒë45.+Ìùà`ìbİÜòPƒ5=Ø‹Ê¿ï¡k V÷}´Ò‚Ú¬ß‹__À0Rp °¦>ò øSÂYÖº äİ/ê””³Øì A „¯é•Bƒz å•º³É£KÈÎ´ú‡òàs¥Ç¹_AO–„NºP“+è¹“‘5DR<¸DİÊ¸Âİ<Xp
+³¢ˆÍÚäXa‡c‘„Ü¨È…ÈacQY(Ë‚Å%HAŠğƒÅøA6÷ˆ DZ„Ë"f °G< Á¡$œ6ÏË¤ãB]ÔÌx-DüÁúğşÀLOş9_‘JÆ¯§ÌÌÌËÎÒå|"±ê…°À…­9ıŸ©ßËjV¥²—¥B®Ûı.pWh+6œ"ğŸ¼ıUêŸ)m0„‰)ì¡sQv= ÀØ¼®’,åæ›¯ÏkÑ'j	d)áàşºëiz§Èr W²•Ùâ´Dh±ÂòĞ]§óvYY•ÙRÉ–gÉ`¨DwÏn/Ô@+ì“vi:@T‚.¨ß¹³¸™¥‹>•×Â?à„]L¹“ä<'½tKí(uEbìºb3¬/ÍãAÔ!°°+Õÿê+82Å]†¿¦“Ln*Ú¯»-­"±ê'‚û–õ"ñà¤­éÚF¼ªıé0˜À×",´G`%±Ò9§g_Qå	¬dĞ1¼µŸúlìõbŸYÙ¸tÌBÁ‚yõ¶Šß—œŸù6ï‡èÃäÉÏ»€[HßÃĞÙãYøá«=?±Ğq!GstG(AŸ2Åö š¹g‹Ù›ÀÍÆÆ÷O:qTvûl©ûŒ¿f®bûÀ˜3éš°A	6ìËô’Š§É²¿[wy%Û7¾ ƒmîŞñk(Ãê/5˜asvı7»x
+h¡}R`ÓVÛÈm'KäêúÓÉµHmó`Fåg×ôäßşS’'³­”m¿å[g².é´ö¾ DWgëÒ[¼íEc_´[†Ÿ×ïEºñ³›—ÑÒK³İ
+`à+üôóW—€2u÷B¬—/b=+:¿¢¥Bd!£6©is³%ª?›!¹ 1ª`nójSôX“0„:e‘Û±Ü•“%Y©ƒZª—•n¤§«2İYª:½»&£ÂXI¹u;iE]<:yÕø<·µ"LL›„æğ°Œ¥Æ#‰t±°à“Áƒê†ìN@}×ÀÒ|¦Y(lõÏÕnÃ¤ÜŞK_b±ö×á–äÚ•Ô¶%¹89LçºU'|f¨&é
+
+Á™KSİ..‘>Uƒe”®ó’#ƒØ.vibR%ÆM}á0EbîQx·Æ0¾sY¬±;&|¹L> ê¹È]ùÿ¨êŸ(z¯Eh6öMßcw/4P.c®îTÓ@¦`F?G…]Ê?ğú û»‡Ø‹íŸÜ‡í÷Ş´µ‚)£Y?½“ƒcÆşİŠgØoò —¿uĞŞ^ó]nšº
+v`va\TÙ4Ô½X|‡Ûyàu¶U#û[>
+ïƒıíŸ•ŒñƒõÁÄ_ÿª!©ÖëT…õ_€¡G_4Æ„yDb/~eŸ“W²<é°³ô+¹~•ƒµâ„SI~…Ç	[%úä‘FÖmŒÈ µÅ]Oäw0¡ûÎĞÒp¨ÓŒRÈQø÷
+k„ÍRÿ…h¯ôndAÊÏ¤N7À!g‡iÔ† »!-H¨ç¡{ÙÖ RÚ‚»0ğ Kt¢}·Æ é™ƒ'ƒÜâ’x‘øuÚ@_‚˜¾ÖşÄ2tã<î¨³©tqŸzÈ aƒ]NuâÇşéÆ~®¢ÍœœF"‘vl’o]ÖÙÂÉâÙ{5¢aÈtjíU¤Õ‰!K©×0ŸunwUË.L•Âëä³Ãvƒg¿uj ½øÄÕö°Ş:Ó€<ß¾ËkÃIfö;d¶í…Ê×Á½`(„ {_>¨}P2Rja4Ğ‚[é8e€ %×H/õ¿¨Ùì·U{Æ˜,İ×h‰Al«ISïAúæŒ”N·Â%=~®-d½»ŞOiLÕvÄ°ëOqué¬/¨‡ùfµß%ä,5N´g-$´áN’á›÷Í±í½ìröŞ%è!`öY‚·gîj¹SMï]Ú•î¶Š—Ù“§™´cüãüğËßÎ½½A¾9­•©Øód×\x–Y0İêM}¯Ø¸mƒK[]*ÃkqÎ•°w©çòLv8!nÔÃ²zˆ4¹t¢t°z1˜rÔ÷æGìf[£×{!r×['Dš8(»W)ß_¨ W½²+è=DEÁ&ª@.D=R}²^oªwàó¬ §ÿ¿W	Ãoñ*oÑîv	Hv~BîïšßÀë‰²Â«‘¤_Öu|0ƒu§¬áwzæw¾šg¤¼AZF=i{G• Ïoìîo ĞHv@}¡ØAßIX‰=l–íoç#D_;´ˆ*ÃŠ˜jÿMÉ6ïrJîîÖU¤S`Û4vÎ2®î¨ıÌÓ×ìÓ ®}» Íã¢÷·€#H}‡µ³¤z‚ËºÊµC}ëä!iX“¿ 	Üƒ‘€»{²³áÕì€š€<?åí#ÜBGAÙ òš†¾88«A¹RĞÓt“±Ü×­GpãšŞ1(Z¸5Eó&° ¿‡gÂöÛ6äÏ¿å"Jª€Ğàğ®Ğ¥¢bæ¶˜ˆ‚^ë·é-ûøØÔŠµlj&Š]¸XF‚yrKÚ*,F	ÀxSÑæ‡M„÷W¬áaB|?68`Áğ¡óÁó¸ÙC÷Ì¦hšR‡‘…@;ÄCw»‰å¹¨L.À
+¡ êC]A·&Ì9K«¡¸Ë*o<4×.ÔáÜºkCÑĞ#ºE´@ü—ÈòkP&¼¼ü}7è´˜h€'ê’»‹ô)8-.åño¹2ÁnŞ•”l 7os
+‹@@f<)vàÜ„0Ğ#Œyä›ÎA±v°ş5|‹°7‰ÁÌ-]ÿd?ˆ¯0ãŸüVõCkŸ¿2<+v·]¼ã|§ù<‚¾¯…²Ùˆ2ŒiŸE—!ílä‡­î…Úıç2½İğº”¯ä´G ¿-Å;‰YÎ¤>ÅSG>§‰g…½×İ¿bE»ıbd?l‰9÷æ¸½íSå³Ëvµ/Ù¶ÚåŠ„ã÷Zœ+®ŸİP«?¨ëo,Yx¿·¬7ÙÒ}ï¬jßÏĞmÏXzÌŒÿç —oÏ½íä»ƒàÖk­æ–ïvçVÂŞX[«cUpl«Mß6Û´Ëü÷êy¯¥ï¼cí®]á]UùÀÃú(WÜ÷éw|¯xl¸U\c%Å
+sum>×m
+ıî×ı®k5m>ç¼ÿ½Ø¯—üçö×íô\K%z¿Ï³]µÜ*nNµıÖµàîuºĞkes¿°æûmóş¹9Ìkmï\‚¿’»#Qä8Û[‹]ã±n>nsÌç½VáçflşØ?¼Y¼TïîîzáXîHJ0mëoå¯•±Õã©°l>ï9l{~Rrñ××­íE7òT(ïÁóõ¦ÿqÿ•ïQä=Û÷]ğ‡w[òô³Ÿ¹ÁÓXDº@Ş-8bİ.7ÛÙ?n°¼Ìâî—÷hy˜ö¶áÜûê#dV_ywâ!uq÷×zEÚâYßvÛåfÚèDÆä~c);zÚQâ¾Î·sfü·wñv&¼ÇâÅÉËÛ×çnú/ŸÂõ#x¾ÿpdÜå}—2—î»œ×äz^Åı-…'jr9ËüÆ9›­ôşí ¾«ÎíõÎFÏíkåïÿŠĞ}“²‰SÃbŞÚNv+oÛíú%0Î~ÉÕj_Ä;Iâas›ê~|Òû&—ß ÂÑ+Õàİ`;£n²õÄ¸¥×qArù[,©ôøc/6ÑÇG½Õºß[šÏF—ñä¤(N£Vş+ø³Ğùø¤nò“_¿àNã[ğ">çk÷Œ$™NŠéEx‚ş–âî–úƒOäótù=ËoleòQÃV+-qD±Eõ·=³Gÿ™ÌË½Db”2ób© =1jUlâã\vSû@“ï\q¿lÂ={·^Ùc9’y„Úıî±*#Zµgœeh,wå'ß»¬S'FèiáUnº“g¢8ë<
+=±ä¾É¯õYuç-8Ô÷æ¶{j²eéÅĞ¹rêF5ó2Yg÷Ö¤üÌqâ¨şuë³ñC Æÿ–Ò~ıÿ÷ˆxx·–[5*“ÔÃşd5mõ	/ŒÜ·æ½N6˜Uaß?ÇÒ¢K0xÃçRóåÌ–À7îÕÊ(×¯7ÌóS­oe¹£Kúü¼_Fé÷£²ï6‚öÂ™Œæ¢[ÊlZ}ì¦ŞŞ†2Úúu­¬¸¹âN8ŞñUcgº&Î÷J÷€	ÈÜÕ³xÏÃ¼oüdØoã®v¼÷yN‡«.7šL<ıg·;Ï_z²?¹µ>¬J™MAzŸ=ÔZÚ²óÈİ~úÄí8ÃÕŸ­vÜs)GŞõrúßû%+òo8ÕÆşŞd(Ùæ:ù³äã/íãĞ/[ù”Íu3Ú‡‰1œ1‡/2;Á¥yÖ­K¶ÑJK´e½9ş/õ‚/ûîüıÉ™”Š—Üİ£R_{U¹XJdÇ¡ÜÇÅ˜IÌ¥Ã»VìxçD7»¤>csî›ÄbÜyFç<²Âß,¥ê([lq\9Â–É×äÎ¾<aÚ=Šk7dKiÆ_~Ù}“Ùi²T¿ù1Íª1-JÄıI&O_ÕïşéGWÂª³zGÇì~|ı*K_E}°€;Oúşw ”OïRNuí°9©ïÚC<½¶·³ÓóCåÂB‹F®î¹ãAŸ³ö&Î°ÓêİÕë±•İò.Éå®ªÒy¸nP¼Ä/)4mZ(z-NR±<ncõE5E‚üvù+ÎÓjI¨E½Ä²ÉÙ©¬wâÕ„np=£Zôûğ®¿ÃGôÜ»/øÀ~¤ªáÕ,8ÜæŞ[Ö,HB¹¥»ø, €ô—W=÷ÁzÏ¿W}ø¨G«êtÌ¶ò«¥¦*í¸]Yåãl¾»Ò^ÃÜÍWÑôNªÓ¼Šs~GQ¼ôÊQ{âİ½d»Í³ò;NôÃĞ×ËVöQ—•…å‰?¬<íÍD}ÖÚ¿×íÏŠm±ÂÉ®µ»Ø¾İü§ ~ªkpùşSrbLÊêàÏOWøù)õS^E¹DÂOWQÑevÉŠäSÅİåY	ÿà½÷E0‚##ãáH¬ıRaÃœ0›ë0“{Zíâœn¿ˆÿ~í¯‘ji¾f¶jàIŸªtñ âõ#ùÛ¶W³ÇÒù–µ‹èÚ<N-&*—¹„Èy,Ã.yóº?Õ#ÈNü³UËzË€ïàÆĞ?ğã+äúÅ(i°Sô#º,0$ğ÷Şo¶û½ğÚ„Â¯šgæ!øÃ,Ä}³-‰~²Íöa~<Îã½ùÂ·ã§+^áù˜÷êû¿6îÂ<ßĞ‹‹F¡8ç	ÇÃÿÂä ’/ï}d¤a›5Ú] Ø…ˆ]õW#t_ô^®‚_0Pÿ7fòKÉ¢|8—ÿÿ°æ´Gˆ=¨x°-É„h}{ÅKqïŠ­R’Æ¿"ö<I^¿`¬
+•-^˜ÁÄìršAZZ1TÀL¿ø‰Øï6/uƒŠ+YşOâîßiùÈ2{‚0—}Dìx¢Å¸@ORòleÜ$/}p¬¼+¾’Ø¨ò1 «£Ò~YSEN–âooI¬&lÂTL±}øµz¤áqÄ•t<9ËÃ`ä¬YNÿ‡ÉhvAaviÃe»zøI¬°bÇÖó…MåÅú	úÏÛÌ~ÃÖ …"ş²ÿÃE˜WÓ«øŒ8^ïã	…Å‡¤„¸‚ğ;Zl‚¸¼›bãRGÓwG˜Í¬6ÁQ°€lP{„­F«a²kâ„'Bş +FpL|d`•ñ‘C>xËŸbYZ›µÃñxLQİJšeç`Ú“I<ïäÉ9Äv¾5@š1ßNÿõ’e9`­Ãø&ŞGI$â-i0Á@Pò*fEP1fŒ§2#r³ˆ$}è%Æí¿p;œ"û}<ŠyèCç£
+ŒG `%ò)Ë¹}q¯ûÌÅT 4Ó¨¤†B< üˆÀëd˜ë)‚``ô!4ŸÙá‚p³óù,È•6¸ŞCaxƒà¸5îÆom<÷…ŞÂ½Fmbw¯´ørÛ_¯Jß}²6œñ!(ÖÌÑóçş{ĞÍrHx…—ºğ%“½vav\¨ß#å3í‘òB }3²¼Ih8q÷Îo÷ãğÚBxQñï16It£ÌÜÆ¯Ft¡ru™ÈM ç÷óËa«•‰™×øÌFbP’Hû—Š¾Èb"è53er¾[pH2kä²’`¸=äåHK&#ĞÎTîDQ #€Æ]o}èØ‡o^°û0öü-½h4¾ß^/ŸĞ½œ²m¥{&.ììÂÔ³éTùÿ‹ª¦Biœé±89F¦«±HÇ¬(2@ò*†„ H ¬   Æß–¶íåÜ ´z¡èÜ;w«.Î¸ÉŞs^g-ç;NµÃš#
+úšŠ«éTÀuGÎ`a¤3"ÁH÷ˆ>~ßöÇûãÓCßmïY÷ö}ÊªjğªŠÊh†iJìŞ1Ò¦/”3}‹ÈJ”Íb‘O™d±>²éÓûÇŞfÁ ÄÇÄæÑ§§öÓƒşR8èŒÎDœ*IRtÛ: Ê§µU¦ä¡ 6‡jšsL(:Á±U†ãT1ÇÈ†Æ•*ç†!ÃÁ £APV`s4€ÕÕø×††ìƒ¬³¯	¼®ƒç¿sêgĞzC±›ç à4%ˆFT4v DOÏïÙıŞ™™<Ÿ1ˆçˆúÔW#¦ü“vE•|:çLø®)×öLK";jÕIÓØÄ*Øí¡-]éhÙJŒmzÙö€ Ñ=è?`?×˜íúwíÔ<„ø~ÏôV´Ñ­ô=í{+IOõÏÇ?`ÿN¿	Ï¬|Ã˜$}½CC$$ıãN=ô/N¿ÓÂ¢	¡$,YD¥X4‹®ù®†Ã,…ÅæÏ¢.JğŸ­»Ö°`3/ÑÀÄ£·GƒpÆÄHiÑÒ‚(Õ†cr4diØßÏëÖ¥.i|UÿÄo‡„öƒ¬ZŒµ6èl(Ùp²eƒÏ†¢J¤6`máÚ·¿n7ó>€;#îíı±œCÈ<°y‘óÇÜ§R=º{„îXÜƒ»Ç~ >P|AùÃò‡çÑ©>X}ĞåÇ†¸ÂÈâ¤Dˆ‰(‘(b9$N‘¤"tE	‹²‘¹"vFüŒ 92¢e„Ïˆ¢R#°F¡‚É‰&L>¤8‰"—$gIÏ“£&JM¬›d6!m‚ºÄx“ø&
+Nh"`NÙœR:ät‰ë“Ø%º¨¨M‘GÅpÊZ*EPSS‘§’Q¥¥ÊVØ„´€nÖ)<SVq¬Y³Êf•Ò+§V\­ÄMÑÄE¡\Æ––g\ä¹ätéérÕE¬‹d—Ğ.¸]R·ïßÁ/„^¼DyÁô²é¥×Ë±t/Q[#‘Œ˜dàÀ´8Œ#Ç&'LO™£2Je¬Ëd–!-ƒ:Æx™ù2¯„=3Gfùû­ü7ÖˆOû¸±IÛƒj…$6qkó±\š–§äälïÙQİRë«YÙƒZg·ëº|YƒÂÍB³¡æÒÍ§›ÙƒØmÂ¢×7GÀ9¼ï‰¹ê9z:uQêcÕ'«Y´9nëÔ×Á°ÃaGÇ‘0;lv)ísÚÇµNlİ²Ô±$d¹c}É‚Àj–É±åd÷d¨îRU–V–ê~ú‰÷ÑƒT¦ø"³³³#³ƒ÷½›<MwÆiÔÜH|åöÎOËórr>ö|_”êX}Ìús Üú©{ƒ÷‡ïàBÂÿ³şæêÆ;tûR{’ØåÖõ±®«eZB×r³%³•´Õ´uµ¥µe¶•¶EAˆÛÂÜâÜÜ"ÜrÜŠÜÂİÚİ*İ:İrŞ°Øşpl³À&|T'°½	°
+9	{°]V]d
+nì,øX ²pf!Í¥…N¸ˆ- [ƒš‰Şr€Æ AæƒÍ† æTùÕlìĞÚ!tÃÔø/làÁÃŠ‡(ZcR3³Ùcš_ş‚*ì†İ¼|6ül ò¹¥¤ïfÍA¼şÓÄ6§m³ÒR
+´<¾pGŒ£/z=j„ô8‰§a5/ë¬Úƒ&‡ÛxuxøGñ>â8–‹|\ÅùÀŠ·QÚïôv/¡ÛˆÚ.öˆDxn¾à‚ñ@ZOÇñär’õD:ãEã)XEËŠµÆ‹ÆCqË¯×/‚D0a±9dÄ:^f¼ÍiwÓHx¼×x±İöÔYKŒ-·>Şùñ—À ¨e†¦$“ f"AÌÔØ\S„©‰1IW±°µè’=Ä&sÄìüBN›ˆNˆ)P¦³œvxIÆ:m#;¡#†e167•@bTâ‰¥bbŠ6IKb)A‰Í85“ªšVé%²VÜ–»Ê.1¿b€‡c+ËÄV(‰Yx®­mZI'ÆB;·šNlËzb\Ş‰q‰ó–r#(S)s‘(f´ØÜS£©‹I1—®bak•Ñ-mŠ»Ì³ñëx8*ñrTL…²˜åçªÑ‹V1—Ôb¬´³p/iÅÆ¬+Ææ­G8¯)™Âb…1b1™b6AËÍ15‹Ê8“†–ÅLÖª£cÛ—™-fã×0p\bæ¹˜e1ËÏu¢íb3©ÅXhçáfÓ‹­Y_ŒÍ[1q~R6ÆJcc62Æl‚›kjµq1&Ó5,l­bºf1›¹cv~ 7GÆDø2uå†Ê˜ç1ÑÔ–¬›Ìàñı$àÆ·Î<ctâï¤áräd:Ùt%ç46qê&Õ5¬Ój,³Ö]ÖÖ˜ß1ÀÃ®Šcc;”Æ,<Ë‰v®í¤c¡m†Û-7kİ¬71q½)Y|cÂ2à˜–Ì˜MPá9VÅ±,§1©®Æ°¬É±¬µcts•vY›cY~c€‡ŠY£cü”E ƒ©«¬Y­cY´c¸Ö²c{¦ãówŒO\±”Ş˜òÌğ›â1 Çæœ–I}5ğwwæªÙ}müøÂï»|ÌÇ³¸è¿>G|ñ×?¸k-[7ı­ı1[qc)2ü‘Ò™ ›-<+¨Ş\)AjË OêêÛEÈï¯‰¿¶ø·üò Å‡<eåsDtË"O•ZÇº]‘İ¢²Çå,ñx›ÖÈcËÛàq$ü£dı}r²³éÉíğÓ”©‚’<B×¼°Z“tÂ¥D+Ô%š€W¯¸%° —ˆ‚b"Ç”c,eòòD©kXmò´òpÖrbM'ÈG¢ü~o('òä9…z‹òGò”V²“òdòĞn•Õ6åğåñ;GååE0Konği•ıõ`ìÁÚC¸tPb	6F¸#ñG‚pÄÄHIÑ’
+aá„	™ü6î.U¬„]‰Â%@K±–·%êKÌ—°/_‚À„‚	&wøÉs^fÏÄ¢	Jœ&HMÁšÂ5Dl	Ú¸#t­P¶b¸ñV‚cÅÇpYÄ²HBÑ¡NYÈ³gaÏ" EçŠ7øÕj!ÖÂ®Ea‹È -X[‚®…Ûu-æ[ØZÂğ‹¸Bpá‹ÃŠ.\D§wın½Ô˜kÖŞ§/jç·Ÿ§é]ôêf·Ö^ß¯OJöO§wçvMíôş¿ÿï“şÃ|L¯ôk=ü¯µçë›Úííù^ÓÙ±Û‹<>óÄÃ`7Ô6`h#ä¨yBd)[³OäKO íi\Ù]RYè¦kRùà8ÇWnÜ£ÒÂë:ø¹qœM»/w¨	ÉïJ?ş/"[îƒèãm6aÄkÿÙ
+I3ÜóXè±ÈßïfEŠTùÕÃÌÛö@”úRàe¨¥uÊ_Šï•ÚxÃeôÏ÷KÉØ±ˆ³_e!¤†0ö‹©µ;ï‘mŸ[Z/®G³IöxÇ«,ôo]evØ±B7cÇÂÈ'l"öäÁ aî9	ôĞkÆß¼¾$6ìnünølaÚõ¿–_ÎX<ğxaòæ?–<@zèô ê±×£ê¾Oæ?R=X~äÎ·š??xVÖ ñÕøqÛDáHD‘Œ""@T,¤j"øD1Šò+ˆX,şÈ–N
+­c1å®¢@º(˜H„°3ÅÄ„Bê*bbÚ¡ï0˜\Ûm%¢L’ )#L*#PX-ån* U®l­«ÙKKÓT+ÀV±­q^eMKÄ—‹Ş/KŞè¦œ>›K.Q]®~ÂÍŞ×êı¶ÏÕ‘ëÆ¼Öè]é»òw0ğª|RØ˜û³1<6”¼Ö^F¦9wÌ¤äƒj³ú 5Şÿ¥$›/Î^l¿ä¸<YãŠL42td	ÉC’æ$ÌJ˜—„!êdÉÄ¤ZÙdvÊü”)S}5P*U†­Ì_™Æ2˜eQËD×¾m¡­Gåƒ½ˆÕ}õàÌü	¼o,frÌ0™y>(Y™¹>¨hš>H¶N¢sªgZf”ÍÈ›±>˜°Yzã„P®¯|×İš®ıÑ¥±Á^R`;ÌCC¯²$`JÄ  x€0çÎ¢lÔÉWÌ7w¸\cÔ>,~Ï­A‘>Nª#z`¹ÁKŠ# üİ&•—(?ç‚|µ7Sß¾;ÔNeÏ!û×œÉ`i¶Î/…ı4:€tÌê['N;²wÖQì¬A^å{¼ÆM‹´>Ÿ}¨}ØrÒÂ¡êäÔtBşÒ]Å`
+Å—‹ˆ/ä{`­ÕÔ‡¶Q'm’@ŠÛ»dµÉW«+}S>¼“öï¾~+|áÚ`º¨µG<2¿?z·ÌÅLÀ+H:‚$"IŒ”Ğ+ÁH$öL´™¢à,7ZXmv_‹·Q»ØSDueqY<GMN2NïİŒwgCP6ÜnŞl/dveïDÂó|%çİ„í,&„…yPJQÙ¦‰và¤ÃÉ‰OØ]Ö}qŒ“ıÌãÕÒdçÙÿ=eFç…Õ%çy€ÈÂà¼hvo7/Çfg››Bgl5¯“êUÍæ¡ì¢Kóy„e£gï´›3™‡ç–t™æ¥ÉIAææÍ²6óyt¾†Â<bŞ`º¼ö[¥](lÜh–r?.b‰ğéâ“Ñ‰.¹¦5¾79bİ½uI>”}õXóa‘B$X‹‹H4ÎzX"ËÏ3jDšz]²+ÅO)†&µ¤ÜîAìWÔ×a NİV`	wÙ–ÿc%ä[zûŞ¾H^ø\_eı(°/Z€²ÁåEé˜êmV"d@r>ï¶Hişg:—¶. ^é¾˜ÕkZZ¦hÍÎ­;b;§·€¾‹VsûÇ;®0«€`Á×ß_¾'`úP×übáDF%”ÔÚO	ÆÄ-ç+„ [ÜÎíŠ0#Šm'×H’‘eå%ô¶0 ªj·X–bJ#«¾VŠ$5IÜEÖ3×²ü3íCï.\¿õWªáj½9Kpb¸„ö¨=ápğ$´Aç0<Wğ2ô{ewˆ÷æÌğKÏKõÁx×ÿeB~]B–÷{—/Ì.ÎgÄËÈ@‘™#cs&HÆ‘&™T2¸dÌÀÂêşiıPOãş˜Ò«½ÊyïØÄLlÎ–Ó–„ø»Àa¯şå•²{»òlNï#­IˆĞ6è.˜3ÈpÖ0‹‰/2,<Y€²eaèBöEa8íd¤¬$xb¾e>ÜNˆ’`gÉüÉ€—¦ówiÔ]ºÙÉ>8-•Şåg}P•ê¡ƒéƒ#>™ùÈc<[B[Ò[âoáÔ$÷‰-A=oÃKq±²	Ë™G6šD$Ãƒ!ÏeóúÎğ}|Š•—bv]„$Ÿ:¾“¶Ş&ÁšfÛ»g$#O‡½ïåõÖn¸ı-}Ö¡ Â\á©İÚÕã¥7óCzÇWˆêARÂ¡Æ‘¤‘ä7Z6¥oÔkRç«MRĞ;Cö8’•—,E <öÅş-WÜuÔAÛá:Ä¤FoMìFãÇJÆ»\Oğúº>Ï}´'X<²Ğ|qxáŞmpú‘V†¡k0:=RYIÑB¨\»»(\RÛ…fq>9@møÖò1›hMİ@còùESÆKÚàúİèæÙWänçF=—‹Ş™’)ù¨Åıo^ºzÃHZ¾ÉGŞ²c5‡ì2©mÕ´Œd5S +[ŒÖ3UÎç}¼¾|]ó/ù«½Ôã˜_Æîj1t‡c»çÙî³ß/‚óÙÜşõœÖwáhĞT»Êá¦Â×§©ÈRfj¹}mKÚÃöpB^tY¬ˆG^0»°u›ö.t„Ü=)*ó´†kßÄ7†~J:K NHĞkœ-Ÿ-s-„rŸ|«ÚªÍ¦¶C†¢ò`'k62ó™x£[maüU%¿·,}JJ³
+uH7Í×¯Ôçu#,¼Œ[ïÖÔÄ÷ë|ç°×<¢¿eòy„høÏMÂ×ÚxÅs‹Éµö…ŒoËŞ›LR™b_v‚Q&í	ÚY¶ó>gÙum©ÍdêÙõÃG_
+3ÆMç«¤Ü»Í\JT9ÑtÿGßßÉN¯° ¾ºÒ1Ú½vİ—ó¶ÅvËk¤Ù±’Şpw%vdûØÿ„‡ã36$IÄ›Í_è½ôØsD.æ9ÂÆ¼UÔ®¥Pêİ…ºßÓkŒÑiL¤g”uÑ•t9ÛÇ_|ŠÅĞş°j˜ÂÈ¼¹‹ÒÈ|x¹JáH8¤XĞ>¡û®WğbÙ «y´á8a€ ›{S¨ª$,”Y{¥0Rb¤ˆÈÏ*› &5Mv%	%'ú…w]ŞQ\yFç½c´Ö¿–lu„oı	¤Õ¬C\çJ,O†ş¼ŠY}kß¾Sïbø9$õd"‹İ›Ú;îó 
+¡ásÂN…¢…Ò|iÇƒUë‡»Ø‹$>ÀIxd@÷AŸãÏõeà(öÃ‰…I úÀF`V/X/n/V4Dğ”ŒĞ16òE¤4	/ŸĞR=WA»§Oyæúñ~ßR‘oñí¾½Û;ûâO|…oYô3<}/ê?Ï­Ÿ'éLíäÎôN^¥>õa·Ô ~íqŞ©—ÚRÛ@}ê×Zíê›?¦Àó˜şÑçûù~ıŞE,IôA²º÷Mİ]ï‰õÏEÚww¶b¢#ƒÕÚå·¦:¾²à²¢Ë…aÉ§R>TÂ„Å½Nn5nMnjn¿gûÈ÷tí¯ğœ†FÁT@ØÍì-ÂB“…¬oî&tb4è‡íÀ#´¯ñİo‚qXå«‹"ë"K#«#+$ˆ$NàtÖÚHÖUX—½ødÙnf(fI‡[ü ™İnğ?|Ş ùl÷_·²ùîØ+ë½Á¢*ÅN‹§NYÓİA¢‹Ö‹ÚÜy§İ(`À1l‰
+^·dDT4(É­„µÜÎ|²­µMkİ]$éw´wTgèQ,×‰b^Ù—Aù±ìSØàMXa$¸$æàº~½èéÌ~–eO¦›ÚÂ	íé"Dà‡™R§´{ïá©<±s—¦v1x*]à¾H¼ï ¿(ù3>£ÎmónÍT?¯ë_îªÜÌ,6{ÜHÈO.22½12é`'Oûb/ptÜOñ¡ÔXİ{‚M…Á‘½Ï¶ÃùÁQİòq‰d‘—Pş#U,ó‚Ìâ›Å:‹|-ˆ^Œ^[Zjµ½˜µ k¡ØÂ²…i‹»v©ß«èÆ	ÍÈë†½]ş:¢/mêËè5¥‚Í‘ölp»H<‡Ó$"d•ÕI.Q¤l6›M!Ë‹Øœ‰0)0L6keå_~©ÃÃb´ tÖsv8ı²s&ÊiÍh50)Ë¯fÅ‡6U¡5sCŠ ¥.4İvIv§ápæk'³<‡±ónp(S×a¾º’Si:,Rÿ~H"ôN¡yƒÖü©ÏÇü¾oÈë‹š°?Ñ“x²û'c¤„—äõªÖ}Kb7!•T*¥PT–ÙRK¶*”Ua« W¹E
+n'Š	Øì){=ïg`-°:Á¼®_õíËAáb“	@³t"¨W¾§Â<Mne®6íF×;³Nr›“^7´nÜ µsº SƒÊ"ö#Šòõôçt¨qµ	Ù®Üs<J„WŠ‘uN6ƒM=¯ocKâÒëÖs4Ÿt>ü|"úŠ`ö¹>——±oié³Ş ?Z4±e~úHÖLÒØVÛİÖß ÷3´”(ùD{[(Uw¯
+4!ŒèÑQ°j
+¬¾ôX†/OİAyt´ÍÒ
+oˆVÚ]&"ƒğƒòóm2h‰l«;[â¹%"'V# éj¤81‹€Ú€°ªêé-ß¹˜t¡íÂ…ÅB€tƒP#¨Æ[¦Şì5l·"6zm„Û€¢‘Æ#”‡´ÂyÅ‡{hè+Ú™ƒ»»*ñ?X!vƒñòîØ«*‘Û ıÍD7¤)(—G“ö,‘ğ„;>yğ§ÍQäè¦ÈS°";¢`f©Ş"XGg½‹`AŒÂ2æÎ0'âÖÎÁBÛÚ¶]&LD™˜ªZtT]™‰Å€Ÿ'C&£M˜DjÌĞÚNO¾UÁwô&bOªÄvAáã|:~ïš÷'&Ä?™×»ŒOnLœ¨0Q£RG%‘Š(•\*¿µ™i	]âS‹¨Óò	a«ítÅZ¥èWÊêHşşÿö*c
+›;5V{6+½ü¿æ¿ÂıIOÂå°yµ-´ztm¹Œ!D;>ZÕÌ\$ù9š²t êÖ™şÖw6REW
+óŞP´ÃO(²`¦ä¼Š'¤fj½m6n²Z˜16ÑEÒÕ%cˆ‹Ó0÷93(ãˆSÁ¨Íûh«YØéL[—ëÌ»z™Ú]ƒŒ]!3ğ—MgŞğÌx—~ğoB-t’.¶llÙF²¥ŠÆqôæÍÍı§è©;dĞ•ò3„4Öº3mtM]MëàëÊüé¯{.4„È±ejêXèx×Eßş§Áf3(DŠ"L:¬t˜à4=¬tÑêø³T'ª‘U°ÖeÔ:§sÕÆv¹ô:wÂwh„nAvÜ
+»ó¹ˆ´jóğÔHvyô{È#7E£yÓK°zh?}ğ„SÇU–­ØWµhY'§·ëX«“Ó_°«R¨Àã÷\dĞ9ûlÔ5|ûŸŠ®ó"Áå±ùªyuÛÓŠOn£çŸ%.íC<SÉç©Ğ@èP’OÒ¥§­øAYûS(u]ü {©ûû3ğcÈ ²İ±ü{«”Bã½ä°j?š)|=lMl{C[["ü&ÿ «Í0ÎÖÓß¨t‰®ò˜úÆ[wÜ–ö‘&½À¦+wÈqå)’–géx™òà@vŞ¸í~îËX„5Úrô1Ò¥€¨ŒÄ`A§PsMÕï«A,ÑY¶p…è
+\òßgrHª,7W‚/€+	©íCA°Ì7Ï
+º•&8\qØOø©ùg|!ªQ•Zn²ì:jØœP}Åë+Px‹n+¸şº×
+
+
+ÓŠM]@“”î± Í{0J"á
+J±Ñ$DI	•0¾wÕLªDƒ€!ÅfMŸ¨¾Bí>©ŞzG–O®™ä	ÇÉ§§ËĞÈÙ"O¨åÇ'SnÃâˆE‹6
+Ÿ„F°„QQ-óÇGG¡ˆÂu5aõŞ•cËÂÖÃï=-q'÷"OHÉwÙïOø]—ºXvñùbïŒ†¾,l4 iQÒH¥‡U©BiÈšÔ³Ô+©aTc«µ'²¶Õ´'¸Ö§×ì²¶§Áb³ÇÆ“¾ÀSCx©xµªbê`˜ñh1l4 yEòtl¼ÿË[14afé§)æU«8.êRë­‹!½\¯å¢Qas°Uõ˜l!]@û-P¨òõé˜ˆš+‡b_×êÉUY2;¨ª–İˆm
+š4Fß˜¼i­AúÕr—d/Iv{·1‚w$dDïÈğˆ>!¼'!Uy­5ï?ˆ@1ibÆÄÉ%ÛMc0Ï£ğ¦Bï0©y–5:z’„—¤nŞnÍ(vè¿Ÿ£öâÏ1lnRJC)m¹srR(ªÿb„e©]LcËØû›£áR_Å‹ØöTú÷¤×]fÛªÀÉ‰İÙğh"òò{wë’Ùn*"
+]’!=qÃä‘H)£L)ÑV–’PÄ3™„Rä[D˜pÒ&KTé±u‡íÀ«¤(«(«-*.š1˜4'³n{×aŸ< ú@¶õ´õ³ÅµÅ¶Ô·u~v‹ÿ[©\»Ø+•Ä	x)…E'Ğs$a
+¤Â«ûê
+õ¦&.$ƒí­7@’(Ø"¬Æòè‹x»[Pa.ÖRa4	ræ¨‰¥Sğ°Ó=ò‰¸âu^ÇçÀÃQš°’Ò\°«ö‹‚wÁåÖÄµF=2¡|Ñ¼›^olæÑ=[?ÎEv‘kyœÃÌÏQ*7Æ
+{Bô$Ûh”º/má$Üİ•ª*Z“æÇÄ0jÄåL;QŞ±gø„¹• ¼*vly‰š	;˜ ´Úäıï•'Ûø? EöÆ6a
+­»oPúíH½Äñ±œ±U;;:¢Ÿš]m6Dˆúş;-mœ„ø8Lš¹Éô¡åÌ`Å–D±*(OÈUº‹Î%|¯8ú¶‚}…lÿR šŸ„±§ITi}Ûø¯ovaì€¤ØÙ¿·M,?:}J5&¢fòäÃSÄs»W'$I€*dµ{"ehLÄº7Ê"ÃF¯äˆ‘<dízÔöhf*®I÷š?r;
+I *ÜJåEö#|…,ïÒˆ&¼	a…òK[Óm=öØ5îJ¢›â”IP¥ŠP•²*‘ŒA,.•\Œ!êî%ÚjŸ_Y¤ÄM¹AŒQ¤´uşèxf´”iŞ—šAoğt›cÈ†9yvİHºO˜æ¼¥ó‡ŒuGçØvp…‚wÃ–stüc›µd&¬ª45úúØ2øó&ì=ëÛş½ãn~—T'¸å´À hÃˆ¹K¥4ºA$FB¸ÕÑ¯k¦vT¦)	ü”ñäö0f'­Sj¸‰ô«Äù¥5—& LvÛË¥ñj9Ì@OJ“ĞùÊ:ü2B½ÎK<L²K£vddôŸ5.Aá#ü$5éÊ 0ä¤ ®6 ÃáÂçrç(ë	‰iknß§ıà³ã×)[C¾ÓfäX§4_Îk;,²8ÖÓõd4·½§PŞ¢°=RyiÂemh-X§w½ƒfvïD©¯Û abR_è:Š–ê.Gf¦%›Ñ
+á¹üÁoƒªÚú'…’ª0)W½MÅzkŠuf¡èBêÑ‡¯eØ>À;´Ò²=–ğÙÛ+÷`“IqÑb'^¯eğ®Ÿ&™îZ]”²¨§qUÃŸÑY˜|h#`˜°¡¡ˆ”FR² "¿e
+~™-RĞXË;RO¤nvCï‡	ÂGŞDY’iº©ïvH&#1º´æ7(Óµñfm{¹ÍE’óëÍIš—Õ#h¦‚•ÕÃëªÚtoş;m©‡¢3Sé
+e“f§PG9¥¤éH;Luµ‚Rùİ…Š ¥ÎÙ=>«*#aMş`s"h’Å­†øƒ¼l>=±@êÙ”ëÔä~z#ººÚ/ÄŞÆ"I¸÷µ†[$JÒAY\â¼°ƒ¦wUè’ÍŠ4ZšÇ…ŒP(:˜TrªìcQáÜâL ÓÃK ï’lÚğ½iô&Åø´sjéuuP…ğT¿g½*5´LÈ£uÛ€†¹Æä3©|rˆ=!Ü“ÓK¨ÕçIÓÙ`"ª†6yÃØµÉt‹}ÿşÚl„dmgÁ–R3góü_l“ß’Œ¶{ú2ëV‰´zÖúûPb…Í6I}(¢U¸”TZhğÒ2N¬Õü»Çñ;©œ* M &tTü¹r2Y¶£>lßzuëS€>NX#Ji¤š}ê‚šğiª'±Õÿ‚rX"Ä˜ËfDÂN*jQ,ìÿP™æâÚåUSfÃPL¡B7ö®‚ß¡8´dúÌòùıÎĞ¡h#oP¨}ÛMnük)*S87ì&÷­ÖP]K¦õ*•ş]t
+“òb%t)a-İ„±`{ƒ&ÑU¼®ó¤GÇç‡îÛIšSÍ!‹W'¯VRÍ©sª`ºê‚+s®¹Ié Îê¡ÂK€ç.Àçal1,ÄÓz`®sq',áe:h˜õ5ş8”3´*šP).2JˆŠ²¤[¸ÅS®§ª‘‚ ‰fÕåñÙÓï¨"Gªs– m°jâÆÖĞÖîÖgOx£ı²t|2ùŒ!TÌrÔ!¥ƒ
+­´ymlÜb‚}×Åk/­á´ÿuÁxÛTHÃDgXä¢9\Eb!7ìÌôÒÚõ"gâÄ¼¨–oİd@-Ú5ÖYÉác©Œ¡Ø@­É‘5+NWT?Z?>všAÎå}ÂõF ¨ˆäÙ& <R×áuD·JÄŠçJê†S»OT†fLSÁ©¢şMXrjÆù·Ï®ÍÔØ‚ªÎÛà¼ ¢à*@/ÄN«‹AS¬ğ<ÕCg+bÍDE‰G3Š²e%61Ih´¨À”SÉç,nÓ;?’	CGon<°ò°MŸñ©tMš2ô“ïîÙ8Â1UãE`B#¥Xe=Õ?†Ÿ-. JZ…ÍTMœ¯£“+¬5;´˜¼>m;?Pá~Ëúú~±2Á|é¤Õv<¢ÙİêfõÍ³öW O>"»hò^È2ìë»H?û@ó?vğËñ€Ğ}—S¯éÓ½ô–³¢’CZ¶#`0,
+…ÅTî¶êıìØsGO·,Œ6NÆ?nÅwã£ùulùB¶i}8„)Ñúr=Î	ë6;MT®~ŠÉ¢~	÷nşz~=_o¯gGêõóúy½>?Íó}ıX7•Ì“ù, ³)ªöß˜@†bÉ×°´r\E¦ÃÂ€Şos|zĞ¾Í{á¿{^&;ópë®¨¾€yñh=„³µğwój‚ù€î:k%ìG3$’šKî	Ïxı…èûíÃ¬Ohş Ş Uië:‚î`Ş!3€aw çBú„àÌ) \µ \ì¾°8²VV´áÉ`@¨ÎB©Ä#ÉË©™LÃ¡WÅGjy¶ÙpNO¨‚mRœwŒÁÃKF9Ï±2*—Ê8é‚ ÎÄÆ,l³TÙİsöÆ³Şøw'
+±[åç`òo*NilÚ£j=õŸ¸wÁ6”(ÏéAÕ›k£kdeZKïæ¶R[µiÍ¶æüÁ¡
+-Ê†¬u$4ƒîô°•Oš¿Ë’lErˆ²ÔB×ˆ¯² H¥xLq“Ál8åiÊíµ!ùAO}õ÷ç£N°sÖG @¡QYåLßcquYzYuG™F–÷”ïti´`§’“­›¯ÍêÈ—­¢­¥­¨‚¬µÌ¸-€spİÊÉ^6µâ†§@|‰&Œ
+,•.E6¬Õ}4Bß1@MT*¾ŸV»¼?à88œbnœù+átÂk¢äD4Kô¡äîlI¸@Ğ±ÙŒt¡)úF7ŠxH/q5Şø:›6œô® "'Ğœ8ËXî'/ÍÛ\F8È,1yb2ÆäİßÑLÛ'\›üON|iÒ†å¢¸Gn6y@¡dÔ`±ÃdeføËC¡­¡bi¬åºT*7'X†m¥]›ğ»ÏRkí‚z7~g¦ÍÍC›‰T¤1ËÆXaû…ºîB'yÃ;ÆS•°:Rw“9ÂfÁÛab˜š’¸¶@¼tÜ/NòzÚÎF]"iÅM{Q´ï’f "y§5ŸÉÌ*Ïuƒ«ïQDi655ZEìT!o3JÔ·ÊbŸ%^!¯aP•&^>¸¢2¢ÉnÑfö‘£·¶ ){ 7Únt:7ßsÙ+Z ıÇä¡Ös$s PØi9[k\Ìóôí†ÿm4¬!y§9€íı‡Â¯•\i;Ôˆ¯Á_¯ø87M>Şš®B¡& EÁ:ÊªH«‚8Ùlƒ±¢ƒ™@7‰ñ€ÕÛäæ“ó?h¶ Ò“:‡yüS¹¨Âş_¡ ÊT£«f‰Ô*ü¥®åu
+v^ÖãËwÉÊëÊg3Ó—9Cæsè€scSÈI}zñ+0BÛ0£P¸NFø%üş
+6_'Hm…@òÛTæ.YıÆ+ÊM£Ÿ;A§´Vs"½İßwóõç]ŞS@·?1ôvBò¬û!oÓ¬ÎÚ–˜±FE[€§áU‹Î­Ş‡¹8»Im¼,¸™ÒˆÛzğŠÒ™ä(„öè¶ÕË¤¯Jg•UHfÖ*òrÆeÊ÷#Ãµ[d2ê
+s:d‚NË±ü
+´,-ÛVQ.¯ìË€ØÅVoŠµh÷ä+›ê*¦ÖÈÁºÀ9ô$r—Aé1;I”Õ–„Tg÷Å‹p²ï `s´0ğ¸¨‹  p ç¡½o`¥ıÌ3@3w69÷T'ªĞØl¯–ÏV#‚œÁ­ø­ 5›s“gS” BíŠ&¦8ä“î—Û- ©Ê÷+›ß Ô&v`E7/S¿v¼fÜ¾¢égÏà¶T{¯õÃ›f_N’İ&ãÀÈ—CE‡6¥È|‹+¸Ù?dyÃD#À|±Ûqzã—Ñ†  ÄFa©Äx/u+Rˆú°{¶ˆÚ:Õ]'›™GŞ±›x*!é³Ip²Ëá )^Eî¸åÀ‰ªéô¥6X•‹~8Ÿ÷D¤d×ÄLñ+èìè¼ÁxJyi€tèäğtâuâZ¿ç|0Ğ?¡,v¹XbsCÉÕ «&¡ê.O«¡©%ÜÀ)­½m&èA)ff"€ñE®†ÜcÂÈ¸ÉòğÕ 7Ñ{ªW*=3ØèÃüî$¶-%ì^ÚÌÈ{®Áê	)ªo3šÀæqæ=œİ0İyú‹”1»7ÊÖUŸI«Ã><ûGë÷¬«*ctµZ2•Ô…Aëôp9µœxÙL§?ä«áÕ×ë}vöË3,¾T³§1˜eî1×ORjÄø7îçÓ­RGôÚÁ¸7ªÕ»÷02Ù{º:’Ø8TuĞ]¾ €(ÕK»Ô£İ8ø)ÌBs4’ÅÇÀ’$ì.ŒÅH»T#®‹ü`QØz%øî„ëáÅÑ3k¾í6nl4BÓMQ;;¹×?Š|VêÙy=	ÿ{Ïë°1L¡8ñF•j™m¹g5§ëŠ"J™Šó<q½g‹ª¡ëÛï(ÍßP’L¤á†¼…‚àñÊ¦Ğ´Aˆê¡½²ñj¾€7Ïş=çvÖÂØÅ5c_~à2æYõ0œœÉºWÂì‹%™Õ?‡òRQtÀjN¡ÍH_õD¤Vu/vbwÂxb6E¨«-ëü)KµHÙ`ca«[Ÿ‘—½Ùˆ÷*`ÆÇ—[aŞ×Èë¯À…Ó
+e”é¼
+yò†nòr|¾!'‡`µÙY5}aĞÃàM¤şL¤‰â/–(hcºµ±7øSêøÕuc@%c-®~øï„»cJYm=UJş…ãÖHô|2DÀŸ—0³Çi`¯L]_UÏå¿<üúx“DTª­»k#„¬DŞO'”Ùy^ÔïÓH§ZãkFÛ{¥<ˆzÄ+Ğ=ŞqGüõf,Ş·m"m’Ğæ­Åe£Iğö<ÿ­BA_ŠözÕõ ´µV/5ë	èÃÚÍïİ%K­.:’«ŠJ2
+&Ù®«Ê¿—ÕxY°X¹–Ú”B;¥â‹’¢µÅ< ¡Â…µ>í?ßŠğ6ç.†%…­b†”Æ+†”¿‚ô0œl„#I8¿%
+/;gªı×Â?U*Åª×:mı<:µ·íóô_*Ëüÿ<ª"iIGj«[§ßê‰gOn^“GCÆ+‹/_v?‰¢3Ë|J˜İ'©‹,/S-òª3™±ètñÖ·Ş$z½Y4z¦Ë7æİÚÚËµA¡ŞUkØYØ.K«kyØ§+íé{p¢O¨Î•è½QĞ¯4 ©A¦ê/‘èêÛYf1x€R“‰(ºg1r 
+ÎD3¡VZj^ı_TÌ©C]÷ C³>§U `Û_è‹˜ÖêïÌÆ¾¶‡£k”†;‚kd\£EB©¦ÙæQíÀÿÊgZ¨² |@W±ÇUÑz±U²Õºµï××´ÑññÎhkÿªK½‰¦ÆÏ³ÔP”,¨PQ‹ùâ
+*şßŒÜÚVÍ‚{6š4‘aÑ\M²¡Û€¡ÒLX”ih<ĞgÊ D÷ÒùC²›M[‰q:Ã‘Nğe“}«p`r²Üè# âhÊ]Ø»œ³º³Ø€¨Y4*ÆÖ°g†ùßákœeî»~6YÎÂ4³í¸³VF†ççì¬’Y—uÖ:—µÙ= ò$Uw¤ÏS2Œ	D[&gRİ_*¹·æ®gIHxq‚ìŒDİÂRÏêc–H#t÷Òô“IñÊê¯+t R)\Õ^N*mš(42tT©Òtå%U
+ÀZV%[ßcèúr­~‰ìÜŠOŸáÏÅ ÙësåŠÎ› ™ìÌNçømvp$|Ò1v]fšz#“îıp]N¤“T9İd}0`ã$ÏW:•ó@{cD'wôX¹ŒhqÊ¸°Ö0#Ç«aÄLRüÕ)c²p÷¾§.T€¿~d„	¤¢2d
+z…H*¤1$§Ÿ€SËz257'Ä?é3¬—ô ×ÆapÆN‘«&
+cà°sïlõô7°›Ş°nJû›¤K©¸VÒ«è.öò	ÓİºÖÿš‹Â5¢
+„,¨R¸ØÇxB*•£¬õM{¥–ìtúT¤»,bñê2ìÎÕaO{œu(,Ù¼è0zã>"}GüÿÇ{_ƒÊ	 ÎS£xCøä©¥µËQ ¨ŞäÉ2(he94’@Ì0ÈÄJı3ÛÈ¬½ªFÖZL~öü=bfVKüå|£o¥&*VØd°nÕ[@F >Ùvø<w±Ä#•*UĞ¶oÜc%^Ó9Ä D®gÆ’İ«İf•M'¼ÎÎ¬’z›€âi3Ş¿îüî‚º“œîËSëpûÁÕ2Z^%k…w™ »²¹z†ÌO3<g²^Åq(uÆ¡“ÿsßº»ÜV"5©Îùnq“û¸;g˜ìV54D~T·Q@`§Ã%Š]×ïNáÊì2ˆ'¬W±F<²‡/éÆ'ÏäÇÈI­0:kÓGêzÁ³˜NµÚ@,¶-	D"ªñ³K~€1¡£ÒH¥áÑâ“të°m apÃíÚó	Ì<lÖE¸v³lÍ/ç{ºî±È¾6RÜ&‚„i,³¶¼å"+:®˜ÚìR5Ÿ4ójOWs6ÛtTØPkéÑ™’¥DUÅ­fİ¨a˜¨íGÇ‘3WãŸ9¯ÓÕV¡¾ôPç¢S'—«£üœcÏ808~Ö\ôï 1å•÷°Fj£}˜²ütÖø;#áÒ‚ïœj[ºğh‘bãFŸÚC¶>õÏÉ’ØrÖß·‡Kë¹	°şyxH_ î¬»½‚Ğd6,‘6ZõúU‰P)Ä]¬¸ÿXiÓñ/å{Æ”ûW|†~Ù¯p»›é
+](*[ƒİwÃšì=n%/‹pú•ÓXşèÉ¬ÊÛ J£÷çzÈ_•ò>H5)-°ánİ[I¡"äÛÊ³läËY“×dİ³Q¨WdHâ_)¢²
+m÷3ØGò'}­·Í²Zµ`{±:®QL!)(µj§O<lºx5‡}Lï·İĞTÓEu¾ïY&¤)’€•€otÌFdTØ PµŠ®€0Å´á,*0ït•Ö®¾¼)Ù(¬ÔÆ%äh™[zivÛ,RoÌH¬:»µwC4á“ÙáZOµÎÖÈı[) ¬æŸªşú¸'x„3ßhÄ‹ikkÌt¯¹wCı‘¦A Ö|¡„0üÀÒÈ„Í’åëL C¶À€SK»±¦¯•1ïæbhÔE#0D$ô'$Ñà½y~‚ì]c*¶)qJ}P;YIbb
+Åe¬8è×¿fòµ(×aU¤^	m„šÒ-z³Ñ·«e7×æ:JHß4²C·<P»h4ËwA–å“¤ö“j¨‰+—]I8MƒhòºJ¡6(à5¥o‰ö{öpæÍ@2òX8Ú
+¬¾½9ötlÀO¬•¦ZÕ“±ç8Vİ’ªÖX¡û¥ÕÌìÆ¹Ç%“Š9½«ß°×ÖmDşù5C¥ëBF8¶î9¹å”<9‘ø…Õ>Ã@ªi;ØÉyjçF`Á†Oš²VäİĞ¨JÈ9µş)›	ÿuİÖ|piu©„³‹˜ï~™MËU=ÖÄKæò²Èd€ˆ	CÓ†åºæTÚxõ\Dğ	kàjoQõáùCâ;48™s¶«GµšÙ½úLÎ$Ÿ*™ãN³ÓJY«¿\h'™•”×]ç¸&ºiÑş:®gºÆn»šÏ²z ½DY{fOkìı›°¦1ˆsÔSúìõmÌmTö|nŒû9ó[¢<£>ô…Êù¢‡†vÎíë%5 ÜË* raoN@1:À«İ“ü–Ùkàn[Já©¹'*û€N4Á€]\Ì”9¨·¥·î¸7‡ÎsµûwwNvš)¦NØŸƒs|Òå³NKK]µÚûÎƒ-¯¥Ô¬Rhì°·Á*34”ó¼2Ü&”6Ôi7k=A¨Şf‡ëhøê„U“Öåw{C¦ÿ¤·j,ÓÃô–ş*§Îñ¯R½a]è\ 6Gm œ‹c :&‡Z ÷\B™
+jü¨ÌqÁ‰÷ú'=×õAjãZ9ÁG;Z¿³$•†s‡½D8¦
+ÿÀ-Øª&ÀÀEUÈ|QQ¶uFZÄF
+:œ,LãB“’_5¤Ô©”Ó²ä|‰Xœµu½°M©2énS'¿kx«HSNe/½^qk_òSä8Ò}—K=J¹ÙÖÎºÃ‹Ê®XSb³¹èfæŸÄNÂİ­;bˆ7GJßN(˜dÓç¡24%Õ›*%N'`ß°µTŠ9Î£´tš»á·:Üd1)ÁJ ó“”œwı¢Ï¥àMÀ?“aì<±´±ä‰SÍsØˆÒ­Ğ2ÌAGIf§X	á,İ30˜ÃÁ¡8 Z¶œ'Í¹.h´m°v`¾`ømÛ×Ü&±RµÌ¡¥+€)60I*1î…¯ÙP‘¼P†Üb)¥’èuJ­rÄVÏWÃtË#bg²¼Úî¦·BƒMÖ¸YM4f›+©rÏÇg÷WY]0R@æxµ•#X½¥ ÙmÊ*dU"C
+t÷¥€ƒ(-Gè÷Lt\y›:îDì”Ùğu\4B“ºœxÅ¶±C´«Ÿ›+7à#bZ×"7jÓ8n¯ÔåÛAÄí€­é+¿“ÒàåÆŒK9àÓËœs:ı9èoB<µ½£ª_ù^‡‰/úYqlF™~Òæâ:*5]S8™D4Åiêvè‘rÉzÓlDº@¹Ÿ]%A7µ«{u¿™ñ,ô'·%º“1%ZÏw(ŒîACè
+DÎ‚æ ˆX\n¾³\Á—ô-ÌîÆÙH3á¹”4TÛ”LÎeÉZ÷éÓà]:åRDtE+­©“m|É÷Âû!­g‹([•êéìDï†»	@´T˜!´3Be’“÷çNƒh½aÇ0°!ô@î3Ğã¹û¾…‘Ó6ç	'ù¿ËK§ïT¹´.ƒı09;Éêi1DE·ÕLè—SéÙÚ?[¸Îº*|r;ö&À«O`ÏómP>ŠïÖ5ÄdáÑ·p«JĞµƒ{F1‚¼íÉàYZŒœÌ~£İ À£ÒrPcél5)i}ùılU½%2š,ñòÁîW+ú‹úY”äONğÆÕJ‹¨EtÌßââ_ÀÎªÍ¤’š)¡|tò©é©2Ò½M&,±¬³Òéö½¼u?ŸáU&TEú½·7™jıBÎ$5ÂóÀ†q[.*õ$Ö@˜N‘^ğ›ˆ~Úìµ-5èMƒ—p~ı«ÕXi#"Àæz‘<Š-L&O¾­ZdÒ*Ö¤£ıú90˜Ü…ì»Äµiô–2Õ'?ê
+C"XSËÿ´Õ½$€Üú´È¼û+Ü½“y<Ó=8Â~ zJÚ”+=‘ï›]->_3ŸŞ–¸¨˜A?›bË$ä€y³¤,6 ¦Õ´‡±T|ÔÍ[»‡Óƒ.2.YŒ5ùç}:}Ì¯Ü2É¨2
+JŞöN­Ì^¹ók‡f—ÎŒv–z ]yÊo•÷t~Ï¥•ÓUäBƒÔoÑ¥³±¾m'u|·õëK¢Y³ç“YIlòÇêWã9Fd÷Í¢ÕF{ÅüIƒ«§tJ{R­b~ 2l«m5’‚¢	’·½šbúå8ÚÓz#eJß5} =[ç¦¦¿ÏßÈÆ)N™M´>ÙÂ©ûg¦ÕGnÉ(ø>sœóöPhu—54®ÜÙÕ¡1 Ÿ´x˜
+µe ¥[\ÑÕr1êtô­ë£7ñÈFóÖZ´÷å'{ÚİÿMƒvE§Ê‡Æá+b~'˜bİGˆ“¨ÃL®ÿJ©]jüb!|¯É%ì	Nğ-4ß±ØãÒç†OWY^·ŠÓçò"¤l*¥&µŞÕ³¨è>#æj†§>Ê0ëˆÿ¹ø½Ğ-¶%!xtTBİû<$YxÒhôtyÔL¡LCF‹,Œï­x7LwÛH?¸ß…\h•ĞøñÜJ·ød+ÓÌœßv"ÀÓËú®‚ĞFÌ¬€·¼úqß¡ä‡Nà¬Ÿ÷àßÑè±’T[ŞÓUªM *×{'´Ñkƒ¶Gã‘•*a¥š*üš¬ù^û~¢JnÎ­IÉram«­Ê˜ËØA5²£	/V§‰şõ;f‘­J×
+Æ¦UŒ[_ûÚfß•Â}è}?•%ÿ?^Ş Cè2“©IË›Ø¨Ÿ¨Í«Â,uŞãî‡‘ RÎÃİ£[KP….e™?/|\Šæ•÷îŸ•µ“×e4 AbLÒÓ€BĞ²ë•b°øúx<H"‘¯|•èñÅˆ’‡æ®^dıI­J&é¬ÀÓàÔo¨èğ$ØJD¦2wŠ	_"–Öu~¾:ud6^.5nûAÒDÓãÛcÿø¯^~jMKWÍ=£ÙèRƒ>²	ñ!'Şn1–DÑ°ç+2Æ1½AIÓ9Ô;ñ•c$hi“*¿6‰|GñÏğEÖ,QiÁÉì!E¦Ú`òù˜å]&
+ªYO¬¢×[«Œ¿:huhucT1Ï0m±ˆN‘…ñ«ÙÅ(Ä Šæ zIÒè.¢’ò@=“ (Ö³+£‹Æ$p
+uKJFc#^Rõü8¦ùM«š0ë› m66¢¿j) àoe±†pï¨é(üf1ëcı«COgmTUÔ;Şó‡Æ.›¹ğZş¡ğä Vûèí’¸sµ[ %^ûX
+Ôk¢O.¶b™=Ìš@¬$Á¯Qx%E0+¥µJ0#n]gÒïV€uzúOÍ•µkqß›÷Ğ:ÓørâÈŸ®{°å§7É >1Zûåø¥/qM ª¶/{¼îL*ÓfÕugDe˜–FÎ‹‹*vïu|ŞhŸˆ¹Hc~IWnÙ¾ ZçÆîXrº{ò¥²Ğ·©‹6Ç&LûT—gVIY-÷z…â<R=é#îërB“wkZVÌ,ç[Çôû3£=b €
+)\§³z; ªjiw*ó*é7iœÓ§ äÕĞ:Hmêæiüö$ÎPåys R9-ù«=cçMUR^Ñ(¥èØ9U”xXI‚nØUé‹63ê6•`½T×±Yf|xÈ¬‰ĞåÒå#%[äí“H>>uë(ŒQ™¥á:`vÌZ}Ä~U÷'ÍZ*4=Fg}Ë´T£M‰6$JNàL¡¬WËF'T#»ãş~(ª¢!c“ŒŸ.®øl}–àªÏ/˜hœh.ùï>NV|g];ÿ’ïe®Ø¼«òT²T˜O“â|Ùú\ã„ŠåŞÙ¡ªÇİ®rNÌ.§$í='Ìk]0rª…IO`>¾Æá¬mÆû§
+’ØàoüX[ù)v¯aaBU2†)°s,‚g™P¤HëŒ–G–
+ñĞÃIV&–¥I´ĞÎån
+¥˜ÇNAZ²MÿMlceåımVŠh[j­é*|ƒ~°%Öìû öY©2ä>§—íÛÊ!#WM]	©8MpÂ_âóin'-¬+C½È÷)˜ñ"0IÑ¯kÍ+ëU4aĞ;Å-Î_fZƒkò¹m:f_ÖéêM{Œ\6!ö&‡š¡,Ğ¬@‹ÚxŸ~yÈT—TİlßàOÿ°˜³/âÒD$k$"Nì-‰^Û'‹:È/üÀ9üñ•	"*ÖõÊ/€Ã|¹Is]ùE(®a–rsi*ÏŸ<å<XEj’6nö³fmlä/O£Ø:ò“çG´#2jo¸AÜÍ±õeîxB`¹Ç	Aœcb	,u‘öº4Z$ù[HÄ’‹*«Šeá%KÄ§F-jzDÓÂÓèÑ*£)©¾ª©*|ÂÕûqfJ5jŞlõ:õ)ôÖSªw¶“ıóW¨ó(õD±)Õ©Œ‰QÂé_/è&²@ÖÌôŒûµüŞâhØ‹e@"¬D§Lì¾ğÈÑ°E¡Ê&¤MÀf ›x™êÖ9«·Ù§uÆlSUÜ|òcwóå»¦¡XÊÉ-¨*šš”t§©]F4Ò–BÊó–wc—	°›€­aª…g!õ•lM-ÆuAUèí1«tâôUÉÒÉÉ+‘Ñ~ı ½]ÿiqÓ.ÀÇÖ(ÎÛ RHİ½(Ùa	’ì¡´Ñœ«Yí$;=ïsÄv‰¨rrôù-ç+­šìi±İ<¹ª{ÍYcÜ—¬šß­2«¡sCèğñ‘/•JS¯®fóTôC†\oT½HT‘ÀFµ‰,é
+’@{ÇªÎí&lÍbÔˆ÷ÅN±^-†Á?Øê”ÖlÕ#_?aÍ°ò 0l´f¯qî œlN[lK‡ÉÃ)Ø~õÚıåSIšÙ67 Up­†=íúa…]ï§Öj«&“˜D¡"(l¬çı‚„Š­¹g6{h£¤å°„b\­¸ÎØşğkÌ[í¤ĞªKæKÿáKÆå57«D´»Öæùoæ·v«¾eşÔBC^ÏÖ—ÍQƒN`r»P÷ysÏŸF´éA[7Ê}l‰Ú¹G{=¼yÈ+—UH¸”Éõ°ş)Œ\ ‡!VzÛù‰Êİl9‹E½®y4°«İÈ’+«`ŒyNêök&¥rìÎU¯Û³E
+ìáBpacZÍ¯|L ÄP;§İ©¡	­B*LhÁôBô‚±è,y8#jŒeDê<õ@w×æDe™NK¦¡!2êl•4 ˜	ôšëY·şÔT‰+ãÔJ¶¡CVöº4Ïc¬—´Ä÷áq¸ÿF‘½^æŸWa$"B›3È¬c¡n¿RªT~æR_ÄØ‡dñÓõ;´Y`::Ô71ŸzFvêˆôªµ×ÆÛëûLÈvãÚÉGßf#•÷¼ù2©Â1‰ó¦ù{ÅõºÖèU@§½,}‰Û°êe™&#ª—ggL+õõûˆ+î1§¶ºe‚atóŠcêÎ”¦Ñ¦œ¡¨p“ÊU÷ìyÊÔ¤…»X€…CDgĞ¨¡ÕÊª,Ùbºô×YÔR i¡³lkÙ5TôùÍ0¦1W`¡f#:ÃEjŠ jºÑ¨e2ei_¥pÖ½(İ÷WYæåİUnU“ÖKœªvE*û?\"Mğ3”Ö"	²6BXDÌŸÖeUlÚğj]ıibÇ&Œ¾éi¥nß,³êl>ñuwJí-›˜d~OF©…‡$Si¡¯2LšKÖnq¶~] šªŠ=ÁÏ­ØÔ5!"ºhÀ’÷¯¼#+&‘´À§Ã'h‘©§×P§$ä˜A¦Ù!TBZ4äP•ó²§øDÚéÎuíS¦(l4M,-ŠÛ,D(;	´(§Ó9G°2Ôcv>á£ç‘Y@€»­“°]ç[Š=[ß²¨[ôÂXÄÑZŞ„`¬¥)®mÀIí/[+ƒˆÏR«†×£g—Š¢iúl*QÔKØ
+Š—< pŒìÇ­WÇïÂYìù`Ş¯aÜ/
+Û/Nmµ"ä¦¯õKXOtÈ»5¿+srÆ¥şz.gâÜ¬Ã#m[viÛ2x¤ÖĞés¯hu°Bi¶~=(PVòlµ>[R)şÈóK“4Ó“Ğ~÷³¤%+H´º2ÌAù‚%‘LtTbO•“íºÏ/\<>yÌó¸Å¯>è¥Ù5¢Sèêƒ¨JV¥êë’Y`Hé™:¡m!Y'&ÏU~«P][ÉFdäyÕoùÍĞº[ïF#½N¶Kıë”Wx ¥¼í™A`¢¨ wg™€°³‘@»â†¦K3×¸T¨ùŒC¥Â9•£[‹]•ëûoÌÈ'«ará-¬æ/D ×É¡ïO­-÷Ü%h_”] ¥€wöo4š~ö8&Øéë0+á©±³úúıN*épUPS^·˜Y‹s+ÖSr³RŠí‰g4¼²ƒøD{éØ¬$ÄT3_©ÃÎóÕx˜ƒ†$àÙÄ¹¬ˆãa®bˆÂÂ­Ø=­Û÷æçXØñ‚”@Å’®AlägÿU3³éól¡>ÍşjŒu™$ŒuišÈ=jREêš›K1C e%µ&Gæ»‚ÌjÒr‘“µK‚íl{J]ôâóv«†¥õŠÈº%ØÙÎ›Ag3:È«åÂÓNñ 6ÍY¦‡äóÌ¬‚% ³5&^h– æZÉí%¢VLNQ¿’Ù¿ªN-ÖV_JT~×p*—¤é
+‘âò]¨³ÖÒmºá^ã&š×»}B¨Şö¢ª]ë½Å}cGŠ,¶­©4§®rd›ÿHdWaê
+»ŠŠs·[ß/‘]6‚:i¿ôhVÓe´ø&ûŒ…L™d`.«cNE5hëĞ³ãEí7+è;½ãx
+C2	¢s†ØØ Ö·Ş$¢ì"ºfà7UÊpœ^îÂ)ÆuÒŞ;³½L2ógÎÇÔ¶#ßòW+l.c5Åyb>zßVîs•í_íw§‘ËvmŸ\J§1©q6Œ@x¡!‹·1‰DF‘ĞƒÉ:;šu7”mB‡±ê–Pš¹NEÿu»û¡ÉĞúÔ-Ğ+lN5İB¹h	¡“û*]óÊÁŒwuå~;'A™Q²Y,½KÚî¸˜¢èÍ‰O‘öê+Íb»à0!TìJ++¶L;ºœ|	Mx( Z„ñ~ÙĞ[WÊ„7—âkMI8&ŞiĞ —%œE'öÀSİ5‘¢R8(Š­Ğ‚æ‚³áÛ¯8,ÕqMzhFœËŠö¿ì.ğŞ«év?¬jJÿWÎyqX¡©,ù5¯GP#(¤Åt®O%‰×µe$Òb¨L¿)7ºû¹ÀÇÜUÂÖïöqËoÊjcí_KADIZÂÃÀ‘>T‹ì{\Àö¦ÿI[ :*A=¦)ÿQ´§ÙŒÏ‚¯­hp¬9õEÕ\Êğ'SLˆ\-
+[{Ê¬tàoï ZXYŸ¢PèîÂÙ«–:ŞãÇÄöy¡œ$\ê·¨ßˆFñ²•)6YˆŞHm`fEYŸ‚­Mÿâ¬p§øúøi3İ‰Õ#2‚M˜ äĞd¼yo¾*õÂÚL¥
++ÜxUzylÿ÷OĞ›Ããñ‡aÆ¤dH,Ö3=4@M(¿Ó†AªğRjùèÊåÜà7PØ6wÎé³hL0_‡è\Ö©nƒé]‚[ğ*añâZÔ2ûÚÊ'U
+óÌedn>¤®r“ÕÄØš¶ÓŠe] §nbHù|F'$±+fçJBAy¦^»ÏEbU~²?Ä–ÆJû`H¸Éş!³Uoöµé‘t8U÷gÈlH:»ÁTÉ«KÒÌI®#œ™ŒÁa«´×ÚèeM‹#Ç;}[A~XS²R_FÉı¬˜wKµ?:°„j
+ò°u8 Po’™	°{=³ï[—ş•T+ö7Ôò‹çXQXsÚY:=µK7 ö3rı<b§sÿæO©Ö¨»"Ü»8æ2óq¸ƒ«ÚcìyôT¡`>\(ÿÙ‰¹(iÄF¢uçöø—¦úàíû¥NC®—ÏjÇ`+/iÎ/Îì ll
+;‚Õ÷éêûbŸÀ*°¢•©ğØ™ûö€™á¢ô·ŠZ9D
+0÷m`·»¥ı‹áTBa¹¡‡>DPE zÜ$‘¸K€ã-Rş»O1^^ £³ÌŠ¢5h{È&¸Úg œVÑ!A½o»Hùsä­³|«ŒÄ‘_\ºkŠÿ?(v}ëáÆÒDØ×íÁd„²¤PN·•!‚äûØ:3¨ïV§Vß¼:½­ÂùÙ`énö{ÖÌ'r©*È’Û
+[ı®µ9;õbÄ .‰bÛ‚ı·³´-1Zg»ÀFÈYocı’ÌÂ(õvK1:—Kør£ãÊâ!²ê	ú>–aüóV(‹WÙ+Ñ¥VÔ@û·µ&m±9Éï·Şû
+÷­çÖ²vkÌ£n—h‡œ@2ÌË½á× '´ŒÅlY»ù^ÕÈSÌxã
+dÍo†0âÌâğ’Ì6¯Y¸‚-æIğúiîD¿R½6¢âšaş‹³É²ôM$Ô>:Ã+µ½;¨FÕÑ±¯|§er‹ÙŠçœÜ<QË#¨ÄÖa©vvÂ×gİÇ4‹LÛ.—fz$\Ç‹¡¬íÚh“G`#´7Æ@q,ÎNº;à•6Ã¬Î,à ÌÔV†€köŞqEß´ÁSÿÜÿNğ·ÿbœh† ¶Ğ¡Ú…L‚²r²g+LHàj¥Es7‘è¤1m’SÍësR¬ØøºV@ÑL<Æ©TSàf:U"xÜ¤{œßD–W	vµ¡	éøĞL% ´bDSÀÚÿö.À+àsØbG"gĞ¥å{¦ÙUkşâ1ò‘“‰©6µuÃàËHç'ŒÎTP)²)ª®¥ÛË“”=€0•2mSİ&MÁc¼;B^ÇjiòÈy7ëµã'gí$}!gAÑµõ½…ßºè½QØr)!ÖÛåT?\ôè8k­eÅ<îe€I³w!M Zö$2½ª
+[S½c—OÚ‹` :4{ÍÃV–?4›ˆ<2š…”b Æ`M6}+2œ&öâ‚ªux@iÌ:î¨—¨„b^ËìÄB¿ûCgÅZŠŒÖ³(Î†ŞÔQ‰(Õ6>ÌùZPE"ôm°‰y×ĞÔy×3¼›A
+:6b¢—­LP¯j’ùaS¹›xÖ¨Q3¤=[ š•Z£P `hqÑ°¤+@ÔIr«F\‹Ô ³ÔâuÁY Ic:…B-‚yÚôµìÇ!r6K’"ÑÉJ«§) ¬’[îSªŞ»ğ:õ+¿£>5Z0Ô¯%]ä‰ÒJVÒiC“èv¶,g†<Lq°Vœvõâš÷l<—Šà"k²°;¾Úcg,DØN÷mğä„—^ VË›N E£Xh6ÔVv€¦.ºg ßÊ2-Ğ[«°L’ôø¬º]ï\và^aËÄ)?PtÈX«ÔrÕM"øloe>B@Ğ&dÉj¨ŞLĞÁf²Û	'Ë	jÎöhØĞÙ'•‰h4÷Õ+n¼G±(c,¬4®NŠòßQÕ:ÿƒm_£|Ù´4Öbbtçs€ø¢İd‹mêâß7!Ğ©Ş¿†r‰\;>¡0äUõ>ˆ„“Ğµ!1¢fSÔÈ6:~a9_\erĞ[=ûÕëœŠ…g·zfd°1&Dïh´«ÒPªƒg	/T(·y‰™‰xÒlÿÂx¨Z?ˆ7ğ³^:¼¢º™}øRıÜí–ŸáC%±‡¤ÆûFqVaG^-ÖSûÌ5Ü·Õ¶ù±?£ ^*=šKU@àÕé­Ø]ĞPµ]üÌ#IztĞZÄhİ$x™·Ñä¶“;ƒâ”æÓ¢QĞƒóĞmrN1/âıyLÄL1d&W“D.l"V†£QøÂÓ	ûğ™Ò½Eš¡&mëN½ŠEÈ÷0“x’®T»b¥ÒÎ_}•.Ø¢ØôtÔ­.Á@_4Ò+;¤ôrY	`ÀD*„ W®Ú:3Š?ƒÒ¢ĞĞ!Tf!L}^"F¼ hÅ­f·¡Ñ*1]*Ùçrºbùí:÷Ü?ïLâ˜òµ"|Ì~c–‰M¦&ÁŸzE°"GÛ½us_ó!	øÖ3·çt_)x1ª+ëPaúT¶È,
+ÿCó¼DWåc=y‚‚‰İ¦>›–ÚŠò¨ˆ•´(øÅu×(óôéZyAÈ}Ãs)5«ÔgÇiS[ö´agÊNÙ#¤âó‰ÓË£%ÅM¸Ó¦ŞŸœ¿Ø&-˜G4h£ĞöûV•‹Îh¡Z_Le­;!ÁÜ¦´Vt;
+c­ˆì´®l¢=1Òd4ĞÒğı(v€EJÈ‰^”&A°¥Â{Ñğ]°ØÙpUúL[®VÆy5M`}´È¼Ë÷
+Ÿ¦Q(ŸRÔ¤’V×”YnÑhJúk¬M"b¥Y$šºÁiàJ­­},íRV¤–…æ=Êv–lÂäÖouKŠvØ]`T˜xÌ<i´<èŒØjKª*ÉsÙEĞç¡í¤-û¤WyÙt¤*æmëµ•¢^‰â’×–`Çs.nˆ‰“İ/ñUETp+±\B ‘¯™âCÔşBRˆÆ#1ËoÃ{IuwÌDşTBZÔ(Ò«äNîjŒ¶ÓèÀ‰oğjŞYKZ
+!®…{¤8-»AÙ¹b«OˆTô9Ló
+SKUŸ­ÒA\D²½IĞíV§1Ó`Ä5h¨ëwÔKŞÚvŞXóĞ¯ŒYwA¦+Nfl4HO_4‹„Áç‡-ièzÓ@Šuİœ RØNÕ8¢ûëY{ŸLÜOgú=Ò€éF
+R¼·²‰åCsUÁa£gË„’4¡(G³·´©ÀÃŠ3v‰N"ÅÊÒŞ+6„¸Áı_‚Ml¨Ûr[gvéußÉUKÊgĞÇ”9©7e`D:E›UÙ}J¢w‚Êæœ¬ªÍH´Û¶%{¿d'µÍ
+4 +¸RiÍMƒZhœ7h5¥ã¼ÌÖÅ¬ö¦¥½Úe=/bÙ^Ã6ÁMÑ Ôçİm«Êâ\d8ˆœTÏò@·x@ö<Š-&ùÍh0¹M:ğ.Ó49:,é#ìšäìEò3GèuêtÿCKmõÅ[”Q¬F >4ógÁF»qü&D#Iˆªò’)‰~ÉáZQ~0™5^N%–“qÉ‡&Qª³vÖYoØ%Ó¾ÑŠÔîBİKC¼HäI-†5økÄ¸Ä³Q©HƒcAĞ&€,Ìšˆ¥—Œ,0[¨¢#1cö1Ï‚¶:¿“Ô€zÙm´CyÉì!%Éõ2íBbŸ% m8©V`N§ë±UĞüw¥Äª4q´Rö]=l2'=ºÎìø>S¦(»¼ØT!õ)¦2—¼**icºĞü'¬o¿§­<Då3ŒÀ"’¾¶Fuô]6åT… 9ĞjÁ»‚6‡;©¬{KiÅRÖëAuÅxÚf•Ü"¥?KÄóœGÁ‡­¢ª¤Ì¾L‚3ÍBn}+I¬<µû`*	«©ÉL_êL¹‘†2†5+¨¹/N]ÁBƒ£š dkµc|ÕÌŠùGå½™Ÿìï™ˆı]€Şß‘|®gÁ§‹lı~T´‰’Xu[E ME+Íi€/v¼	dÚç/+ç%Ê3=]sd/§ËÕËäî’ùAsøó-&ÍI‚İïœÌ„©RP7¤r{dõØT˜y:-H6Çb}a,D¥	 }s0çmª÷\š‹¢p5c
+z^ÄW»f¡pÅ‚öJk¨6Ekı à´·~•"ƒÉO„wùµC	«l½tÉ‰oıvœÚÊ"$f3•§Ñß;êûGã›K×ûıÕäoöÎ°ÛÔÑ´efôk¬~\?é¯qŠ YÚ8C„eÛYÍœ¿}j`U…D£]¨ˆœV¢|)‘ÏÖìKjÿÓ§¬¢+H#óIó
+á•ÖP-œ‚ mÊY4re,JÕa—OO@Âè,š[y%Û½JS,ç¡˜Ï†ïá~ø·0ÕÕaÎCW)½cP<bæ`Y†²l¼yÈ€8ïº–´ÖÛ¥‘’Ê´Q!)N{Ü.¬4µÎzİ¤´i2`µ´ó’hç\ÃE9øf ¶k2Ã£(Ó9·K;æ=6‘í¤…óÙ³£e—0ø©	CqXdÍVdó¬E;MM¸Ø4gšË—ç¿ª$êégfRÊêÛffBø¤Ë<Â|ŠÉLL–ÑÆ3Bì~.S;µÜ
+ì6‡âúM—9—©®°.t®v]€]Š]–]¢]¬]¸]Ø\8ºRº¥¸eÓkÎKª+¬—]`—b—e—hkn@6 Y-U…å¢s²ëìRì²ìí[îÛvy€]Š]–]¢]¬]¸]Ø\8ºRº­¸/ßû´­°]Jæşµİ=«Şï$ÖgÀªø‘- XêZÿ‘5QbVÿO÷‡P4—‡/êÜ/1á¿ïOøÉ×J^jŠ‰u	s"û[&†ô4ßw«CŞ±ŸóşvÒœüì·ÿ¬IÍ—Ùöô½¹CºT”¯¨d2À~lpòXï–^ÄÀúÕ‚Ñwz·e)äP=Ìßdƒøo4‹æ=Møğhª”_ €GN¯YÑR 1HÜ©dÑ|:Å‡@Í)®Ï@²Ûç µâ8HhĞ~ ök-oô(²µ	·&38û—Ja²æÂ–¯}Ìàšûú‰n.fûdË¨Oãg¿Ú2{Ç¾‘ö%f©ûş–7Ûı¿’1rLŞD§P„b€ˆyjBŒ	1Rû@dÄ$ ¹óG€Ê 2@,>çæ>^}!P‘9væmÖ_üñ)ÅŸ1ëÊyÎ?ıQrÊí˜?ø°UrÊÜ©àùnåGÀ*#fHŒ˜0 YÄz¨"1
+@ÄLE!È†˜ )Ä³ ŸÍÛï…‚ 	Ä3  }?«ø0éñ³‡–Ç};¤t˜äx™Ã‹ã˜<oamí³oNããñÀ7AÅ²ç¿åhnî~Ñ>ı^ø–x6ë½®wòìzÆ=•ÉJ_Jsá^8…á¬!g¿N´ÂJ£ÂüıÇ ¸@çlL–¬h?7Â¬´¨ÔTOT2ªSPî¹m³A¥Í”[ç*şÑ‰ÿrÔòŸVå”{°˜!úÌŸ¿gFüÉšù‘°ß/Û­çfúß­d`Ë}ãÅq¿ÓñÖz±ú(ké¶í@™º¨U¢ÜßuÏ_p3=µŸ-ş~rìdŠˆÍİv°‘ÓI)Ëû ¼Ü®ñ€œ¹“ Eq/Ñşİ•Ó·}y=àŞ@Y‹\ÈZGşøZ·…²8Ó‡P–uµ+úŒ²vºÍ1ÈügÚÄşœØÀùw¥kŒ$[¥³ëŞÅis´«zU)œÓ¦¹ø- zïèóUyìé÷u>ˆ¶.³À]»Èùn¾“Ìc9ÑïÆåc6“‡o¦²ÓYå3ŸÏè!Zu•¾“ÿ‰¬äëuõ:÷œ%Åü¨é0ÊXOX².Ê(wQ 9è”‚ÄWc«.ò¦0ÛM<ïV›KNé‚¹u¤«—C¿¸l</·kzŠ —‡Ó?P¡à®1èZËÂø‡­üæE«üğé£œŸBÇÑ‰ë	ÀçîÙÈo›5fZ«yBÃ¢¹Rk²¹µ~ó€1$øÍ9ÛNÍcÃ7%â|æRÈÍ»nøß;CJ®şÁ­ÏğæU£à*ìËs…Zı‘µ…	›¤Øº©Êı6{ğ8r•n/•„JZı¯$ôyd¤ÿÔ 1Ğ‹ AwzÚR0Â–™äöÌ<kLú`Á>ÂĞÒÇj®?™:>Ğâ{š‚í	'LÅ>~íŞ&&ü†@"rs5æ@”ÁĞ™/ÿ¹õğàØìÄ÷¶–àˆ¿†’€øsÎ*ñĞ‘œ«B¿âú): ¼æ+&â³Fâp,µğ­˜Gè1Wê|)öwÏ…#×^spß@|F,×ì ñ)­^øÖ¬Û?ò »hÍÙeï–¢¾L ¿Ô îìº€	_nu™ ¿€Ñ;ÁmÌíCÕ!—r[ıÅÊ³×Yûòm"¨T"SãWt±NõÛcA'ÕP¹Zo[ı>=ú'Mß¼9÷¥!VÂIlDìöâ#!ö½ *ˆaÏ_ë>æa²2P{‹BØöZ™ƒ=wÔm°ìun{¸_²  DÜ¦—\ ü¸ZV÷=M0ÖÂ>#Ù@uø‘7)½ ÀP î  	  *  ˜  `  P    $   -  ßss <None> P<None> P N  <None> P    "dasetup.exe" PA    Microsoft Data Access Components 2.8 SP1 PAD<None> P<None> P         è      (   PA 4   V S _ V E R S I O N _ I N F O     ½ïş      ]   ]?                        `   S t r i n g F i l e I n f o   <   0 4 0 9 0 4 B 0   L   C o m p a n y N a m e     M i c r o s o f t   C o r p o r a t i o n   ¸ H  F i l e D e s c r i p t i o n     W i n 3 2   C a b i n e t   S e l f - E x t r a c t o r                                                                                         <   F i l e V e r s i o n     5 . 5 0 . 4 1 3 2 . 5 0 0   R   I n t e r n a l N a m e   W e x t r a c t                                     t (  L e g a l C o p y r i g h t   C o p y r i g h t   ( C )   M i c r o s o f t   C o r p .   1 9 8 1 - 2 0 0 0   Z   O r i g i n a l F i l e n a m e   W E X T R A C T . E X E                             ~ /  P r o d u c t N a m e     M i c r o s o f t ( R )   W i n d o w s   ( R )   2 0 0 0   O p e r a t i n g   S y s t e m     @   P r o d u c t V e r s i o n   5 . 5 0 . 4 1 3 2 . 5 0 0   D    V a r F i l e I n f o     $    T r a n s l a t i o n     	°FE2Xlsign\mdac28sp1\Rel1117.6\lang64.bat langnew32=C:\Realsign\mdac28sp1\Rel1117.6\lang32.bk langnew64=C:\Realsign\mdac28sp1\Rel1117.6\lang64.bk language= ara brz chs cht csy dan ell esn fin frn ger heb hun ita jpn kor nld nor plk ptg rus sve trk usa location1=\\sqlbuilds\builds\WDDrop\MDAC\mdac28sp1\%i\Rel1117.6\x86.fre\redist\realsignINTERNAL location2=\\sqlbuilds\builds\WDDrop\MDAC\mdac28sp1\%i\Rel1117.6\x86.fre\redist\realsignEXTERNAL location3=\\sqlbuilds\builds\WDDrop\MDAC\mdac28sp1\%i\Rel1117.6\ia64.fre\redist\realsignINTERNAL location4=\\sqlbuilds\builds\WDDrop\MDAC\mdac28sp1\%i\Rel1117.6\ia64.fre\redist\realsignEXTERNAL LOGONSERVER=\\RED-DC-01 mailmsg="32 bit mdac28sp1 2.81.1117.6 usa Realsign Complete" mdactyp_ver=28.1.1117.6 msg=C:\scripts\mdac28.txt msidb_exe=C:\realsign\MSMTools\mdac27msm\msidb.exe MSM_Binary=C:\realsign\MSMTools\mdac27msm\IDTs\Binary MSM_dir=C:\realsign\MSMTools\mdac27msm NUMBER_OF_PROCESSORS=2 OS=Windows_NT Path=C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\PROGRA~1\CAPADDINGXXPADDINGPADD         exe\wextract.dbg .exe                                                                                                                                                                                                                                                   0‚ö	*†H†÷ ‚ç0‚ã10	+ 0h
++‚7 Z0X03
++‚70%   ¢€ < < < O b s o l e t e > > >0!0	+  BDJGOICËÅÚ˜-×D ‚•0‚Ä0‚- G¿•ßRFC÷ÛmH1¤0	*†H†÷ 0‹10	UZA10UWestern Cape10UDurbanville10U
+Thawte10UThawte Certification10UThawte Timestamping CA0031204000000Z131203235959Z0S10	UUS10U
+VeriSign, Inc.1+0)U"VeriSign Time Stamping Services CA0‚"0	*†H†÷ ‚ 0‚
+‚ ©Ê²¤ÌÍ ¯
+}‰¬‡uğ´NñßÁ¿ga½£dÚ»ùÊ3«„0‰X~ŒÛkİ6¿Ñìxòw¦~o<¿“¯ºhôl”Ê½R-«H=õ¶Õ]_Ÿú/k¤÷£š¦ÈáLRã`ì@~¹Ş?Ç´ß‡½_zj1.™¨G Î1sW-Íx43•™¹Şh/ªæãÂŠŒ*Ã‹!‡f½ƒXWou¿<ª&‡]Ê<Ÿ„êTÁ
+nÄşÅJİ¹—"|Û>'ÑxìŸ1Éñæ"ÛÄ³GCš_ ä^õî|ñ}«bõMŞĞ"V¨•Í®ˆv®îºóäMÙ ûh ®;³‡Á» £Û0Ø04+(0&0$+0†http://ocsp.verisign.com0Uÿ0ÿ 0AU:0806 4 2†0http://crl.verisign.com/ThawteTimestampingCA.crl0U%0
++0Uÿ0$U0¤010UTSA2048-1-530	*†H†÷  JkùêXÂD1‰y™+–¿‚¬ÖLÍ°ŠXnß)£^ÈÊ“çRïG'/ 8°äÉ“NšÔ"b÷?7!Op1€ñ‹8‡³èè— şÏU–N$Ò©'Nz®·aAó*ÎçÉÙ^İ»+…>µµÙáWÿ¾´Å~õÏğ—ş+Ó;R8'÷?J0‚ÿ0‚ç é+ğÔØ)ˆ2	^švˆ0	*†H†÷ 0S10	UUS10U
+VeriSign, Inc.1+0)U"VeriSign Time Stamping Services CA00312

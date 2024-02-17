@@ -1,0 +1,95 @@
+#include <iostream.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <conio.h>
+
+struct sNode
+{
+	char ch;
+
+   sNode *leftChild ;
+   sNode *rightChild;
+};
+//******************************************************************************
+class cTree
+{
+	public :
+      cTree();
+      void AddNode(sNode*,char);
+      void PreOrder(sNode* );
+      void InOrder( sNode *);
+      void PostOrder(sNode*);
+      sNode *GetRoot(){return root;}
+
+   private:
+   	sNode *root;
+};
+//..............................................................................
+cTree :: cTree()
+{
+	root = NULL;
+}
+//..............................................................................
+void cTree :: AddNode(sNode* node , char newChar)
+{
+	if(!node)
+   {
+   	node = new sNode;
+      node -> ch = newChar;
+      node -> leftChild  = 0;
+      node -> rightChild = 0;
+      return;
+   }
+
+   if(newChar < node -> ch)
+   	AddNode(node -> leftChild , newChar);
+   else
+   	AddNode(node -> leftChild , newChar);
+}
+//..............................................................................
+void cTree :: PreOrder(sNode *rootNode)
+{
+	if(rootNode)
+   {
+   	cout << rootNode -> ch;
+      PreOrder(rootNode -> leftChild);
+      PreOrder(rootNode -> rightChild);
+   }
+}
+//..............................................................................
+void cTree :: InOrder(sNode *rootNode)
+{
+	if(rootNode)
+   {
+   	InOrder(rootNode -> leftChild);
+      cout << rootNode -> ch;
+      InOrder(rootNode -> rightChild);
+   }
+}
+//..............................................................................
+void cTree :: PostOrder(sNode *rootNode)
+{
+	if(rootNode)
+   {
+   	PostOrder(rootNode -> leftChild);
+      PostOrder(rootNode -> rightChild);
+   	cout << rootNode -> ch;
+   }
+}
+//..............................................................................
+//******************************************************************************
+void main()
+{
+	cTree t1;
+   char ch;
+
+   for(int counter = 0;counter < 10;counter ++)
+   {
+      cout << counter << ")";
+   	cin >> ch;
+   	t1.AddNode(t1.GetRoot(),ch);
+   }
+                                  
+   	t1.PreOrder(t1.GetRoot());
+   getch();
+}
